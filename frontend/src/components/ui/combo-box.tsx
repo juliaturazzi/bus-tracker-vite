@@ -16,17 +16,20 @@ interface Option {
 interface ComboboxProps {
     options: Option[];
     placeholder: string;
+    value?: string; // Current selected value
+    onChange?: (value: string) => void; // Callback to propagate value changes
 }
 
 const PAGE_SIZE = 800;
 
-export function Combobox({ options, placeholder }: ComboboxProps) {
+
+export function Combobox({ options, placeholder, value, onChange }: ComboboxProps) {
     const [open, setOpen] = React.useState(false);
-    const [value, setValue] = React.useState("");
     const [currentPage, setCurrentPage] = React.useState(0);
 
     const handleSelect = (currentValue: string) => {
-        setValue(currentValue === value ? "" : currentValue);
+        console.log("Selected value:", currentValue); // Log selected value
+        if (onChange) onChange(currentValue === value ? "" : currentValue); // Call onChange to notify parent
         setOpen(false);
     };
 
@@ -38,11 +41,18 @@ export function Combobox({ options, placeholder }: ComboboxProps) {
     const totalPages = Math.ceil(options.length / PAGE_SIZE);
 
     const handlePreviousPage = () => {
-        if (currentPage > 0) setCurrentPage((prevPage) => prevPage - 1);
+
+        if (currentPage > 0) {
+            setCurrentPage((prevPage) => prevPage - 1);
+            console.log("Navigated to previous page:", currentPage - 1); // Log page navigation
+        }
     };
 
     const handleNextPage = () => {
-        if (currentPage + 1 < totalPages) setCurrentPage((prevPage) => prevPage + 1);
+        if (currentPage + 1 < totalPages) {
+            setCurrentPage((prevPage) => prevPage + 1);
+            console.log("Navigated to next page:", currentPage + 1); // Log page navigation
+        }
     };
 
     return (
@@ -65,7 +75,13 @@ export function Combobox({ options, placeholder }: ComboboxProps) {
                 className="p-0 w-full left-0 min-w-[var(--radix-popover-trigger-width)]"
             >
                 <Command>
-                    <CommandInput />
+
+                    <CommandInput
+                        placeholder="Digite para filtrar"
+                        onChange={(e) =>
+                            console.log("CommandInput changed:", e.target.value)
+                        } // Log input changes
+                    />
                     <div className="flex justify-between px-4 py-2">
                         <Button
                             variant="ghost"
@@ -97,7 +113,7 @@ export function Combobox({ options, placeholder }: ComboboxProps) {
                                 <CommandItem
                                     key={option.value}
                                     value={option.value}
-                                    onSelect={() => handleSelect(option.value)}
+                                    onSelect={() => handleSelect(option.value)} // Call handleSelect on item select
                                 >
                                     <Check
                                         className={cn(

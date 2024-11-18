@@ -1,24 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
-import { Form } from "@/components/ui/form";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import {
-  AlertDialog,
-  AlertDialogTrigger,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from "@/components/ui/alert-dialog";
-import StopsDropdown from "./stops-dropdown";
+import { Progress } from "@/components/ui/progress";
 import * as z from "zod";
+<<<<<<< Updated upstream
 import { Slider } from "@/components/ui/slider"; 
 import CleanIcon from "@/images/clear-icon.svg";
+=======
+import StopsDropdown from "./stops-dropdown";
+import { Slider } from "@/components/ui/slider";
+>>>>>>> Stashed changes
 
 const schema = z
     .object({
@@ -35,57 +29,148 @@ const schema = z
 
 type FormData = z.infer<typeof schema>;
 
-const FormBusTracker: React.FC = () => {
-  const { register, handleSubmit, formState: { errors }, watch } = useForm<FormData>({
+interface FormBusTrackerProps {
+  setBusData: React.Dispatch<React.SetStateAction<any[]>>;
+}
+
+const FormBusTracker: React.FC<FormBusTrackerProps> = ({ setBusData }) => {
+  const form = useForm<FormData>({
     resolver: zodResolver(schema),
+    defaultValues: {
+      busLine: "",
+      busStop: "",
+      startTime: "",
+      endTime: "",
+      email: "",
+    },
   });
 
   const [sliderValue, setSliderValue] = useState<number[]>([10]);
+  const [selectedStop, setSelectedStop] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const onSubmit = (data: FormData) => {
-    console.log("Dados do formulário:", { ...data, distanceTime: sliderValue[0] });
+  const onSubmit = async (data: FormData) => {
+    setIsLoading(true);
+
+    console.log("Form submission started...");
+    console.log("Initial form data:", data);
+    console.log("Selected Stop:", selectedStop);
+    console.log("Slider Value:", sliderValue[0]);
+
+    const formData = {
+      ...data,
+      busStop: selectedStop,
+      distanceTime: sliderValue[0],
+    };
+
+    console.log("Final Form Data (to be sent):", formData);
+
+    try {
+      const response = await fetch("/api/bus-data", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      console.log("API Response Status:", response.status);
+      const buses = await response.json();
+      console.log("API Response Data:", buses);
+
+      setBusData(buses);
+    } catch (error) {
+      console.error("Failed to fetch bus data:", error);
+    } finally {
+      setIsLoading(false);
+      console.log("Form submission completed.");
+    }
   };
 
-  const watchAllFields = watch(); // Watch all form fields for dynamic updates
-
   return (
-      <Form onSubmit={handleSubmit(onSubmit)}>
-        <div className="flex flex-col gap-4">
-          <div className="space-y-2">
-            <label>Linha do ônibus</label>
-            <Input
-                type="text"
-                {...register("busLine")}
-                placeholder="Ex: 123"
-            />
-            {errors.busLine && <span className="text-red-500">{errors.busLine.message}</span>}
-          </div>
-
-          <div className="space-y-2">
-            <label>Ponto de ônibus</label>
-            <StopsDropdown {...register("busStop")} />
-            {errors.busStop && <span className="text-red-500">{errors.busStop.message}</span>}
-          </div>
-
+      <Form {...form}>
+        <form
+            onSubmit={form.handleSubmit((data) => {
+              console.log("Valid form data before submission:", data);
+              onSubmit(data);
+            })}
+            className="space-y-8"
+        >
+          {isLoading && <Progress value={50} className="w-full" />}
+          <FormField
+              name="busLine"
+              control={form.control}
+              render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Linha do ônibus</FormLabel>
+                    <FormControl>
+                      <Input
+                          placeholder="Ex: 123"
+                          {...field}
+                          onBlur={() => console.log("Bus Line Value:", field.value)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+              )}
+          />
+          <FormItem>
+            <FormLabel>Ponto de ônibus</FormLabel>
+            <FormControl>
+              <StopsDropdown
+                  value={selectedStop}
+                  onChange={(value) => {
+                    console.log("Selected Stop changed to:", value);
+                    setSelectedStop(value);
+                    form.setValue("busStop", value || "");
+                  }}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
           <div className="flex space-x-4">
-            <div className="flex-1 space-y-2">
-              <label>Horário Inicial</label>
-              <Input type="time" {...register("startTime")} />
-              {errors.startTime && <span className="text-red-500">{errors.startTime.message}</span>}
-            </div>
-            <div className="flex-1 space-y-2">
-              <label>Horário Final</label>
-              <Input type="time" {...register("endTime")} />
-              {errors.endTime && <span className="text-red-500">{errors.endTime.message}</span>}
-            </div>
+            <FormField
+                name="startTime"
+                control={form.control}
+                render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Horário Inicial</FormLabel>
+                      <FormControl>
+                        <Input
+                            type="time"
+                            {...field}
+                            onBlur={() => console.log("Start Time Value:", field.value)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                )}
+            />
+            <FormField
+                name="endTime"
+                control={form.control}
+                render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Horário Final</FormLabel>
+                      <FormControl>
+                        <Input
+                            type="time"
+                            {...field}
+                            onBlur={() => console.log("End Time Value:", field.value)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                )}
+            />
           </div>
-
-          <div>
-            <label>Distância do ônibus (em minutos)</label>
+          <FormItem>
+            <FormLabel>Distância do ônibus (em minutos)</FormLabel>
             <div className="flex items-center space-x-4 text-sm">
               <Slider
                   value={sliderValue}
-                  onValueChange={setSliderValue}
+                  onValueChange={(value) => {
+                    console.log("Slider Value changed to:", value);
+                    setSliderValue(value);
+                  }}
                   defaultValue={[10]}
                   min={1}
                   max={60}
@@ -93,6 +178,7 @@ const FormBusTracker: React.FC = () => {
               />
               <span>{sliderValue[0]} min</span>
             </div>
+<<<<<<< Updated upstream
           </div>
 
           <div className="flex space-x-4">
@@ -126,6 +212,13 @@ const FormBusTracker: React.FC = () => {
             </AlertDialog>
           </div>
        </div>
+=======
+          </FormItem>
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? "Carregando..." : "Enviar"}
+          </Button>
+        </form>
+>>>>>>> Stashed changes
       </Form>
   );
 };
