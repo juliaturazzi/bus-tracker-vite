@@ -7,6 +7,7 @@ import busIcon from "@/images/bus-icon-app.png";
 import Header from "@/components/header";
 import FormBusTracker from "@/components/form-bus";
 import CopyRight from "@/components/copy-right";
+import { ModeToggle } from "@/components/mode-toggle";
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
@@ -18,6 +19,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <main className="flex flex-1 flex-col gap-4 p-4 pt-0 w-full h-screen">
               <div className="flex gap-3 items-center">
                 <SidebarTrigger />
+                <ModeToggle />
               </div>
               <div
                 className="flex flex-col items-center p-20 gap-8" // Increased width, padding, and gap

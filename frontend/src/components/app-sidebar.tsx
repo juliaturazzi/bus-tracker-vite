@@ -16,6 +16,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import { ModeToggle } from "@/components/mode-toggle";
 
 // This is sample data.
 const data = {
