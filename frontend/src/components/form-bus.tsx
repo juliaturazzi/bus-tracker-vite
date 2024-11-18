@@ -6,6 +6,7 @@ import { Form } from "@/components/ui/form"
 import { Button } from "@/components/ui/button"
 import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog"
 import * as z from "zod"
+import { ComboboxDemo } from './ui/combo-box';
 
 const schema = z.object({
   busLine: z.string().min(1, "Linha do ônibus é obrigatória"),

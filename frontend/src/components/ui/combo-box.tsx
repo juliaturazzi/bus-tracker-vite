@@ -35,26 +35,26 @@ export function ComboboxDemo() {
         >
           {value
             ? stopsData.find((stop) => stop.stop_name === value)?.stop_name
-            : "Selecione um ponto de ônibus..."}
+            : "Select bus stop..."}
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
         <Command>
-          <CommandInput placeholder="Search framework..." className="h-9" />
+          <CommandInput placeholder="Search bus stop..." className="h-9" />
           <CommandList>
-            <CommandEmpty>No stop found.</CommandEmpty>
+            <CommandEmpty>No bus stop found.</CommandEmpty>
             <CommandGroup>
               {stopsData.map((stop) => (
                 <CommandItem
                   key={stop.stop_name}
-                  value={stop.stop_name}  // Use stop_name as the value
+                  value={stop.stop_name}
                   onSelect={(currentValue) => {
                     setValue(currentValue === value ? "" : currentValue)
                     setOpen(false)
                   }}
                 >
-                  {stop.stop_name} {/* Display the stop_name */}
+                  {stop.stop_name}
                   <Check
                     className={cn(
                       "ml-auto",
