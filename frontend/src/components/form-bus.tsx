@@ -3,8 +3,8 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Input } from "@/components/ui/input"
 import { Form } from "@/components/ui/form"
-import ClearIcon from "@/images/clear-icon.svg"
 import { Button } from "@/components/ui/button"
+import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog"
 import * as z from "zod"
 
 const schema = z.object({
@@ -76,12 +76,31 @@ const FormBusTracker: React.FC = () => {
       </div>
       </div>
     <div className='pt-4'> </div>
-      <Button
+    <AlertDialog>
+      <AlertDialogTrigger >
+        <Button
         type="submit"
-        className='flex items-center justify-center w-full text-sm font-bold rounded-md text-center transition-all'
         >
         Enviar
       </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Alerta cadastrado com sucesso!</AlertDialogTitle>
+          <AlertDialogDescription>
+            Linha de ônibus: {/* busLine */} <br/>
+            Ponto de ônibus: {/* busStop */} <br/>
+            Horário Inicial: {/* starTime */} <br/>
+            Horário Final: {/* endTime */} <br/>
+            Distância do ônibus (em minutos): {/* distanceTime */}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogAction>Ver alerta</AlertDialogAction>
+          <AlertDialogCancel>Fechar</AlertDialogCancel>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
     </Form>
 
   )
