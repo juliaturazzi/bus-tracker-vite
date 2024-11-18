@@ -1,0 +1,11 @@
+fastapi~=0.115.5
+uvicorn
+requests~=2.32.3
+celery
+traveltimepy~=3.9.17
+pandas~=2.2.3
+mysql-connector-python~=9.1.0
+coverage
+pytest~=8.3.3
+
+python-dotenv~=1.0.1
