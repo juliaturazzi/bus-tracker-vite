@@ -17,7 +17,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import StopsDropdown from "./stops-dropdown";
 import * as z from "zod";
-import { Slider } from "@/components/ui/slider"; // Assuming Slider exists in your component library
+import { Slider } from "@/components/ui/slider"; 
+import CleanIcon from "@/images/clear-icon.svg";
 
 const schema = z
     .object({
@@ -94,28 +95,37 @@ const FormBusTracker: React.FC = () => {
             </div>
           </div>
 
-          <AlertDialog>
-            <AlertDialogTrigger>
-              <Button type="submit">Enviar</Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Alerta cadastrado com sucesso!</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Linha de ônibus: {watchAllFields.busLine || "Não informado"} <br />
-                  Ponto de ônibus: {watchAllFields.busStop || "Não informado"} <br />
-                  Horário Inicial: {watchAllFields.startTime || "Não informado"} <br />
-                  Horário Final: {watchAllFields.endTime || "Não informado"} <br />
-                  Distância do ônibus (em minutos): {sliderValue[0]}
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogAction>Ver alerta</AlertDialogAction>
-                <AlertDialogCancel>Fechar</AlertDialogCancel>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
+          <div className="flex space-x-4">
+            <Button className="gap-2 text-sm py-2 px-4 flex items-center">
+              <img src={CleanIcon} className="w-4 h-4" alt="Icon" />
+              Limpar campos
+            </Button>
+
+            <AlertDialog>
+              <AlertDialogTrigger>
+                <Button type="submit" className="text-sm py-2 px-4 flex items-center">
+                  Enviar
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Alerta cadastrado com sucesso!</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Linha de ônibus: {watchAllFields.busLine || "Não informado"} <br />
+                    Ponto de ônibus: {watchAllFields.busStop || "Não informado"} <br />
+                    Horário Inicial: {watchAllFields.startTime || "Não informado"} <br />
+                    Horário Final: {watchAllFields.endTime || "Não informado"} <br />
+                    Distância do ônibus (em minutos): {sliderValue[0]}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+               <AlertDialogFooter>
+                  <AlertDialogAction>Ver alerta</AlertDialogAction>
+                  <AlertDialogCancel>Fechar</AlertDialogCancel>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+       </div>
       </Form>
   );
 };

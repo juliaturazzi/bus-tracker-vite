@@ -3,7 +3,6 @@
 import * as React from "react";
 import { CalendarCheck, LogOutIcon, Settings } from "lucide-react";
 
-import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
 import {
   Sidebar,
@@ -12,14 +11,13 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { ModeToggle } from "@/components/mode-toggle";
 import { Collapsible } from "./ui/collapsible";
 
 // Define the types for the data object
 interface NavItem {
   title: string;
   url: string;
-  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;  // Icon type from lucide-react
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; 
 }
 
 interface User {
@@ -28,7 +26,6 @@ interface User {
   avatar: string;
 }
 
-// This is the sample data with correct TypeScript types
 const data = {
   user: {
     name: "shadcn",
@@ -51,7 +48,7 @@ const data = {
       url: "#",
       icon: LogOutIcon,
     },
-  ] as NavItem[],  // Type the navMain array properly
+  ] as NavItem[],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
