@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, ChevronLeft, ChevronRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -18,13 +18,31 @@ interface ComboboxProps {
     placeholder: string;
 }
 
+const PAGE_SIZE = 800;
+
 export function Combobox({ options, placeholder }: ComboboxProps) {
     const [open, setOpen] = React.useState(false);
     const [value, setValue] = React.useState("");
+    const [currentPage, setCurrentPage] = React.useState(0);
 
     const handleSelect = (currentValue: string) => {
         setValue(currentValue === value ? "" : currentValue);
         setOpen(false);
+    };
+
+    const paginatedOptions = options.slice(
+        currentPage * PAGE_SIZE,
+        (currentPage + 1) * PAGE_SIZE
+    );
+
+    const totalPages = Math.ceil(options.length / PAGE_SIZE);
+
+    const handlePreviousPage = () => {
+        if (currentPage > 0) setCurrentPage((prevPage) => prevPage - 1);
+    };
+
+    const handleNextPage = () => {
+        if (currentPage + 1 < totalPages) setCurrentPage((prevPage) => prevPage + 1);
     };
 
     return (
@@ -35,20 +53,47 @@ export function Combobox({ options, placeholder }: ComboboxProps) {
                     role="combobox"
                     aria-expanded={open}
                     aria-controls="dropdown-list"
-                    className="w-[200px] justify-between"
+                    className="w-full justify-between"
                 >
                     {value
-                        ? options.find((framework) => framework.value === value)?.label
+                        ? options.find((option) => option.value === value)?.label
                         : placeholder}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[200px] p-0">
+            <PopoverContent
+                className="p-0 w-full left-0 min-w-[var(--radix-popover-trigger-width)]"
+            >
                 <Command>
                     <CommandInput />
+                    <div className="flex justify-between px-4 py-2">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            disabled={currentPage === 0}
+                            onClick={handlePreviousPage}
+                            className="flex items-center gap-1"
+                        >
+                            <ChevronLeft className="h-4 w-4" />
+                            Anterior
+                        </Button>
+                        <span className="text-sm">
+                            Página {currentPage + 1} de {totalPages}
+                        </span>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            disabled={currentPage + 1 === totalPages}
+                            onClick={handleNextPage}
+                            className="flex items-center gap-1"
+                        >
+                            Próxima
+                            <ChevronRight className="h-4 w-4" />
+                        </Button>
+                    </div>
                     <CommandList id="dropdown-list">
-                        {options.length > 0 ? (
-                            options.map((option) => (
+                        {paginatedOptions.length > 0 ? (
+                            paginatedOptions.map((option) => (
                                 <CommandItem
                                     key={option.value}
                                     value={option.value}
@@ -64,7 +109,7 @@ export function Combobox({ options, placeholder }: ComboboxProps) {
                                 </CommandItem>
                             ))
                         ) : (
-                            <CommandEmpty>No options available.</CommandEmpty>
+                            <CommandEmpty>Nenhum resultado encontrado</CommandEmpty>
                         )}
                     </CommandList>
                 </Command>

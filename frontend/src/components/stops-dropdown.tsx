@@ -15,7 +15,7 @@ const StopsDropdown = () => {
 
     // Load the first 10 stops
     useEffect(() => {
-        const firstTenStops = stopsData.slice(0, 10);
+        const firstTenStops = stopsData.slice(0, stopsData.length);
         setStops(
             firstTenStops.map((stop) => ({
                 value: stop.id, // Use `id` as the value
