@@ -1,4 +1,4 @@
-const stopsData = [
+[
     {
         "stop_name": "Barão de Tefé",
         "stop_lat": "-22.897488",
@@ -38270,6 +38270,4 @@ const stopsData = [
         "stop_lat": "-22.85388",
         "stop_lon": "-43.383813"
     }
-];
-
-export default stopsData;
+]
