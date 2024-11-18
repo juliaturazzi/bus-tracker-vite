@@ -99,13 +99,15 @@ async def get_filtered_bus_line(
                     "ordem": line_data.get("ordem"),
                 }
 
-                travel_time = service.get_travel_time(bus_stop_coords, bus_info)
-
-                bus_info["distancia"] = travel_time
                 filtered_bus_line.append(bus_info)
 
     else:
         filtered_bus_line = buses_data
+
+    if not filtered_bus_line:
+        return filtered_bus_line
+
+    filtered_bus_line = service.get_travel_times(bus_stop_coords, filtered_bus_line)
 
     return filtered_bus_line
 
