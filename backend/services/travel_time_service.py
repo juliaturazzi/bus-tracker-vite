@@ -44,7 +44,7 @@ class TravelTimeService:
         if not properties:
             return "Not found"
 
-        travel_time = TravelTimeService.get_travel_time(properties)
+        travel_time = TravelTimeService.extract_travel_time(properties)
         if not travel_time:
             return "Not found"
 
@@ -71,7 +71,7 @@ class TravelTimeService:
 
 
     @staticmethod
-    def get_travel_time(properties):
+    def extract_travel_time(properties):
         # Check if properties and travel_time are available
         if properties and len(properties) > 0:
             if properties[0].get("travel_time", None) is not None:

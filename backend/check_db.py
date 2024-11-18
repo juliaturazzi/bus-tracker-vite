@@ -35,7 +35,7 @@ async def evaluate_travel_time(stop, bus):
         "lon": stop["lon"],
     }
     service = TravelTimeService()
-    travel_time = await service.get_travel_time(bus_stop_info, bus)
+    travel_time = await service.extract_travel_time(bus_stop_info, bus)
     return travel_time
 
 

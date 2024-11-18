@@ -28,7 +28,7 @@ class TestTravelTimeService(unittest.TestCase):
         service = TravelTimeService()
 
         # Call the async method
-        travel_time = await service.get_travel_time(bus_stop_coords, bus_info)
+        travel_time = await service.extract_travel_time(bus_stop_coords, bus_info)
 
         self.assertEqual(travel_time, 20.5)
 

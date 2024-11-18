@@ -1,17 +1,17 @@
 from typing import Dict, Any
 
 import pandas as pd
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from db.create_db import BusStopDatabase
 from services.bus_data_fetcher import BusDataFetcher
 from services.travel_time_service import TravelTimeService
 
-# initialize FastAPI app
+# Initialize FastAPI app
 app = FastAPI()
 
-# fixing CORS middleware bug
+# Fixing CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -24,14 +24,14 @@ app.add_middleware(
 STOPS_CSV = "./data/stops_updated.csv"
 
 
-# load bus stops from CSV
+# Load bus stops from CSV
 def load_stops():
     df = pd.read_csv(STOPS_CSV)
     df = df[["stop_name", "stop_lat", "stop_lon"]]
     return df
 
 
-# get coordinates of bus stop by name
+# Get coordinates of a bus stop by name
 def get_stop_coords(stop_name: str):
     stops_df = load_stops()
     stop = stops_df[stops_df["stop_name"] == stop_name]
@@ -47,21 +47,37 @@ def get_stop_coords(stop_name: str):
     raise HTTPException(status_code=404, detail="Bus stop not found")
 
 
-# filter stops within a radius from coordinate
+# Filter stops within a radius from coordinate
 def parse_stops():
     stops_df = load_stops()
     filtered_stops = [row.to_dict() for _, row in stops_df.iterrows()]
     return filtered_stops
 
 
-# parse coordinates from string to float
+# Parse coordinates from string to float
 def parse_coords(coord: str):
     return float(coord.replace(",", "."))
 
 
-# get user filtered bus lines
-async def get_filtered_bus_line(bus_line, start_time, end_time, bus_stop_name, fetcher: BusDataFetcher = Depends(),
-                                service: TravelTimeService = Depends()):
+# Dependency provider for BusDataFetcher
+def get_bus_data_fetcher() -> BusDataFetcher:
+    return BusDataFetcher()
+
+
+# Dependency provider for TravelTimeService
+def get_travel_time_service() -> TravelTimeService:
+    return TravelTimeService()
+
+
+# Get user filtered bus lines
+async def get_filtered_bus_line(
+        bus_line: str,
+        start_time: str,
+        end_time: str,
+        bus_stop_name: str,
+):
+    service = TravelTimeService()
+    fetcher = BusDataFetcher()
     bus_stop_coords = get_stop_coords(bus_stop_name)
     buses_data = fetcher.get_buses_data(start_time, end_time)
 
@@ -94,18 +110,19 @@ async def get_filtered_bus_line(bus_line, start_time, end_time, bus_stop_name, f
     return filtered_bus_line
 
 
-# get bus lines information
+# Get bus lines information
 @app.get("/infos/")
 async def read_info(bus_line: str, start_time: str, end_time: str, bus_stop: str):
     return await get_filtered_bus_line(bus_line, start_time, end_time, bus_stop)
 
 
-# get bus stops within a radius coordinates
+# Get bus stops within a radius of coordinates
 @app.get("/stops/")
 def read_stops():
     return parse_stops()
 
 
+# Register bus stop with details
 @app.post("/register/")
 async def send_email_endpoint(data: Dict[Any, Any]):
     bus_stop_info = get_stop_coords(data["bus_stop"])
@@ -118,4 +135,4 @@ async def send_email_endpoint(data: Dict[Any, Any]):
     email = data["email"]
     db = BusStopDatabase()
     db.insert_bus_stop(email, bus_line, bus_stop_name, lat, lon, start_time, end_time)
-    return {"status": "success", "message": "Email sent successfully"}
+    return {"status": "success", "message": "Bus stop registered successfully"}
