@@ -1,80 +1,65 @@
 import os
-from datetime import datetime
-
-from celery.utils.functional import first
 from dotenv import load_dotenv
-from traveltimepy import Location, Coordinates, TravelTimeSdk, PublicTransport
+import openrouteservice
 
 
 class TravelTimeService:
     def __init__(self):
+        # Load API key from environment variable
         load_dotenv()
-        self.api_id = os.getenv("TRAVEL_TIME_API_ID")
-        self.api_key = os.getenv("TRAVEL_TIME_API_KEY")
-        self.sdk = TravelTimeSdk(self.api_id, self.api_key)
+        self.api_key = os.getenv("OPENROUTE_KEY")
+        self.client = openrouteservice.Client(key=self.api_key)
 
-    async def get_travel_time(self, bus_stop_coords, bus_info):
-        bus_stop_location = Location(
-            id=bus_stop_coords["bus_stop"],
-            coords=Coordinates(lat=bus_stop_coords["lat"], lng=bus_stop_coords["lon"]),
-        )
+    def get_travel_time(self, bus_stop_coords, bus_info):
+        """
+        Calculate travel time between the bus stop and the bus location using the OpenRouteService API.
+        """
+        try:
+            # Define coordinates in the format [longitude, latitude]
+            locations = [
+                [bus_stop_coords["lon"], bus_stop_coords["lat"]],
+                [bus_info["longitude"], bus_info["latitude"]],
+            ]
 
-        bus_location = Location(
-            id=bus_info["ordem"],
-            coords=Coordinates(lat=bus_info["latitude"], lng=bus_info["longitude"]),
-        )
+            # Request duration using the ORS matrix service
+            result = self.client.distance_matrix(
+                locations=locations,
+                metrics=["duration"],  # Request travel duration
+                units="m"  # Result in metric units
+            )
 
-        result = await self.sdk.time_filter_async(
-            locations=[bus_stop_location, bus_location],
-            search_ids={bus_stop_location.id: [bus_location.id]},
-            transportation=PublicTransport(type="bus"),
-            travel_time=3600,  # max travel time
-            departure_time=datetime.now(),
-        )
-
-        return self.parse_travel_time(result)
+            return self.parse_travel_time(result)
+        except openrouteservice.exceptions.ApiError as e:
+            print(f"API Error: {e}")
+        except Exception as e:
+            print(f"Unexpected Error: {e}")
+        return "Not found"
 
     @staticmethod
     def parse_travel_time(result):
-        locations = TravelTimeService.get_locations(result)
-        if not locations:
-            return "Not found"
-
-        properties = TravelTimeService.get_properties(locations)
-        if not properties:
-            return "Not found"
-
-        travel_time = TravelTimeService.extract_travel_time(properties)
-        if not travel_time:
-            return "Not found"
-
-        return round(travel_time / 60, 2)  # Convert travel time to minutes
-
-    @staticmethod
-    def get_locations(result):
-        # Check if result and locations are available
-        if result and len(result) > 0:
-            first_result = result[0]
-            if first_result.get("locations", None) is not None:
-                locations = first_result.get("locations", None)
-                return locations
-        return None
-
-    @staticmethod
-    def get_properties(locations):
-        # Check if locations and properties are available
-        if locations and len(locations) > 0:
-            if locations[0].get("properties", None) is not None:
-                properties = locations[0].get("properties", None)
-                return properties
-        return None
+        """
+        Extract and return travel time in minutes from the API response.
+        """
+        try:
+            durations = result.get("durations", [])
+            if durations and len(durations) > 0 and len(durations[0]) > 1:
+                travel_time_seconds = durations[0][1]
+                return round(travel_time_seconds / 60, 2)  # Convert to minutes
+        except Exception as e:
+            print(f"Error parsing result: {e}")
+        return "Not found"
 
 
-    @staticmethod
-    def extract_travel_time(properties):
-        # Check if properties and travel_time are available
-        if properties and len(properties) > 0:
-            if properties[0].get("travel_time", None) is not None:
-                travel_time = properties[0].get("travel_time", None)
-                return travel_time
-        return None
+if __name__ == "__main__":
+    # Sample data
+    bus_stop_coords = {"bus_stop": "123", "lat": 40.7128, "lon": -74.0060}  # Example: New York City
+    bus_info = {"ordem": "456", "latitude": 40.73061, "longitude": -73.935242}  # Example: Somewhere in NYC
+
+    # Initialize the TravelTimeService class
+    service = TravelTimeService()
+
+    # Calculate travel time
+    travel_time = service.get_travel_time(bus_stop_coords, bus_info)
+
+    # Print the result
+    print(f"Travel time: {travel_time} minutes")
