@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+    environment:
+      - TZ=America/Sao_Paulo
+    ports:
+      - "8000:8000"
+    networks:
+      - app-network
+    depends_on:
+      - db
+
+  #frontend:
+    #build:
+      #context: ./frontend
+    #ports:
+      #- "3000:3000"
+    #networks:
+      #- app-network
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: bustracker
+      MYSQL_USER: bustracker
+      MYSQL_PASSWORD: bustracker123
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "3306:3306"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
