@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".", 
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "moduleResolution": "node", // Ensures TypeScript resolves modules correctly
+    "esModuleInterop": true,    // Allows default imports for CommonJS-style modules
+    "skipLibCheck": true,       // Skips type checking of declaration files
+    "strict": true,             // Ensures stricter type checks
+    "typeRoots": [
+      "./node_modules/@types",  // This helps TypeScript locate types from node_modules
+      "./node_modules/ol"       // Explicitly point to OpenLayers types if necessary
+    ]
+  },
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ]
+}
+
