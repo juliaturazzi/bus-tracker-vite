@@ -1,26 +1,4 @@
-version: '3.8'
-
 services:
-  backend:
-    build:
-      context: ./backend
-    environment:
-      - TZ=America/Sao_Paulo
-    ports:
-      - "8000:8000"
-    networks:
-      - app-network
-    depends_on:
-      - db
-
-  #frontend:
-    #build:
-      #context: ./frontend
-    #ports:
-      #- "3000:3000"
-    #networks:
-      #- app-network
-
   db:
     image: mysql:8.0
     environment:
@@ -34,6 +12,30 @@ services:
       - "3306:3306"
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+    environment:
+      - TZ=${TZ}
+      - OPENROUTE_KEY=${OPENROUTE_KEY}
+      - DATABASE_HOST=db
+      - DATABASE_USER=${DATABASE_USER}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_NAME=${DATABASE_NAME}
+    ports:
+      - "8000:8000"
+    networks:
+      - app-network
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: on-failure
 
 networks:
   app-network:
