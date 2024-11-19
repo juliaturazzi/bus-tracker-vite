@@ -154,7 +154,7 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({ mapStop, setBusData, se
                         name="startTime"
                         control={form.control}
                         render={({ field }) => (
-                            <FormItem>
+                            <FormItem className="w-full">
                                 <FormLabel>Horário Inicial</FormLabel>
                                 <FormControl>
                                     <Input type="time" {...field} />
@@ -167,7 +167,7 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({ mapStop, setBusData, se
                         name="endTime"
                         control={form.control}
                         render={({ field }) => (
-                            <FormItem>
+                            <FormItem className="w-full">
                                 <FormLabel>Horário Final</FormLabel>
                                 <FormControl>
                                     <Input type="time" {...field} />

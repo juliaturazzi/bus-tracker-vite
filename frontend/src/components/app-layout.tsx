@@ -34,7 +34,7 @@ export default function RootLayout({ }: Readonly<{ children: React.ReactNode }>)
     return (
         <div className="h-screen flex font-sans">
             <ThemeProvider storageKey="vite-ui-theme">
-            <div className="w-1/2">
+                <div className="w-1/2">
                     <SidebarProvider defaultOpen={false}>
                         <AppSidebar />
                         <main className="flex flex-1 flex-col gap-4 p-4 pt-0 w-full h-screen">
@@ -60,7 +60,6 @@ export default function RootLayout({ }: Readonly<{ children: React.ReactNode }>)
                             </div>
                         </main>
                     </SidebarProvider>
-
             </div>
             <div className="w-1/2 relative">
                 <Map
