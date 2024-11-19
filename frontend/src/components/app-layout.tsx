@@ -15,6 +15,7 @@ export default function RootLayout({ }: Readonly<{ children: React.ReactNode }>)
     const [formData, setFormData] = useState({});
     const [lineData, setLineData] = useState("");
     const [selectedStop, setSelectedStop] = useState("");
+    const [formStop, setFormStop] = useState("");
 
     // write way to parse and get information from formData
     useEffect(() => {
@@ -52,7 +53,7 @@ export default function RootLayout({ }: Readonly<{ children: React.ReactNode }>)
                                     <Header />
                                 </div>
                                 <div className="w-full gap-20">
-                                    <FormBusTracker mapStop={selectedStop} setBusData={setBusData} setFormData={setFormData} />
+                                    <FormBusTracker setFormStop={setFormStop} mapStop={selectedStop} setBusData={setBusData} setFormData={setFormData} />
                                 </div>
                                 <div className="w-full gap-20">
                                     <CopyRight />
@@ -69,6 +70,7 @@ export default function RootLayout({ }: Readonly<{ children: React.ReactNode }>)
                     setSelectStop={setSelectedStop}
                     allStops={stopsData}
                     busData={[]}
+                    formStop={formStop}
                 />
                 <BusPopup busData={busData} lineData={lineData} />
             </div>

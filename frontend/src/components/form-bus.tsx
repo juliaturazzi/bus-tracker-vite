@@ -43,7 +43,7 @@ interface FormBusTrackerProps {
     setFormData: React.Dispatch<React.SetStateAction<any>>;
 }
 
-const FormBusTracker: React.FC<FormBusTrackerProps> = ({ mapStop, setBusData, setFormData }) => {
+const FormBusTracker: React.FC<FormBusTrackerProps> = ({ setFormStop, mapStop, setBusData, setFormData }) => {
     const form = useForm<FormData>({
         resolver: zodResolver(schema),
         defaultValues: {
@@ -143,6 +143,7 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({ mapStop, setBusData, se
                                 const stopName = getStopName(stopId); // Get the stop name based on the ID
                                 setSelectedStop(stopId); // Update the selected stop ID
                                 setSelectedStopName(stopName); // Update the selected stop name
+                                setFormStop(stopName); // Update the formStop state with the stop name
                                 form.setValue("busStop", stopName); // Update the form value with the stop name
                             }}
                         />
