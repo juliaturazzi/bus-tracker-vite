@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -10,17 +10,31 @@ import FormBusTracker from "@/components/form-bus";
 import CopyRight from "@/components/copy-right";
 import { ModeToggle } from "@/components/mode-toggle";
 import BusPopup from "@/components/bus-popup";
-
 export default function RootLayout({ }: Readonly<{ children: React.ReactNode }>) {
     const [busData, setBusData] = useState([]);
-    const [lineData, setLineData] = useState([]);
+    const [formData, setFormData] = useState({});
+    const [lineData, setLineData] = useState("");
+    const [selectedStop, setSelectedStop] = useState("");
 
-    console.log("Bus Data:", lineData);
+    // write way to parse and get information from formData
+    useEffect(() => {
+        if (formData.busLine) {
+            setLineData(formData.busLine);
+        }
+    }, [formData]);
+
+    useEffect(() => {
+        if (selectedStop) {
+            setSelectedStop(selectedStop);
+        }
+        console.log("selectedStop:", selectedStop);
+    }
+    , [selectedStop]);
 
     return (
         <div className="h-screen flex font-sans">
+            <ThemeProvider storageKey="vite-ui-theme">
             <div className="w-1/2">
-                <ThemeProvider storageKey="vite-ui-theme">
                     <SidebarProvider defaultOpen={false}>
                         <AppSidebar />
                         <main className="flex flex-1 flex-col gap-4 p-4 pt-0 w-full h-screen">
@@ -38,7 +52,7 @@ export default function RootLayout({ }: Readonly<{ children: React.ReactNode }>)
                                     <Header />
                                 </div>
                                 <div className="w-full gap-20">
-                                    <FormBusTracker setBusData={setBusData} setLineData={setLineData} />
+                                    <FormBusTracker mapStop={selectedStop} setBusData={setBusData} setFormData={setFormData} />
                                 </div>
                                 <div className="w-full gap-20">
                                     <CopyRight />
@@ -46,18 +60,20 @@ export default function RootLayout({ }: Readonly<{ children: React.ReactNode }>)
                             </div>
                         </main>
                     </SidebarProvider>
-                </ThemeProvider>
+
             </div>
             <div className="w-1/2 relative">
                 <Map
                     submitted={false}
                     onStopSelected={() => {}}
                     selectedBusStop={null}
+                    setSelectStop={setSelectedStop}
                     allStops={stopsData}
                     busData={[]}
                 />
                 <BusPopup busData={busData} lineData={lineData} />
             </div>
+            </ThemeProvider>
         </div>
     );
 }

@@ -1,30 +1,32 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import * as z from "zod";
 import CleanIcon from "@/images/clear-icon.svg";
 import StopsDropdown from "./stops-dropdown";
 import { Slider } from "@/components/ui/slider";
+import allStops from "@/stops.json"; // JSON containing the stops data
 import {
     AlertDialog,
-    AlertDialogTrigger,
-    AlertDialogContent,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogDescription,
-    AlertDialogFooter,
     AlertDialogAction,
     AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
+// Validation schema for the form
 const schema = z
     .object({
         busLine: z.string().min(1, "Linha do ônibus é obrigatória"),
-        busStop: z.coerce.string().min(1, "Ponto de ônibus é obrigatório"), // Automatically converts number to string
+        busStop: z.coerce.string().min(1, "Ponto de ônibus é obrigatório"),
         startTime: z.string().regex(/^([0-1]\d|2[0-3]):([0-5]\d)$/, "Formato de horário inválido"),
         endTime: z.string().regex(/^([0-1]\d|2[0-3]):([0-5]\d)$/, "Formato de horário inválido"),
     })
@@ -36,23 +38,43 @@ const schema = z
 type FormData = z.infer<typeof schema>;
 
 interface FormBusTrackerProps {
+    mapStop?: string; // Optional prop for the initial stop ID
     setBusData: React.Dispatch<React.SetStateAction<any[]>>;
+    setFormData: React.Dispatch<React.SetStateAction<any>>;
 }
 
-const FormBusTracker: React.FC<FormBusTrackerProps> = ({ setBusData, setLineData }) => {
+const FormBusTracker: React.FC<FormBusTrackerProps> = ({ mapStop, setBusData, setFormData }) => {
     const form = useForm<FormData>({
         resolver: zodResolver(schema),
         defaultValues: {
             busLine: "",
-            busStop: "",
+            busStop: mapStop || "",
             startTime: "",
             endTime: "",
         },
     });
 
     const [sliderValue, setSliderValue] = useState<number[]>([10]);
-    const [selectedStop, setSelectedStop] = useState<string | null>(null);
+    const [selectedStop, setSelectedStop] = useState<string | null>(null); // Store stop ID
+    const [selectedStopName, setSelectedStopName] = useState<string | null>(null); // Store stop name
     const [isLoading, setIsLoading] = useState(false);
+
+    // Function to get stop_name from stop_id
+    const getStopName = (stopId: string | null): string => {
+        const stop = allStops.find((stop) => stop.id === stopId);
+        return stop ? stop.stop_name : "";
+    };
+
+    // Effect to update the stop name and form value based on mapStop
+    useEffect(() => {
+        if (mapStop) {
+            console.log("Updating selectedStop from mapStop:", mapStop);
+            const stopName = getStopName(mapStop); // Get the stop name from the mapStop ID
+            setSelectedStop(mapStop); // Set the stop ID
+            setSelectedStopName(stopName); // Set the corresponding stop name
+            form.setValue("busStop", stopName); // Update form value with the stop name
+        }
+    }, [mapStop, form]);
 
     const watchAllFields = form.watch();
 
@@ -62,11 +84,12 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({ setBusData, setLineData
 
         const formData = {
             ...data,
-            busStop: selectedStop || "",
+            busStop: selectedStopName || "",
+            busStopId: selectedStop || "",
             distanceTime: sliderValue[0],
         };
 
-        setLineData(formData.busLine);
+        setFormData(formData);
 
         console.log("FormData sent to API:", formData);
 
@@ -90,9 +113,8 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({ setBusData, setLineData
         <Form {...form}>
             <form
                 onSubmit={(e) => {
-                    console.log("Submit event triggered");
                     e.preventDefault();
-                    console.log("Form errors:", form.formState.errors); // Log form errors here
+                    console.log("Form errors:", form.formState.errors);
                     form.handleSubmit(onSubmit)(e);
                 }}
                 className="space-y-8"
@@ -115,11 +137,13 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({ setBusData, setLineData
                     <FormLabel>Ponto de ônibus</FormLabel>
                     <FormControl>
                         <StopsDropdown
-                            value={selectedStop}
-                            onChange={(value) => {
-                                console.log("Selected Stop changed to:", value);
-                                setSelectedStop(value);
-                                form.setValue("busStop", value || "");
+                            value={selectedStop} // Pass the stop ID as the value
+                            onChange={(stopId) => {
+                                console.log("Selected Stop ID changed to:", stopId);
+                                const stopName = getStopName(stopId); // Get the stop name based on the ID
+                                setSelectedStop(stopId); // Update the selected stop ID
+                                setSelectedStopName(stopName); // Update the selected stop name
+                                form.setValue("busStop", stopName); // Update the form value with the stop name
                             }}
                         />
                     </FormControl>
@@ -158,10 +182,7 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({ setBusData, setLineData
                     <div className="flex items-center space-x-4 text-sm">
                         <Slider
                             value={sliderValue}
-                            onValueChange={(value) => {
-                                console.log("Slider value changed to:", value);
-                                setSliderValue(value);
-                            }}
+                            onValueChange={(value) => setSliderValue(value)}
                             defaultValue={[10]}
                             min={1}
                             max={60}
@@ -176,8 +197,9 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({ setBusData, setLineData
                         className="gap-2 text-sm py-2 px-4 flex items-center"
                         onClick={() => {
                             console.log("Resetting form");
-                            form.reset();
-                            setSelectedStop(null);
+                            form.reset({ busStop: mapStop || "" });
+                            setSelectedStop(mapStop || null);
+                            setSelectedStopName(getStopName(mapStop || null));
                             setSliderValue([10]);
                         }}
                     >
