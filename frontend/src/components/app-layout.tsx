@@ -11,7 +11,7 @@ import CopyRight from "@/components/copy-right";
 import { ModeToggle } from "@/components/mode-toggle";
 import BusPopup from "@/components/bus-popup";
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({ }: Readonly<{ children: React.ReactNode }>) {
     const [busData, setBusData] = useState([]);
 
     return (

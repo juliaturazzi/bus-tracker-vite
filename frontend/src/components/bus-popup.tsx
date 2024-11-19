@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Table } from "@/components/ui/table";
 import { Pagination } from "@/components/ui/pagination";
+import { Button } from "@/components/ui/button";
 
 const BusTable = ({ busData }) => {
     const [currentPage, setCurrentPage] = useState(1);
@@ -50,7 +51,7 @@ const BusPopup = ({ busData }) => {
         , busData[0]);
 
     return (
-        <div className="absolute top-10 right-10 bg-white p-4 rounded-lg shadow-lg">
+        <div className="absolute top-10 right-10 bg-black p-4 rounded-lg shadow-lg">
             <h3 className="text-lg font-bold">Nearest Bus</h3>
             <p>Order: {nearestBus.order}</p>
             <p>Distance: {nearestBus.distance}</p>

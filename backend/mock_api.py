@@ -1,10 +1,27 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
 
 app = FastAPI()
 
+# CORS configuration
+origins = [
+    "http://localhost",
+    "http://127.0.0.1:8000",  # Add this explicitly
+    "http://localhost:5173",  # If the frontend runs on port 8080
+]
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+# Define your data model
 class Bus(BaseModel):
     distance: float
     speed: float

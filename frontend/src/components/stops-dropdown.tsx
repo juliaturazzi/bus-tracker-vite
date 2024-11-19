@@ -18,18 +18,10 @@ const StopsDropdown = forwardRef<HTMLDivElement, StopsDropdownProps>(
     ({ value, onChange }, ref) => {
         const [stops, setStops] = useState<{ value: string; label: string }[]>([]);
 
-<<<<<<< Updated upstream
-    // Load the first 10 stops
-    useEffect(() => {
-        const firstTenStops = stopsData.slice(0, stopsData.length);
-        setStops(
-            firstTenStops.map((stop) => ({
-=======
         useEffect(() => {
             console.log("Loaded stopsData:", stopsData); // Log stops data from JSON
             const firstTenStops = stopsData.slice(0, stopsData.length);
             const formattedStops = firstTenStops.map((stop) => ({
->>>>>>> Stashed changes
                 value: stop.id, // Use `id` as the value
                 label: stop.stop_name, // Use `stop_name` as the label
             }));
