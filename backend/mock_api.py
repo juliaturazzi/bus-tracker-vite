@@ -34,6 +34,14 @@ MOCK_BUS_DATA = [
     {"distance": 2.0, "speed": 50.0, "order": 3},
     {"distance": 8.0, "speed": 45.0, "order": 4},
     {"distance": 1.0, "speed": 30.0, "order": 5},
+    {"distance": 4.0, "speed": 55.0, "order": 6},
+    {"distance": 6.0, "speed": 60.0, "order": 7},
+    {"distance": 7.0, "speed": 25.0, "order": 8},
+    {"distance": 9.0, "speed": 20.0, "order": 9},
+    {"distance": 10.0, "speed": 15.0, "order": 10},
+    {"distance": 11.0, "speed": 10.0, "order": 11},
+    {"distance": 12.0, "speed": 5.0, "order": 12},
+    {"distance": 13.0, "speed": 0.0, "order": 13},
 ]
 
 

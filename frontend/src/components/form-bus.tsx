@@ -39,7 +39,7 @@ interface FormBusTrackerProps {
     setBusData: React.Dispatch<React.SetStateAction<any[]>>;
 }
 
-const FormBusTracker: React.FC<FormBusTrackerProps> = ({ setBusData }) => {
+const FormBusTracker: React.FC<FormBusTrackerProps> = ({ setBusData, setLineData }) => {
     const form = useForm<FormData>({
         resolver: zodResolver(schema),
         defaultValues: {
@@ -65,6 +65,8 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({ setBusData }) => {
             busStop: selectedStop || "",
             distanceTime: sliderValue[0],
         };
+
+        setLineData(formData.busLine);
 
         console.log("FormData sent to API:", formData);
 

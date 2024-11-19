@@ -13,6 +13,9 @@ import BusPopup from "@/components/bus-popup";
 
 export default function RootLayout({ }: Readonly<{ children: React.ReactNode }>) {
     const [busData, setBusData] = useState([]);
+    const [lineData, setLineData] = useState([]);
+
+    console.log("Bus Data:", lineData);
 
     return (
         <div className="h-screen flex font-sans">
@@ -35,7 +38,7 @@ export default function RootLayout({ }: Readonly<{ children: React.ReactNode }>)
                                     <Header />
                                 </div>
                                 <div className="w-full gap-20">
-                                    <FormBusTracker setBusData={setBusData} />
+                                    <FormBusTracker setBusData={setBusData} setLineData={setLineData} />
                                 </div>
                                 <div className="w-full gap-20">
                                     <CopyRight />
@@ -53,7 +56,7 @@ export default function RootLayout({ }: Readonly<{ children: React.ReactNode }>)
                     allStops={stopsData}
                     busData={[]}
                 />
-                <BusPopup busData={busData} />
+                <BusPopup busData={busData} lineData={lineData} />
             </div>
         </div>
     );
