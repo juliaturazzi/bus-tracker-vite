@@ -102,6 +102,21 @@ const OpenLayersMap: React.FC<OpenLayersMapProps> = ({
 
         mapInstance.current = map; // Store the map instance for later updates
 
+        // Initialize formStopMarker with a VectorSource and Style
+        const formStopSource = new VectorSource();
+        const formStopLayer = new VectorLayer({
+            source: formStopSource,
+            style: new Style({
+                image: new Icon({
+                    src: busStopIcon,
+                    scale: 0.1, // Adjust scale as needed
+                }),
+            }),
+            zIndex: 1000, // Ensure it's above other layers
+        });
+        map.addLayer(formStopLayer);
+        formStopMarker.current = formStopLayer;
+
         // Create popup overlay
         const popup = new Overlay({
             element: popupRef.current as HTMLElement,
@@ -142,7 +157,7 @@ const OpenLayersMap: React.FC<OpenLayersMapProps> = ({
         return () => map.setTarget(undefined); // Cleanup
     }, [busData, allStops, setSelectStop]);
 
-    // Effect to center and zoom on formStop, and remove other markers
+    // Effect to center and zoom on formStop, and update the marker
     useEffect(() => {
         if (mapInstance.current) {
             if (formStop) {
@@ -169,34 +184,14 @@ const OpenLayersMap: React.FC<OpenLayersMapProps> = ({
                         stopLayerRef.current.setVisible(false);
                     }
 
-                    // Add or update the marker for the formStop
+                    // Update the formStopMarker's source
                     const stopFeature = new Feature({
                         geometry: new Point(stopCoordinates),
                     });
-                    stopFeature.setStyle(
-                        new Style({
-                            image: new Icon({
-                                src: busStopIcon,
-                                scale: 0.1,
-                            }),
-                        })
-                    );
 
-                    if (formStopMarker.current) {
-                        // Update the marker source
-                        formStopMarker.current.getSource()?.clear();
-                        formStopMarker.current.getSource()?.addFeature(stopFeature);
-                    } else {
-                        // Create a new marker layer
-                        const stopMarkerSource = new VectorSource({
-                            features: [stopFeature],
-                        });
-                        const stopMarkerLayer = new VectorLayer({
-                            source: stopMarkerSource,
-                        });
-                        mapInstance.current.addLayer(stopMarkerLayer);
-                        formStopMarker.current = stopMarkerLayer; // Save the layer for future updates
-                    }
+                    formStopMarker.current?.getSource()?.clear();
+                    formStopMarker.current?.getSource()?.addFeature(stopFeature);
+                    formStopMarker.current?.getSource()?.changed(); // Force update
                 } else {
                     // Handle the case where formStop doesn't match any stop
                     console.warn(`Stop "${formStop}" not found.`);
@@ -204,11 +199,8 @@ const OpenLayersMap: React.FC<OpenLayersMapProps> = ({
             } else {
                 // formStop is null or empty, reset the map
 
-                // Remove the formStop marker layer if it exists
-                if (formStopMarker.current) {
-                    mapInstance.current.removeLayer(formStopMarker.current);
-                    formStopMarker.current = null;
-                }
+                // Clear the formStopMarker's source
+                formStopMarker.current?.getSource()?.clear();
 
                 // Show all other markers
                 if (busLayerRef.current) {
@@ -227,8 +219,6 @@ const OpenLayersMap: React.FC<OpenLayersMapProps> = ({
             }
         }
     }, [formStop, allStops]);
-
-
 
     return (
         <div style={{ width: "100%", height: "100vh", position: "relative" }}>
