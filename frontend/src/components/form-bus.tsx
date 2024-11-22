@@ -53,7 +53,10 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({ setFormStop, mapStop, s
       startTime: "",
       endTime: "",
     },
+      mode : "onChange",
   });
+
+  const { isValid } = form.formState;
 
   const [sliderValue, setSliderValue] = useState<number[]>([10]);
   const [selectedStop, setSelectedStop] = useState<string | null>(null); // Store stop ID
@@ -80,7 +83,13 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({ setFormStop, mapStop, s
 
   const watchAllFields = form.watch();
 
-  const onSubmit = async (data: FormData) => {
+    useEffect(() => {
+        console.log("Form validity changed:", isValid ? "Valid ✅" : "Invalid ❌");
+        console.log("Current form values:", form.getValues());
+    }, [isValid, form.watch()]);
+
+
+    const onSubmit = async (data: FormData) => {
     console.log("Form data before processing:", data);
     setIsLoading(true);
 
@@ -240,29 +249,44 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({ setFormStop, mapStop, s
             <img src={CleanIcon} className="w-4 h-4" alt="Icon" />
             Limpar campos
           </Button>
-          <AlertDialog>
-            <AlertDialogTrigger>
-              <Button type="submit" className="text-sm py-2 px-4 flex items-center">
-                Enviar
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Alerta cadastrado com sucesso!</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Linha de ônibus: {watchAllFields.busLine || "Não informado"} <br />
-                  Ponto de ônibus: {watchAllFields.busStop || "Não informado"} <br />
-                  Horário Inicial: {watchAllFields.startTime || "Não informado"} <br />
-                  Horário Final: {watchAllFields.endTime || "Não informado"} <br />
-                  Distância do ônibus (em minutos): {sliderValue[0]}
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogAction>Ver alerta</AlertDialogAction>
-                <AlertDialogCancel>Fechar</AlertDialogCancel>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+            <AlertDialog>
+                {isValid ? ( // Render the AlertDialogTrigger only if the form is valid
+                    <AlertDialogTrigger>
+                        <Button
+                            type="submit"
+                            className="text-sm py-2 px-4 flex items-center"
+                        >
+                            Enviar
+                        </Button>
+                    </AlertDialogTrigger>
+                ) : (
+                    <Button
+                        type="submit"
+                        className="text-sm py-2 px-4 flex items-center"
+                        disabled
+                    >
+                        Enviar
+                    </Button>
+                )}
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Alerta cadastrado com sucesso!</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Linha de ônibus: {watchAllFields.busLine || "Não informado"} <br />
+                            Ponto de ônibus: {watchAllFields.busStop || "Não informado"} <br />
+                            Horário Inicial: {watchAllFields.startTime || "Não informado"} <br />
+                            Horário Final: {watchAllFields.endTime || "Não informado"} <br />
+                            Distância do ônibus (em minutos): {sliderValue[0]}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogAction>Ver alerta</AlertDialogAction>
+                        <AlertDialogCancel>Fechar</AlertDialogCancel>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+
         </div>
       </form>
     </Form>
