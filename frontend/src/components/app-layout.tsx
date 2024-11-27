@@ -1,16 +1,16 @@
 import React, {useEffect, useState} from "react";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
-import { ThemeProvider } from "@/components/theme-provider";
+import {SidebarProvider, SidebarTrigger} from "@/components/ui/sidebar";
+import {AppSidebar} from "@/components/app-sidebar";
+import {ThemeProvider} from "@/components/theme-provider";
 import Map from "@/components/map";
 import stopsData from "@/stops.json";
 import busIcon from "@/images/bus-icon-app.png";
 import Header from "@/components/header";
 import FormBusTracker from "@/components/form-bus";
 import CopyRight from "@/components/copy-right";
-import { ModeToggle } from "@/components/mode-toggle";
+import {ModeToggle} from "@/components/mode-toggle";
 import BusPopup from "@/components/bus-popup";
-export default function RootLayout({ }: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({ }: Readonly<{children: React.ReactNode}>) {
     const [busData, setBusData] = useState([]);
     const [formData, setFormData] = useState({});
     const [lineData, setLineData] = useState("");
@@ -29,7 +29,7 @@ export default function RootLayout({ }: Readonly<{ children: React.ReactNode }>)
         }
         console.log("selectedStop:", selectedStop);
     }
-    , [selectedStop]);
+        , [selectedStop]);
 
     return (
         <div className="h-screen flex font-sans">
@@ -42,7 +42,7 @@ export default function RootLayout({ }: Readonly<{ children: React.ReactNode }>)
                                 <SidebarTrigger />
                                 <ModeToggle />
                             </div>
-                            <div className="flex flex-col items-center p-20 gap-8">
+                            <div className="flex flex-col items-center p-20">
                                 <div className="flex flex-col w-full gap-4">
                                     <img
                                         src={busIcon}
@@ -60,18 +60,18 @@ export default function RootLayout({ }: Readonly<{ children: React.ReactNode }>)
                             </div>
                         </main>
                     </SidebarProvider>
-            </div>
-            <div className="w-1/2 relative">
-                <Map
-                    submitted={false}
-                    onStopSelected={() => {}}
-                    selectedBusStop={null}
-                    setSelectStop={setSelectedStop}
-                    allStops={stopsData}
-                    busData={[]}
-                />
-                <BusPopup busData={busData} lineData={lineData} />
-            </div>
+                </div>
+                <div className="w-1/2 h-screen relative">
+                    <Map
+                        submitted={false}
+                        onStopSelected={() => { }}
+                        selectedBusStop={null}
+                        setSelectStop={setSelectedStop}
+                        allStops={stopsData}
+                        busData={[]}
+                    />
+                    <BusPopup busData={busData} lineData={lineData} />
+                </div>
             </ThemeProvider>
         </div>
     );

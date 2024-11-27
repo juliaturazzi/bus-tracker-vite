@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Input } from "@/components/ui/input";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
+import React, {useEffect, useState} from "react";
+import {useForm} from "react-hook-form";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {Input} from "@/components/ui/input";
+import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
+import {Button} from "@/components/ui/button";
+import {Progress} from "@/components/ui/progress";
 import * as z from "zod";
 import CleanIcon from "@/images/clear-icon.svg";
 import StopsDropdown from "./stops-dropdown";
-import { Slider } from "@/components/ui/slider";
+import {Slider} from "@/components/ui/slider";
 import allStops from "@/stops.json"; // JSON containing the stops data
-import { Switch } from "@/components/ui/switch";
+import {Switch} from "@/components/ui/switch";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -44,7 +44,7 @@ interface FormBusTrackerProps {
   setFormData: React.Dispatch<React.SetStateAction<any>>;
 }
 
-const FormBusTracker: React.FC<FormBusTrackerProps> = ({ setFormStop, mapStop, setBusData, setFormData }) => {
+const FormBusTracker: React.FC<FormBusTrackerProps> = ({setFormStop, mapStop, setBusData, setFormData}) => {
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -53,10 +53,10 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({ setFormStop, mapStop, s
       startTime: "",
       endTime: "",
     },
-      mode : "onChange",
+    mode: "onChange",
   });
 
-  const { isValid } = form.formState;
+  const {isValid} = form.formState;
 
   const [sliderValue, setSliderValue] = useState<number[]>([10]);
   const [selectedStop, setSelectedStop] = useState<string | null>(null); // Store stop ID
@@ -83,13 +83,13 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({ setFormStop, mapStop, s
 
   const watchAllFields = form.watch();
 
-    useEffect(() => {
-        console.log("Form validity changed:", isValid ? "Valid ✅" : "Invalid ❌");
-        console.log("Current form values:", form.getValues());
-    }, [isValid, form.watch()]);
+  useEffect(() => {
+    console.log("Form validity changed:", isValid ? "Valid ✅" : "Invalid ❌");
+    console.log("Current form values:", form.getValues());
+  }, [isValid, form.watch()]);
 
 
-    const onSubmit = async (data: FormData) => {
+  const onSubmit = async (data: FormData) => {
     console.log("Form data before processing:", data);
     setIsLoading(true);
 
@@ -113,7 +113,7 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({ setFormStop, mapStop, s
     try {
       const response = await fetch("http://127.0.0.1:8000/api/bus-data", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify(formData),
       });
       const buses = await response.json();
@@ -140,7 +140,7 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({ setFormStop, mapStop, s
         <FormField
           name="busLine"
           control={form.control}
-          render={({ field }) => (
+          render={({field}) => (
             <FormItem>
               <FormLabel>Linha do ônibus</FormLabel>
               <FormControl>
@@ -173,7 +173,7 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({ setFormStop, mapStop, s
             <FormField
               name="startTime"
               control={form.control}
-              render={({ field }) => (
+              render={({field}) => (
                 <FormItem className="w-full">
                   <FormLabel>Horário Inicial</FormLabel>
                   <FormControl>
@@ -186,7 +186,7 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({ setFormStop, mapStop, s
             <FormField
               name="endTime"
               control={form.control}
-              render={({ field }) => (
+              render={({field}) => (
                 <FormItem className="w-full">
                   <FormLabel>Horário Final</FormLabel>
                   <FormControl>
@@ -216,30 +216,30 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({ setFormStop, mapStop, s
           </FormItem>
         )}
 
-          <FormField
-            name="now"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem className="w-full center">
-                  <Switch
-                    checked={isNow}
-                    onCheckedChange={() => setIsNow((prev) => !prev)}
-                  />
-                <FormLabel className="ml-3">Usar horário atual</FormLabel> {/* Added margin-right */}
-                <FormControl>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        
+        <FormField
+          name="now"
+          control={form.control}
+          render={({field}) => (
+            <FormItem className="w-full center">
+              <Switch
+                checked={isNow}
+                onCheckedChange={() => setIsNow((prev) => !prev)}
+              />
+              <FormLabel className="ml-3">Usar horário atual</FormLabel> {/* Added margin-right */}
+              <FormControl>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <div className="flex space-x-4">
           <Button
             type="button"
             className="gap-2 text-sm py-2 px-4 flex items-center"
             onClick={() => {
               console.log("Resetting form");
-              form.reset({ busStop: mapStop || "" });
+              form.reset({busStop: mapStop || ""});
               setSelectedStop(mapStop || null);
               setSelectedStopName(getStopName(mapStop || null));
               setSliderValue([10]);
@@ -249,42 +249,42 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({ setFormStop, mapStop, s
             <img src={CleanIcon} className="w-4 h-4" alt="Icon" />
             Limpar campos
           </Button>
-            <AlertDialog>
-                {isValid ? ( // Render the AlertDialogTrigger only if the form is valid
-                    <AlertDialogTrigger>
-                        <Button
-                            type="submit"
-                            className="text-sm py-2 px-4 flex items-center"
-                        >
-                            Enviar
-                        </Button>
-                    </AlertDialogTrigger>
-                ) : (
-                    <Button
-                        type="submit"
-                        className="text-sm py-2 px-4 flex items-center"
-                        disabled
-                    >
-                        Enviar
-                    </Button>
-                )}
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Alerta cadastrado com sucesso!</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            Linha de ônibus: {watchAllFields.busLine || "Não informado"} <br />
-                            Ponto de ônibus: {watchAllFields.busStop || "Não informado"} <br />
-                            Horário Inicial: {watchAllFields.startTime || "Não informado"} <br />
-                            Horário Final: {watchAllFields.endTime || "Não informado"} <br />
-                            Distância do ônibus (em minutos): {sliderValue[0]}
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogAction>Ver alerta</AlertDialogAction>
-                        <AlertDialogCancel>Fechar</AlertDialogCancel>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+          <AlertDialog>
+            {isValid ? ( // Render the AlertDialogTrigger only if the form is valid
+              <AlertDialogTrigger>
+                <Button
+                  type="submit"
+                  className="text-sm py-2 px-4 flex items-center"
+                >
+                  Enviar
+                </Button>
+              </AlertDialogTrigger>
+            ) : (
+              <Button
+                type="submit"
+                className="text-sm py-2 px-4 flex items-center"
+                enabled
+              >
+                Enviar
+              </Button>
+            )}
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Alerta cadastrado com sucesso!</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Linha de ônibus: {watchAllFields.busLine || "Não informado"} <br />
+                  Ponto de ônibus: {watchAllFields.busStop || "Não informado"} <br />
+                  Horário Inicial: {watchAllFields.startTime || "Não informado"} <br />
+                  Horário Final: {watchAllFields.endTime || "Não informado"} <br />
+                  Distância do ônibus (em minutos): {sliderValue[0]}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogAction>Ver alerta</AlertDialogAction>
+                <AlertDialogCancel>Fechar</AlertDialogCancel>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
 
 
         </div>

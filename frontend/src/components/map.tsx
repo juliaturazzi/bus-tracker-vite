@@ -146,6 +146,27 @@ const OpenLayersMap: React.FC<OpenLayersMapProps> = ({
             });
         });
 
+        // Handle hover event to show popup
+        map.on("pointermove", function (evt) {
+            const popupElement = popup.getElement();
+            if (popupElement) {
+                // Hide the popup by default
+                popupElement.style.display = "none";
+            }
+
+            map.forEachFeatureAtPixel(evt.pixel, function (feature) {
+                const stopInfo = feature.get("stopInfo");
+                if (stopInfo && stopInfo.stop_name) {
+                    if (popupElement) {
+                        popupElement.innerHTML = `<strong>Ponto: ${stopInfo.stop_name || "Stop Name Not Available"}</strong>`;
+                        popupElement.style.display = "block"; // Show the popup
+                    }
+                    popup.setPosition(evt.coordinate);
+                }
+            });
+        });
+
+
         // Close the popup when clicking anywhere on the map
         map.on("click", function () {
             const popupElement = popup.getElement();
