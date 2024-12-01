@@ -86,6 +86,11 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
     }
   };
 
+  const handleUseWithoutLogin = () => {
+    console.log("Using without login");
+    onClose();
+  };
+
   return (
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="sm:max-w-md">
@@ -119,23 +124,18 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
               />
             </div>
           </div>
-          <div className="flex space-x-4">
-            <Button
-              type="button"
-              onClick={handleUseWithoutLogin}
-            >
-              Use Without Login
-            </Button>
-            <Button
-              type="submit"
-              disabled={isLoading}
-            >
           {error && <div className="text-red-500 mt-2">{error}</div>}
           <DialogFooter>
             <Button onClick={handleSubmit} disabled={isLoading}>
-              {isLoading ? (isRegisterMode ? "Registering..." : "Logging in...") : isRegisterMode ? "Register" : "Log In"}
+              {isLoading
+                  ? isRegisterMode
+                      ? "Registering..."
+                      : "Logging in..."
+                  : isRegisterMode
+                      ? "Register"
+                      : "Log In"}
             </Button>
-            <Button type="button" variant="secondary" onClick={onClose}>
+            <Button type="button" variant="secondary" onClick={handleUseWithoutLogin}>
               Use Without Login
             </Button>
           </DialogFooter>

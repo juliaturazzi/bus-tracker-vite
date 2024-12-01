@@ -1,27 +1,35 @@
-import React, { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Input } from "@/components/ui/input";
-import {
-    Form,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormControl,
-    FormMessage,
-} from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
-import { Switch } from "@/components/ui/switch";
-import { Progress } from "@/components/ui/progress";
-import allStops from "@/stops.json";
+import React, {useEffect, useState} from "react";
+import {useForm} from "react-hook-form";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {Input} from "@/components/ui/input";
+import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
+import {Button} from "@/components/ui/button";
+import {Progress} from "@/components/ui/progress";
 import * as z from "zod";
+import CleanIcon from "@/images/clear-icon.png";
+import CleanIconWhite from "@/images/clear-icon-white.png";
+import StopsDropdown from "./stops-dropdown";
+import {Slider} from "@/components/ui/slider";
+import allStops from "@/stops.json"; // JSON containing the stops data
+import {Switch} from "@/components/ui/switch";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {useTheme} from "@/components/theme-provider";
 
-// Validation schema
+
 const schema = z
     .object({
         busLine: z.string().min(1, "Linha do ônibus é obrigatória"),
-        busStop: z.string().min(1, "Ponto de ônibus é obrigatório"),
+        busStop: z.coerce.string().min(1, "Ponto de ônibus é obrigatório"),
         startTime: z.string().regex(/^([0-1]\d|2[0-3]):([0-5]\d)$/, "Formato de horário inválido"),
         endTime: z.string().regex(/^([0-1]\d|2[0-3]):([0-5]\d)$/, "Formato de horário inválido"),
     })
@@ -33,10 +41,10 @@ const schema = z
 type FormData = z.infer<typeof schema>;
 
 interface FormBusTrackerProps {
-    isLoggedIn: boolean; // Tracks user authentication
-    mapStop?: string; // Selected stop from map
+    mapStop?: string; // Optional prop for the initial stop ID
     setBusData: React.Dispatch<React.SetStateAction<any[]>>;
     setFormData: React.Dispatch<React.SetStateAction<any>>;
+    isLoggedIn: boolean; // Tracks user authentication
 }
 
 const FormBusTracker: React.FC<FormBusTrackerProps> = ({
@@ -56,32 +64,47 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
         mode: "onChange",
     });
 
-    const [sliderValue, setSliderValue] = useState<number[]>([10]);
-    const [isNow, setIsNow] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
+    console.log("is logged in:", isLoggedIn);
 
-    // Helper to get stop name by ID
+    const {isValid} = form.formState;
+
+    const [sliderValue, setSliderValue] = useState<number[]>([10]);
+    const [selectedStop, setSelectedStop] = useState<string | null>(null); // Store stop ID
+    const [selectedStopName, setSelectedStopName] = useState<string | null>(null); // Store stop name
+    const [isLoading, setIsLoading] = useState(false);
+    const [isNow, setIsNow] = useState(false); // Track if slider is active (now mode)
+
+    // Function to get stop_name from stop_id
     const getStopName = (stopId: string | null): string => {
         const stop = allStops.find((stop) => stop.id === stopId);
         return stop ? stop.stop_name : "";
     };
 
-    // Sync the selected map stop with the form
+    // Effect to update the stop name and form value based on mapStop
     useEffect(() => {
         if (mapStop) {
-            const stopName = getStopName(mapStop);
-            form.setValue("busStop", stopName);
+            console.log("Updating selectedStop from mapStop:", mapStop);
+            const stopName = getStopName(mapStop); // Get the stop name from the mapStop ID
+            setSelectedStop(mapStop); // Set the stop ID
+            setSelectedStopName(stopName); // Set the corresponding stop name
+            form.setValue("busStop", stopName); // Update form value with the stop name
         }
     }, [mapStop, form]);
 
-    const handleSubmit = async (data: FormData) => {
-        if (!isLoggedIn) {
-            alert("Please log in to submit the form.");
-            return;
-        }
+    const watchAllFields = form.watch();
 
+    useEffect(() => {
+        console.log("Form validity changed:", isValid ? "Valid ✅" : "Invalid ❌");
+        console.log("Current form values:", form.getValues());
+    }, [isValid, form.watch()]);
+
+    const {theme} = useTheme();
+
+    const onSubmit = async (data: FormData) => {
+        console.log("Form data before processing:", data);
         setIsLoading(true);
 
+        // If 'isNow' is true, override startTime and endTime with the current time
         const startTime = isNow ? new Date().toISOString().slice(11, 16) : data.startTime;
         const endTime = isNow ? new Date().toISOString().slice(11, 16) : data.endTime;
 
@@ -89,21 +112,26 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
             ...data,
             startTime,
             endTime,
+            busStop: selectedStopName || "",
+            busStopId: selectedStop || "",
             distanceTime: sliderValue[0],
         };
 
         setFormData(formData);
 
+        console.log("FormData sent to API:", formData);
+
         try {
             const response = await fetch("http://127.0.0.1:8000/api/bus-data", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {"Content-Type": "application/json"},
                 body: JSON.stringify(formData),
             });
             const buses = await response.json();
+            console.log("Buses Data received from API:", buses);
             setBusData(buses);
         } catch (error) {
-            console.error("Error fetching bus data:", error);
+            console.error("Failed to fetch bus data:", error);
         } finally {
             setIsLoading(false);
         }
@@ -114,61 +142,54 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
             <form
                 onSubmit={(e) => {
                     e.preventDefault();
-                    form.handleSubmit(handleSubmit)(e);
+                    console.log("Form errors:", form.formState.errors);
+                    form.handleSubmit(onSubmit)(e);
                 }}
                 className="space-y-8"
             >
                 {isLoading && <Progress value={50} className="w-full" />}
-
-                {/* Bus Line */}
                 <FormField
                     name="busLine"
                     control={form.control}
-                    render={({ field }) => (
+                    render={({field}) => (
                         <FormItem>
                             <FormLabel>Linha do ônibus</FormLabel>
                             <FormControl>
-                                <Input
-                                    placeholder="Digite a linha do ônibus"
-                                    {...field}
-                                />
+                                <Input placeholder="Ex: 123" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
                     )}
                 />
+                <FormItem>
+                    <FormLabel>Ponto de ônibus</FormLabel>
+                    <FormControl>
+                        <StopsDropdown
+                            value={selectedStop} // Pass the stop ID as the value
+                            onChange={(stopId) => {
+                                console.log("Selected Stop ID changed to:", stopId);
+                                const stopName = getStopName(stopId); // Get the stop name based on the ID
+                                setSelectedStop(stopId); // Update the selected stop ID
+                                setSelectedStopName(stopName); // Update the selected stop name
+                                setFormStop(stopName); // Update the formStop state with the stop name
+                                form.setValue("busStop", stopName); // Update the form value with the stop name
+                            }}
+                        />
+                    </FormControl>
+                    <FormMessage />
+                </FormItem>
 
-                {/* Bus Stop */}
-                <FormField
-                    name="busStop"
-                    control={form.control}
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Ponto de ônibus</FormLabel>
-                            <FormControl>
-                                <Input
-                                    placeholder="Selecione um ponto de ônibus"
-                                    {...field}
-                                />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-
-                {/* Time Range */}
-                {(!isNow || isLoggedIn) && (
+                {(isLoggedIn && !isNow) && (
                     <div className="flex space-x-4">
                         <FormField
                             name="startTime"
                             control={form.control}
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Horário inicial</FormLabel>
+                            render={({field}) => (
+                                <FormItem className="w-full">
+                                    <FormLabel>Horário Inicial</FormLabel>
                                     <FormControl>
-                                        <Input type="time" {...field}  />
+                                        <Input type="time" {...field}/>
                                     </FormControl>
-
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -176,61 +197,108 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
                         <FormField
                             name="endTime"
                             control={form.control}
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Horário final</FormLabel>
+                            render={({field}) => (
+                                <FormItem className="w-full">
+                                    <FormLabel>Horário Final</FormLabel>
                                     <FormControl>
-                                        <Input type="time" {...field} />
+                                        <Input type="time" {...field}/>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
-                    </div> )}
-
-                {/* Distance Slider */}
-                {(isLoggedIn) && (
-                <FormItem>
-                    <FormLabel>Distância do ônibus (em minutos)</FormLabel>
-                    <Slider
-                        value={sliderValue}
-                        onValueChange={setSliderValue}
-                        min={1}
-                        max={60}
-                        step={1}
-                    />
-                    <div className="flex items-center justify-between text-sm mt-2">
-                        <span>1 min</span>
-                        <span>{sliderValue[0]} min</span>
-                        <span>60 min</span>
                     </div>
-                </FormItem>
                 )}
 
-                {/* "Now" Switch */}
-                {(isLoggedIn) && (
-                <FormItem>
-                    <FormLabel>Usar horário atual</FormLabel>
-                    <Switch
-                        checked={isNow}
-                        onCheckedChange={setIsNow}
-                    />
+                {(isLoggedIn && !isNow) && (
+                    <FormItem>
+                        <FormLabel>Distância do ônibus (em minutos)</FormLabel>
+                        <div className="flex items-center space-x-4 text-sm">
+                            <Slider
+                                value={sliderValue}
+                                onValueChange={(value) => setSliderValue(value)}
+                                defaultValue={[10]}
+                                min={1}
+                                max={60}
+                                step={1}
+                            />
+                            <span>{sliderValue[0]} min</span>
+                        </div>
+                    </FormItem>
+                )}
 
-                </FormItem> )}
+                {isLoggedIn && (
+                <FormField
+                    name="now"
+                    control={form.control}
+                    render={({field}) => (
+                        <FormItem className="w-full center">
+                            <Switch
+                                checked={isNow}
+                                onCheckedChange={() => setIsNow((prev) => !prev)}
+                            />
+                            <FormLabel className="ml-3">Usar horário atual</FormLabel>
+                            <FormControl>
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                /> )}
 
-                {/* Submit and Reset Buttons */}
                 <div className="flex space-x-4">
                     <Button
                         type="button"
-                        onClick={() => form.reset()}
+                        className="gap-2 text-sm py-2 px-4 flex items-center"
+                        onClick={() => {
+                            console.log("Resetting form");
+                            form.reset({busStop: mapStop || ""});
+                            setSelectedStop(mapStop || null);
+                            setSelectedStopName(getStopName(mapStop || null));
+                            setSliderValue([10]);
+                            setIsNow(false); // Reset the switch state
+                        }}
                     >
-                        Limpar Campos
+                        <img src={theme === 'light'? CleanIconWhite : CleanIcon} className="w-4 h-4" alt="Icon" />
+                        Limpar campos
                     </Button>
-                    <Button
-                        type="submit"
-                    >
-                        {isLoading ? "Enviando..." : "Enviar"}
-                    </Button>
+                    <AlertDialog>
+                        {isValid ? ( // Render the AlertDialogTrigger only if the form is valid
+                            <AlertDialogTrigger>
+                                <Button
+                                    type="submit"
+                                    className="text-sm py-2 px-4 flex items-center"
+                                >
+                                    Enviar
+                                </Button>
+                            </AlertDialogTrigger>
+                        ) : (
+                            <Button
+                                type="submit"
+                                className="text-sm py-2 px-4 flex items-center"
+                                enabled
+                            >
+                                Enviar
+                            </Button>
+                        )}
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Alerta cadastrado com sucesso!</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    Linha de ônibus: {watchAllFields.busLine || "Não informado"} <br />
+                                    Ponto de ônibus: {watchAllFields.busStop || "Não informado"} <br />
+                                    Horário Inicial: {watchAllFields.startTime || "Não informado"} <br />
+                                    Horário Final: {watchAllFields.endTime || "Não informado"} <br />
+                                    Distância do ônibus (em minutos): {sliderValue[0]}
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogAction>Ver alerta</AlertDialogAction>
+                                <AlertDialogCancel>Fechar</AlertDialogCancel>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+
+
                 </div>
             </form>
         </Form>
