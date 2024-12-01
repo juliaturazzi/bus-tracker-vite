@@ -10,6 +10,7 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { Collapsible } from "./ui/collapsible";
 
@@ -64,7 +65,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       console.log("Logging out...");
       return;
     }
-
     // Otherwise, navigate to the URL by setting window.location
     window.location.href = url;
   };
@@ -77,17 +77,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <Collapsible asChild className="group/collapsible">
           <div className="space-y-2">
-            {data.navMain.map((item, index) => (
-              <button
-                key={index}
-                onClick={() => handleNavigation(item.url)}  // Use the handleNavigation function
-                className="duration-200 flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium text-sidebar-foreground/70 outline-none ring-sidebar-ring transition-[margin,opa] ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0"
-              >
-                <item.icon className="w-5 h-5" />
-                {/* Conditionally render the label based on collapsed state */}
-                {!collapsed && <span>{item.title}</span>}
-              </button>
-            ))}
+          {data.navMain.map((item, index) => (
+           <button
+           key={index}
+           onClick={() => handleNavigation(item.url)}
+           className="duration-200 flex h-8 items-center space-x-4 rounded-md px-3 text-sm font-medium text-sidebar-foreground/70 outline-none ring-sidebar-ring transition-[margin,opa] ease-linear focus-visible:ring-2 [&>svg]:size-6 [&>svg]:shrink-0"
+         >
+           <item.icon className="w-5 h-5" />
+           {!collapsed && <span>{item.title}</span>}
+         </button>
+      ))}
           </div>
         </Collapsible>
       </SidebarContent>

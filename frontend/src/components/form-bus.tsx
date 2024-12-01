@@ -177,7 +177,7 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({setFormStop, mapStop, se
                 <FormItem className="w-full">
                   <FormLabel>Horário Inicial</FormLabel>
                   <FormControl>
-                    <Input type="time" {...field} />
+                    <Input type="time" {...field}/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -190,7 +190,7 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({setFormStop, mapStop, se
                 <FormItem className="w-full">
                   <FormLabel>Horário Final</FormLabel>
                   <FormControl>
-                    <Input type="time" {...field} />
+                    <Input type="time" {...field}/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -225,7 +225,7 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({setFormStop, mapStop, se
                 checked={isNow}
                 onCheckedChange={() => setIsNow((prev) => !prev)}
               />
-              <FormLabel className="ml-3">Usar horário atual</FormLabel> {/* Added margin-right */}
+              <FormLabel className="ml-3">Usar horário atual</FormLabel>
               <FormControl>
               </FormControl>
               <FormMessage />

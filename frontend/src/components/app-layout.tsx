@@ -10,6 +10,7 @@ import FormBusTracker from "@/components/form-bus";
 import CopyRight from "@/components/copy-right";
 import {ModeToggle} from "@/components/mode-toggle";
 import BusPopup from "@/components/bus-popup";
+import {DialogCloseButton} from "@/components/login";
 export default function RootLayout({ }: Readonly<{children: React.ReactNode}>) {
     const [busData, setBusData] = useState([]);
     const [formData, setFormData] = useState({});
@@ -35,11 +36,12 @@ export default function RootLayout({ }: Readonly<{children: React.ReactNode}>) {
         <div className="h-screen flex font-sans">
             <ThemeProvider storageKey="vite-ui-theme">
                 <div className="w-1/2">
+                <DialogCloseButton/>
                     <SidebarProvider defaultOpen={false}>
                         <AppSidebar />
-                        <main className="flex flex-1 flex-col gap-4 p-4 pt-0 w-full h-screen">
-                            <div className="flex gap-3 items-center">
-                                <SidebarTrigger />
+                        <main className="flex flex-1 flex-col gap-2 p-2 pt-0 w-full h-screen">
+                            <div className="flex gap-1 items-center">
+                                <SidebarTrigger/>
                                 <ModeToggle />
                             </div>
                             <div className="flex flex-col items-center p-20">
