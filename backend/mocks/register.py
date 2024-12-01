@@ -4,7 +4,7 @@ import requests
 register_url = "http://localhost:8000/register/"
 register_data = {
     "email": "juliaturazzi@gmail.com",
-    "username": "juliaturuzzi",
+    "username": "juliaturazzi",
     "password": "melusca",
 }
 headers = {"Content-Type": "application/json"}

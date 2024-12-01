@@ -45,6 +45,7 @@ interface FormBusTrackerProps {
     setBusData: React.Dispatch<React.SetStateAction<any[]>>;
     setFormData: React.Dispatch<React.SetStateAction<any>>;
     isLoggedIn: boolean; // Tracks user authentication
+    setFormStop: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const FormBusTracker: React.FC<FormBusTrackerProps> = ({
@@ -52,86 +53,105 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
                                                            mapStop,
                                                            setBusData,
                                                            setFormData,
+                                                           setFormStop,
                                                        }) => {
     const form = useForm<FormData>({
         resolver: zodResolver(schema),
         defaultValues: {
             busLine: "",
             busStop: mapStop || "",
-            startTime: "",
-            endTime: "",
+            startTime: isLoggedIn ? "" : new Date().toISOString().slice(11, 16),
+            endTime: isLoggedIn
+                ? ""
+                : new Date(new Date().getTime() + 60 * 60 * 1000)
+                    .toISOString()
+                    .slice(11, 16),
         },
         mode: "onChange",
     });
 
-    console.log("is logged in:", isLoggedIn);
-
-    const {isValid} = form.formState;
+    const { isValid } = form.formState;
 
     const [sliderValue, setSliderValue] = useState<number[]>([10]);
-    const [selectedStop, setSelectedStop] = useState<string | null>(null); // Store stop ID
-    const [selectedStopName, setSelectedStopName] = useState<string | null>(null); // Store stop name
+    const [selectedStop, setSelectedStop] = useState<string | null>(null);
+    const [selectedStopName, setSelectedStopName] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [isNow, setIsNow] = useState(false); // Track if slider is active (now mode)
+    const [isNow, setIsNow] = useState(!isLoggedIn); // Default to true for non-logged-in users.
 
-    // Function to get stop_name from stop_id
+    // Helper to get stop name
     const getStopName = (stopId: string | null): string => {
+        console.log("Fetching stop name for ID:", stopId);
         const stop = allStops.find((stop) => stop.id === stopId);
-        return stop ? stop.stop_name : "";
+        const name = stop ? stop.stop_name : "";
+        console.log("Found stop name:", name);
+        return name;
     };
 
-    // Effect to update the stop name and form value based on mapStop
+    // Effect to handle initial stop based on mapStop
     useEffect(() => {
         if (mapStop) {
-            console.log("Updating selectedStop from mapStop:", mapStop);
-            const stopName = getStopName(mapStop); // Get the stop name from the mapStop ID
-            setSelectedStop(mapStop); // Set the stop ID
-            setSelectedStopName(stopName); // Set the corresponding stop name
-            form.setValue("busStop", stopName); // Update form value with the stop name
+            console.log("Initial mapStop provided:", mapStop);
+            const stopName = getStopName(mapStop);
+            setSelectedStop(mapStop);
+            setSelectedStopName(stopName);
+            form.setValue("busStop", stopName);
         }
     }, [mapStop, form]);
 
+    // Watch all form fields for changes
     const watchAllFields = form.watch();
 
     useEffect(() => {
-        console.log("Form validity changed:", isValid ? "Valid ✅" : "Invalid ❌");
+        console.log("Form state changed. Validity:", isValid ? "✅ Valid" : "❌ Invalid");
         console.log("Current form values:", form.getValues());
-    }, [isValid, form.watch()]);
-
-    const {theme} = useTheme();
+    }, [isValid, watchAllFields]);
 
     const onSubmit = async (data: FormData) => {
-        console.log("Form data before processing:", data);
+        console.log("Submitting form with data:", data);
         setIsLoading(true);
 
-        // If 'isNow' is true, override startTime and endTime with the current time
-        const startTime = isNow ? new Date().toISOString().slice(11, 16) : data.startTime;
-        const endTime = isNow ? new Date().toISOString().slice(11, 16) : data.endTime;
+        const startTime = isLoggedIn ? data.startTime : new Date().toISOString().slice(11, 16);
+        const endTime = isLoggedIn
+            ? data.endTime
+            : new Date(new Date().getTime() + 60 * 60 * 1000)
+                .toISOString()
+                .slice(11, 16);
 
         const formData = {
-            ...data,
-            startTime,
-            endTime,
-            busStop: selectedStopName || "",
-            busStopId: selectedStop || "",
-            distanceTime: sliderValue[0],
+            bus_line: data.busLine, // Adjust field names to match the Pydantic model
+            stop_name: selectedStopName || "",
+            latitude: parseFloat(selectedStop?.lat) || 0, // Ensure correct data type
+            longitude: parseFloat(selectedStop?.lon) || 0,
+            start_time: startTime, // Already set earlier
+            end_time: endTime,     // Already set earlier
         };
 
-        setFormData(formData);
 
-        console.log("FormData sent to API:", formData);
+        console.log("Processed form data for submission:", formData);
+
+        setFormData(formData);
+        console.log("Data being sent to the server:", JSON.stringify(formData));
 
         try {
-            const response = await fetch("http://127.0.0.1:8000/api/bus-data", {
+            const token = localStorage.getItem("authToken");
+            const response = await fetch("http://localhost:8000/stops/register", {
                 method: "POST",
-                headers: {"Content-Type": "application/json"},
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`, // Include the token
+                },
                 body: JSON.stringify(formData),
             });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
             const buses = await response.json();
-            console.log("Buses Data received from API:", buses);
+            console.log("Received buses data from API:", buses);
             setBusData(buses);
         } catch (error) {
-            console.error("Failed to fetch bus data:", error);
+            console.error("Error fetching bus data:", error);
         } finally {
             setIsLoading(false);
         }
@@ -142,7 +162,7 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
             <form
                 onSubmit={(e) => {
                     e.preventDefault();
-                    console.log("Form errors:", form.formState.errors);
+                    console.log("Form submit triggered. Form errors:", form.formState.errors);
                     form.handleSubmit(onSubmit)(e);
                 }}
                 className="space-y-8"
@@ -151,11 +171,18 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
                 <FormField
                     name="busLine"
                     control={form.control}
-                    render={({field}) => (
+                    render={({ field }) => (
                         <FormItem>
                             <FormLabel>Linha do ônibus</FormLabel>
                             <FormControl>
-                                <Input placeholder="Ex: 123" {...field} />
+                                <Input
+                                    placeholder="Ex: 123"
+                                    {...field}
+                                    onChange={(e) => {
+                                        console.log("Bus line changed:", e.target.value);
+                                        field.onChange(e);
+                                    }}
+                                />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -165,138 +192,125 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
                     <FormLabel>Ponto de ônibus</FormLabel>
                     <FormControl>
                         <StopsDropdown
-                            value={selectedStop} // Pass the stop ID as the value
+                            value={selectedStop}
                             onChange={(stopId) => {
-                                console.log("Selected Stop ID changed to:", stopId);
-                                const stopName = getStopName(stopId); // Get the stop name based on the ID
-                                setSelectedStop(stopId); // Update the selected stop ID
-                                setSelectedStopName(stopName); // Update the selected stop name
-                                setFormStop(stopName); // Update the formStop state with the stop name
-                                form.setValue("busStop", stopName); // Update the form value with the stop name
+                                console.log("Stop dropdown changed. Selected ID:", stopId);
+                                const stopName = getStopName(stopId);
+                                setSelectedStop(stopId);
+                                setSelectedStopName(stopName);
+                                setFormStop(stopName);
+                                form.setValue("busStop", stopName);
                             }}
                         />
                     </FormControl>
                     <FormMessage />
                 </FormItem>
 
-                {(isLoggedIn && !isNow) && (
-                    <div className="flex space-x-4">
-                        <FormField
-                            name="startTime"
-                            control={form.control}
-                            render={({field}) => (
-                                <FormItem className="w-full">
-                                    <FormLabel>Horário Inicial</FormLabel>
-                                    <FormControl>
-                                        <Input type="time" {...field}/>
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            name="endTime"
-                            control={form.control}
-                            render={({field}) => (
-                                <FormItem className="w-full">
-                                    <FormLabel>Horário Final</FormLabel>
-                                    <FormControl>
-                                        <Input type="time" {...field}/>
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
-                )}
-
-                {(isLoggedIn && !isNow) && (
-                    <FormItem>
-                        <FormLabel>Distância do ônibus (em minutos)</FormLabel>
-                        <div className="flex items-center space-x-4 text-sm">
-                            <Slider
-                                value={sliderValue}
-                                onValueChange={(value) => setSliderValue(value)}
-                                defaultValue={[10]}
-                                min={1}
-                                max={60}
-                                step={1}
+                {isLoggedIn && !isNow && (
+                    <>
+                        <div className="flex space-x-4">
+                            <FormField
+                                name="startTime"
+                                control={form.control}
+                                render={({ field }) => (
+                                    <FormItem className="w-full">
+                                        <FormLabel>Horário Inicial</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                type="time"
+                                                {...field}
+                                                onChange={(e) => {
+                                                    console.log("Start time changed:", e.target.value);
+                                                    field.onChange(e);
+                                                }}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
                             />
-                            <span>{sliderValue[0]} min</span>
+                            <FormField
+                                name="endTime"
+                                control={form.control}
+                                render={({ field }) => (
+                                    <FormItem className="w-full">
+                                        <FormLabel>Horário Final</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                type="time"
+                                                {...field}
+                                                onChange={(e) => {
+                                                    console.log("End time changed:", e.target.value);
+                                                    field.onChange(e);
+                                                }}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                         </div>
-                    </FormItem>
+                        <FormItem>
+                            <FormLabel>Distância do ônibus (em minutos)</FormLabel>
+                            <div className="flex items-center space-x-4 text-sm">
+                                <Slider
+                                    value={sliderValue}
+                                    onValueChange={(value) => {
+                                        console.log("Slider value changed:", value);
+                                        setSliderValue(value);
+                                    }}
+                                    defaultValue={[10]}
+                                    min={1}
+                                    max={60}
+                                    step={1}
+                                />
+                                <span>{sliderValue[0]} min</span>
+                            </div>
+                        </FormItem>
+                    </>
                 )}
 
                 {isLoggedIn && (
-                <FormField
-                    name="now"
-                    control={form.control}
-                    render={({field}) => (
-                        <FormItem className="w-full center">
-                            <Switch
-                                checked={isNow}
-                                onCheckedChange={() => setIsNow((prev) => !prev)}
-                            />
-                            <FormLabel className="ml-3">Usar horário atual</FormLabel>
-                            <FormControl>
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                /> )}
+                    <FormField
+                        name="now"
+                        control={form.control}
+                        render={({ field }) => (
+                            <FormItem className="w-full center">
+                                <Switch
+                                    checked={isNow}
+                                    onCheckedChange={(checked) => {
+                                        console.log("Switch state changed. Is Now:", checked);
+                                        setIsNow(checked);
+                                    }}
+                                />
+                                <FormLabel className="ml-3">Usar horário atual</FormLabel>
+                            </FormItem>
+                        )}
+                    />
+                )}
 
                 <div className="flex space-x-4">
                     <Button
                         type="button"
                         className="gap-2 text-sm py-2 px-4 flex items-center"
                         onClick={() => {
-                            console.log("Resetting form");
-                            form.reset({busStop: mapStop || ""});
+                            console.log("Resetting form...");
+                            form.reset({ busStop: mapStop || "" });
                             setSelectedStop(mapStop || null);
                             setSelectedStopName(getStopName(mapStop || null));
                             setSliderValue([10]);
-                            setIsNow(false); // Reset the switch state
+                            setIsNow(!isLoggedIn);
                         }}
                     >
-                        <img src={theme === 'light'? CleanIconWhite : CleanIcon} className="w-4 h-4" alt="Icon" />
                         Limpar campos
                     </Button>
-                    <AlertDialog>
-                        {isValid ? ( // Render the AlertDialogTrigger only if the form is valid
-                            <AlertDialogTrigger>
-                                <Button
-                                    type="submit"
-                                    className="text-sm py-2 px-4 flex items-center"
-                                >
-                                    Enviar
-                                </Button>
-                            </AlertDialogTrigger>
-                        ) : (
-                            <Button
-                                type="submit"
-                                className="text-sm py-2 px-4 flex items-center"
-                                enabled
-                            >
-                                Enviar
-                            </Button>
-                        )}
-                        <AlertDialogContent>
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>Alerta cadastrado com sucesso!</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    Linha de ônibus: {watchAllFields.busLine || "Não informado"} <br />
-                                    Ponto de ônibus: {watchAllFields.busStop || "Não informado"} <br />
-                                    Horário Inicial: {watchAllFields.startTime || "Não informado"} <br />
-                                    Horário Final: {watchAllFields.endTime || "Não informado"} <br />
-                                    Distância do ônibus (em minutos): {sliderValue[0]}
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                                <AlertDialogAction>Ver alerta</AlertDialogAction>
-                                <AlertDialogCancel>Fechar</AlertDialogCancel>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
+                    <Button
+                        type="submit"
+                        className={`text-sm py-2 px-4 flex items-center ${!isValid ? "disabled:opacity-50" : ""}`}
+                        disabled={!isValid}
+                    >
+                        Enviar
+                    </Button>
 
 
                 </div>
@@ -306,3 +320,4 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
 };
 
 export default FormBusTracker;
+

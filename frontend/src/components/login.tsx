@@ -21,6 +21,7 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
   const { logIn } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isRegisterMode, setIsRegisterMode] = useState(false);
@@ -35,7 +36,7 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, username, password }),
       });
 
       if (!response.ok) {
@@ -98,8 +99,8 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
             <DialogTitle>{isRegisterMode ? "Register" : "Log In"}</DialogTitle>
             <DialogDescription>
               {isRegisterMode
-                  ? "Create a new account by filling in the fields below."
-                  : "Enter your username and password to log in."}
+                  ? "Crie uma nova conta preenchendo os campos abaixo."
+                  : "Digite seu nome de usuário e senha para fazer login."}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4">
@@ -113,8 +114,20 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
                   disabled={isLoading}
               />
             </div>
+            {isRegisterMode && (
+                <div className="grid gap-2">
+                  <Label htmlFor="password">Usuário</Label>
+                  <Input
+                      id="username"
+                      type="text"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      disabled={isLoading}
+                  />
+                </div>
+            )}
             <div className="grid gap-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">Senha</Label>
               <Input
                   id="password"
                   type="password"
@@ -124,19 +137,29 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
               />
             </div>
           </div>
+          <div className="flex space-x-4">
+            <Button
+                type="button"
+                className="gap-2 text-sm py-2 px-4 flex items-center"
+                onClick={() => setIsRegisterMode(!isRegisterMode)}
+            >
+              {isRegisterMode ? "Já possui conta?" : "Criar conta?"}
+            </Button>
+          </div>
+
           {error && <div className="text-red-500 mt-2">{error}</div>}
           <DialogFooter>
             <Button onClick={handleSubmit} disabled={isLoading}>
               {isLoading
                   ? isRegisterMode
-                      ? "Registering..."
-                      : "Logging in..."
+                      ? "Cadastrando..."
+                      : "Fazendo login..."
                   : isRegisterMode
-                      ? "Register"
+                      ? "Cadastrar"
                       : "Log In"}
             </Button>
             <Button type="button" variant="secondary" onClick={handleUseWithoutLogin}>
-              Use Without Login
+              Entrar sem login
             </Button>
           </DialogFooter>
         </DialogContent>

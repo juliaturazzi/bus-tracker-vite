@@ -43,19 +43,13 @@ export function AppSidebar({ isLoggedIn, setIsDialogOpen, ...props }: AppSidebar
     ];
 
     const handleNavigation = (url: string) => {
-        if (url === "#logout") {
-            logOut()
-                .then(() => (window.location.href = "/"))
-                .catch((err) => console.error("Error during logout:", err));
-        } else {
-            window.location.href = url;
-        }
+        window.location.href = url;
     };
 
     return (
         <Sidebar collapsible="icon" {...props}>
             <SidebarHeader>
-                <NavUser user={{ email: email || "No email provided" }} />
+                <NavUser user={{ email: email || "Sem email" }} />
             </SidebarHeader>
             <SidebarContent>
                 <Collapsible asChild className="group/collapsible">
@@ -65,7 +59,7 @@ export function AppSidebar({ isLoggedIn, setIsDialogOpen, ...props }: AppSidebar
                                 key={index}
                                 onClick={() => {
                                     if (!isLoggedIn && item.requiresLogin) {
-                                        alert("Please log in to access this feature.");
+                                        alert("Por favor, faça login para acessar essa funcionalidade.");
                                         return;
                                     }
                                     handleNavigation(item.url);
@@ -90,10 +84,10 @@ export function AppSidebar({ isLoggedIn, setIsDialogOpen, ...props }: AppSidebar
                     onClick={() => {
                         if (isLoggedIn) {
                             logOut()
-                                .then(() => (window.location.href = "/"))
-                                .catch((err) => console.error("Error during logout:", err));
+                                .then(() => handleNavigation("/login"))
+                                .catch((err) => console.error("Erro durante logout:", err));
                         } else {
-                            setIsDialogOpen(true);
+                            handleNavigation("/login");
                         }
                     }}
                     className="w-full flex justify-center py-2 text-sm font-medium text-sidebar-foreground/70"
