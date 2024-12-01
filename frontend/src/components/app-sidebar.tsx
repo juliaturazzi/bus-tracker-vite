@@ -51,7 +51,7 @@ export function AppSidebar({ isLoggedIn, ...props }: AppSidebarProps) {
                             {/* Button to open the Registered Stops dialog */}
                             <button
                                 onClick={isLoggedIn ? () => setIsDialogOpen(true) : undefined}
-                                className={`flex h-8 items-center space-x-4 rounded-md px-3 text-sm font-medium text-sidebar-foreground/70 transition 
+                                className={`flex h-8 items-center space-x-4 rounded-md px-3 text-sm font-medium text-sidebar-foreground/70 transition [&>svg]:w-6 [&>svg]:h-6 [&>svg]:shrink-0
         ${isLoggedIn ? "hover:bg-sidebar-hover focus-visible:outline focus-visible:ring-2 focus-visible:ring-sidebar-ring" : "opacity-50 cursor-not-allowed"}`}
                                 aria-expanded={isLoggedIn ? isDialogOpen : undefined}
                                 aria-controls="registered-stops-dialog"
@@ -72,7 +72,7 @@ export function AppSidebar({ isLoggedIn, ...props }: AppSidebarProps) {
                             {/* Button to open the Bus Tracker Instructions dialog */}
                             <button
                                 onClick={() => setIsInstructionsOpen(true)}
-                                className="flex h-8 items-center space-x-4 rounded-md px-3 text-sm font-medium text-sidebar-foreground/70 transition hover:bg-sidebar-hover focus-visible:outline focus-visible:ring-2 focus-visible:ring-sidebar-ring"
+                                className="flex h-8 items-center space-x-4 rounded-md px-3 text-sm font-medium text-sidebar-foreground/70 transition hover:bg-sidebar-hover focus-visible:outline focus-visible:ring-2 focus-visible:ring-sidebar-ring [&>svg]:w-6 [&>svg]:h-6 [&>svg]:shrink-0"
                                 aria-expanded={isInstructionsOpen}
                                 aria-controls="bus-tracker-instructions-dialog"
                             >
@@ -85,28 +85,32 @@ export function AppSidebar({ isLoggedIn, ...props }: AppSidebarProps) {
                                 open={isInstructionsOpen}
                                 onClose={() => setIsInstructionsOpen(false)}
                             />
+                            <button
+                                onClick={handleLogout}
+                                className="flex h-8 items-center space-x-4 rounded-md px-3 text-sm font-medium text-sidebar-foreground/70 transition hover:bg-sidebar-hover focus-visible:outline focus-visible:ring-2 focus-visible:ring-sidebar-ring [&>svg]:w-6 [&>svg]:h-6 [&>svg]:shrink-0"
+                                aria-label={isLoggedIn ? "Log Out" : "Log In"}
+                            >
+                                {isLoggedIn ? (
+                                    <>
+                                        <LogOutIcon className="w-6 h-6"/>
+                                        <span>Log Out</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <LogInIcon className="w-6 h-6" />
+                                        <span>Log In</span>
+                                    </>
+                                )}
+                            </button>
 
                         </div>
                     </Collapsible>
                 </SidebarContent>
                 <SidebarFooter>
-                    <button
-                        onClick={handleLogout}
-                        className="w-full flex justify-center py-2 text-sm font-medium text-sidebar-foreground/70 transition hover:bg-sidebar-hover"
-                        aria-label={isLoggedIn ? "Log Out" : "Log In"}
-                    >
-                        {isLoggedIn ? (
-                            <>
-                                <LogOutIcon className="mr-2 w-6 h-6"/>
-                                Log Out
-                            </>
-                        ) : (
-                            <>
-                                <LogInIcon className="mr-2 w-6 h-6" />
-                                Log In
-                            </>
-                        )}
-                    </button>
+                <div className="space-y-2">
+                    
+                    </div>
+
                 </SidebarFooter>
                 <SidebarRail />
             </Sidebar>
