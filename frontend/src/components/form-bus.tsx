@@ -87,8 +87,22 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
     const [sliderValue, setSliderValue] = useState<number[]>([10]);
     const [selectedStop, setSelectedStop] = useState<string | null>(null);
     const [selectedStopName, setSelectedStopName] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
     const [isNow, setIsNow] = useState(!isLoggedIn); // Default to true for non-logged-in users.
+
+    const [isLoading, setIsLoading] = useState(false);
+    const [progress, setProgress] = useState(0);
+
+    const simulateProgress = () => {
+        const interval = setInterval(() => {
+            setProgress((prev) => {
+                const nextProgress = prev + 10; // Increment progress by 10
+                if (nextProgress >= 90) {
+                    clearInterval(interval); // Stop at 90%, API completion will set to 100%
+                }
+                return nextProgress;
+            });
+        }, 1250); // Update progress every 500ms
+    };
 
     // Helper to get stop name
     const getStopName = (stopId: string | null): string => {
@@ -153,15 +167,18 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
         setFormData(processedFormData);
         console.log("Data being sent to the server:", JSON.stringify(processedFormData));
 
+        setIsLoading(true);
+        setProgress(0); // Reset progress
+        simulateProgress();
+
         if (isLoggedIn) {
-            // User is logged in: Register the stop and possibly handle additional logic
             try {
                 const token = localStorage.getItem("authToken");
                 const response = await fetch("http://localhost:8000/stops/register/", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`, // Include the token
+                        Authorization: `Bearer ${token}`,
                     },
                     body: JSON.stringify(processedFormData),
                 });
@@ -173,18 +190,14 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
 
                 const result = await response.json();
                 console.log("Successfully registered stop:", result);
-                // Optionally, you might want to inform the user of successful registration
-                // For example, display a success message or update UI accordingly
             } catch (error) {
                 console.error("Error registering bus stop:", error);
-                // Optionally, display an error message to the user
             } finally {
+                setProgress(100); // Set progress to 100% on completion
                 setIsLoading(false);
             }
         } else {
-            // User is not logged in: Fetch travel times
             try {
-                // Construct query parameters
                 const queryParams = new URLSearchParams({
                     bus_line: processedFormData.bus_line,
                     stop_name: processedFormData.stop_name,
@@ -200,7 +213,6 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
-                        // No Authorization header needed since the user is logged out
                     },
                 });
 
@@ -215,8 +227,8 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
                 setBusData(data.buses);
             } catch (error) {
                 console.error("Error fetching travel times:", error);
-                // Optionally, display an error message to the user
             } finally {
+                setProgress(100); // Set progress to 100% on completion
                 setIsLoading(false);
             }
         }
@@ -234,8 +246,8 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
             >
                 {isLoading && (
                     <div className="w-full">
-                        <span className="block mb-2 text-center text-sm text-gray-700">Carregando ...</span>
-                        <Progress value={50} className="w-full" />
+                        <span className="block mb-2 text-center text-sm">Carregando ...</span>
+                        <Progress value={progress} className="w-full" />
                     </div>
                 )}
                 <FormField

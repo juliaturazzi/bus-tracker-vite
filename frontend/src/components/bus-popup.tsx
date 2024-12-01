@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { Table } from "@/components/ui/table";
-import { Pagination } from "@/components/ui/pagination";
 import { Button } from "@/components/ui/button";
+import PaginationWrapper from "@/components/ui/pagination-wrapper"; // Import wrapper
 
-const BusTable = ({ busData }) => {
-    const [currentPage, setCurrentPage] = useState(1);
+const BusTable = ({ busData, currentPage, onPageChange }) => {
     const itemsPerPage = 10;
 
     const paginatedData = busData.slice(
@@ -38,10 +37,10 @@ const BusTable = ({ busData }) => {
                 </tbody>
             </Table>
             <div className="mt-4 flex justify-center">
-                <Pagination
-                    current={currentPage}
-                    onPageChange={setCurrentPage}
-                    total={Math.ceil(busData.length / itemsPerPage)}
+                <PaginationWrapper
+                    currentPage={currentPage}
+                    totalPages={Math.ceil(busData.length / itemsPerPage)}
+                    onPageChange={onPageChange}
                 />
             </div>
         </div>
@@ -50,21 +49,23 @@ const BusTable = ({ busData }) => {
 
 const BusPopup = ({ busData, lineData }) => {
     const [isOpen, setIsOpen] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1); // Move pagination state here
 
     if (!busData?.length) return null;
 
     const orderedBusData = busData.sort((a, b) => a.distance - b.distance);
 
     const nearestBus = busData.reduce((prev, current) =>
-            prev.distance < current.distance ? prev : current
-        , busData[0]);
+            prev.distance < current.distance ? prev : current,
+        busData[0]
+    );
 
     return (
         <div
             className={`absolute bottom-10 left-1/2 transform -translate-x-1/2 bg-black ${
-                isOpen ? "w-[95%] max-w-4xl p-6 rounded-3xl" : "w-[90%] max-w-xl p-2 rounded-full"
+                isOpen ? 'w-[95%] max-w-4xl p-6 rounded-3xl' : 'w-[90%] max-w-xl p-2 rounded-full'
             } shadow-lg flex flex-col items-center text-white transition-all duration-100`}
-            onClick={!isOpen ? () => setIsOpen(true) : undefined} // Only open on click when closed
+            onClick={!isOpen ? () => setIsOpen(true) : undefined}
         >
             {!isOpen ? (
                 <div className="flex items-center justify-between w-full">
@@ -84,12 +85,16 @@ const BusPopup = ({ busData, lineData }) => {
             ) : (
                 <div className="w-full">
                     <h2 className="text-lg font-extrabold text-left mb-4">Todos os ônibus - {lineData}</h2>
-                    <BusTable busData={orderedBusData} />
+                    <BusTable
+                        busData={orderedBusData}
+                        currentPage={currentPage}
+                        onPageChange={setCurrentPage} // Pass pagination handlers
+                    />
                     <div className="mt-4 flex justify-center">
                         <Button
                             className="max-w-sm bg-red-500 hover:bg-red-600 text-white rounded-md py-2"
                             onClick={(e) => {
-                                e.stopPropagation(); // Prevent closing when interacting with content
+                                e.stopPropagation();
                                 setIsOpen(false);
                             }}
                         >
@@ -101,5 +106,6 @@ const BusPopup = ({ busData, lineData }) => {
         </div>
     );
 };
+
 
 export default BusPopup;

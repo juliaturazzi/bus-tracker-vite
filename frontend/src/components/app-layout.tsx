@@ -23,8 +23,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     const [formStop, setFormStop] = useState("");
 
     useEffect(() => {
-        if (formData.busLine) {
-            setLineData(formData.busLine);
+        if (formData.bus_line) {
+            setLineData(formData.bus_line);
         }
     }, [formData]);
 

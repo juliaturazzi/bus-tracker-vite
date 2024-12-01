@@ -25,8 +25,8 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isRegisterMode, setIsRegisterMode] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false); // Success state
 
-  // Validação de email com regex
   const isValidEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
@@ -36,7 +36,6 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
     setIsLoading(true);
     setError(null);
 
-    // Verificar email e senha antes do envio
     if (!isValidEmail(email)) {
       setError("Por favor, insira um email válido.");
       setIsLoading(false);
@@ -63,7 +62,11 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
         throw new Error(errorData.detail || "Failed to register user.");
       }
 
-      setIsRegisterMode(false);
+      setIsSuccess(true); // Show success popup
+      setTimeout(() => {
+        setIsSuccess(false); // Hide popup
+        setIsRegisterMode(false); // Switch to login mode
+      }, 3000); // 3-second delay
     } catch (err: any) {
       setError(err.message || "An error occurred during registration.");
     } finally {
@@ -107,81 +110,93 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
   };
 
   const handleUseWithoutLogin = () => {
-    console.log("Using without login");
     onClose();
   };
 
   return (
-      <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{isRegisterMode ? "Register" : "Log In"}</DialogTitle>
-            <DialogDescription>
-              {isRegisterMode
-                  ? "Crie uma nova conta preenchendo os campos abaixo."
-                  : "Digite seu nome de usuário e senha para fazer login."}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  disabled={isLoading}
-              />
+      <>
+        <Dialog open={isOpen} onOpenChange={onClose}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>{isRegisterMode ? "Cadastrar" : "Log In"}</DialogTitle>
+              <DialogDescription>
+                {isRegisterMode
+                    ? "Crie uma nova conta preenchendo os campos abaixo."
+                    : "Digite seu nome de usuário e senha para fazer login."}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    disabled={isLoading}
+                />
+              </div>
+              {isRegisterMode && (
+                  <div className="grid gap-2">
+                    <Label htmlFor="username">Usuário</Label>
+                    <Input
+                        id="username"
+                        type="text"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        disabled={isLoading}
+                    />
+                  </div>
+              )}
+              <div className="grid gap-2">
+                <Label htmlFor="password">Senha</Label>
+                <Input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={isLoading}
+                />
+              </div>
             </div>
-            {isRegisterMode && (
-                <div className="grid gap-2">
-                  <Label htmlFor="username">Usuário</Label>
-                  <Input
-                      id="username"
-                      type="text"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                      disabled={isLoading}
-                  />
-                </div>
-            )}
-            <div className="grid gap-2">
-              <Label htmlFor="password">Senha</Label>
-              <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  disabled={isLoading}
-              />
+            <div className="flex space-x-4">
+              <Button
+                  type="button"
+                  className="gap-2 text-sm py-2 px-4 flex items-center"
+                  onClick={() => setIsRegisterMode(!isRegisterMode)}
+              >
+                {isRegisterMode ? "Já possui conta?" : "Criar conta?"}
+              </Button>
             </div>
-          </div>
-          <div className="flex space-x-4">
-            <Button
-                type="button"
-                className="gap-2 text-sm py-2 px-4 flex items-center"
-                onClick={() => setIsRegisterMode(!isRegisterMode)}
-            >
-              {isRegisterMode ? "Já possui conta?" : "Criar conta?"}
-            </Button>
-          </div>
+            {error && <div className="text-red-500 mt-2">{error}</div>}
+            <DialogFooter>
+              <Button onClick={handleSubmit} disabled={isLoading}>
+                {isLoading
+                    ? isRegisterMode
+                        ? "Cadastrando..."
+                        : "Fazendo login..."
+                    : isRegisterMode
+                        ? "Cadastrar"
+                        : "Log In"}
+              </Button>
+              <Button type="button" variant="secondary" onClick={handleUseWithoutLogin}>
+                Entrar sem login
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
-          {error && <div className="text-red-500 mt-2">{error}</div>}
-          <DialogFooter>
-            <Button onClick={handleSubmit} disabled={isLoading}>
-              {isLoading
-                  ? isRegisterMode
-                      ? "Cadastrando..."
-                      : "Fazendo login..."
-                  : isRegisterMode
-                      ? "Cadastrar"
-                      : "Log In"}
-            </Button>
-            <Button type="button" variant="secondary" onClick={handleUseWithoutLogin}>
-              Entrar sem login
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        {/* Success Popup */}
+        {isSuccess && (
+            <Dialog open={isSuccess}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Sucesso!</DialogTitle>
+                </DialogHeader>
+                <p>Cadastro realizado com sucesso! Redirecionando para login...</p>
+              </DialogContent>
+            </Dialog>
+        )}
+      </>
   );
 }
