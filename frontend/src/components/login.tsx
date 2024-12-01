@@ -1,5 +1,3 @@
-import { Copy } from "lucide-react"
-
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -39,7 +37,7 @@ export function DialogCloseButton() {
         </div>
         <div className="flex items-center space-x-2">
           <div className="grid flex-1 gap-2">
-          <Button type="button">
+          <Button type="button" variant="secondary">
             Não possui conta? Cadastre-se
           </Button>
           </div>
