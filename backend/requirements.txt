@@ -9,3 +9,7 @@ coverage
 pytest~=8.3.3
 openrouteservice
 python-dotenv~=1.0.1
+python-jose
+passlib
+bcrypt
+python-multipart

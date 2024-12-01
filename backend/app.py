@@ -1,12 +1,66 @@
+from datetime import datetime, timedelta
 from typing import Dict, Any
-
+from pydantic import BaseModel
 import pandas as pd
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from jose import jwt, JWTError
+from passlib.context import CryptContext
 
 from db.create_db import BusStopDatabase
 from services.bus_data_fetcher import BusDataFetcher
 from services.travel_time_service import TravelTimeService
+
+# Constants
+SECRET_KEY = "SKW"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+# Password hashing
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
+
+
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(plain_password, hashed_password)
+
+
+def get_password_hash(password):
+    return pwd_context.hash(password)
+
+
+def create_access_token(data: dict, expires_delta: timedelta = None):
+    to_encode = data.copy()
+    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=15))
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+
+# Database instance
+db = BusStopDatabase()
+
+
+def authenticate_user(email: str, password: str):
+    user = db.get_user(email)
+    if not user or not verify_password(password, user["hashed_password"]):
+        return None
+    return user
+
+
+async def get_current_user(token: str = Depends(oauth2_scheme)):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email = payload.get("sub")
+        if email is None:
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+        user = db.get_user(email)
+        if user is None:
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+        return user
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -112,6 +166,8 @@ async def get_filtered_bus_line(
     return filtered_bus_line
 
 
+# Endpoints
+
 # Get bus lines information
 @app.get("/infos/")
 async def read_info(bus_line: str, start_time: str, end_time: str, bus_stop: str):
@@ -124,17 +180,58 @@ def read_stops():
     return parse_stops()
 
 
-# Register bus stop with details
+@app.post("/token")
+async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+    user = authenticate_user(form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    access_token = create_access_token({"sub": form_data.username})
+    return {"access_token": access_token, "token_type": "bearer"}
+
+
 @app.post("/register/")
-async def send_email_endpoint(data: Dict[Any, Any]):
-    bus_stop_info = get_stop_coords(data["bus_stop"])
-    bus_stop_name = data["bus_stop"]
-    bus_line = data["bus_line"]
-    lat = bus_stop_info["lat"]
-    lon = bus_stop_info["lon"]
-    start_time = data["start_time"]
-    end_time = data["end_time"]
-    email = data["email"]
+async def register_user(data: Dict[Any, Any]):
+    hashed_password = get_password_hash(data["password"])
+    try:
+        db.register_user(data["email"], data["username"], hashed_password)
+        return {"status": "success", "message": "User registered successfully"}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.get("/users/me")
+async def read_current_user(current_user: dict = Depends(get_current_user)):
+    return {"email": current_user["email"], "username": current_user["username"]}
+
+
+# Pydantic model for bus stop registration
+class StopRegistration(BaseModel):
+    bus_line: str
+    stop_name: str
+    latitude: float
+    longitude: float
+    start_time: str
+    end_time: str
+
+
+@app.post("/stops/register/")
+async def register_stop(
+        stop: StopRegistration,
+        current_user: dict = Depends(get_current_user)  # Ensure the user is authenticated
+):
     db = BusStopDatabase()
-    db.insert_bus_stop(email, bus_line, bus_stop_name, lat, lon, start_time, end_time)
-    return {"status": "success", "message": "Bus stop registered successfully"}
+
+    # Insert the stop into the database, associating it with the user's email
+    try:
+        db.insert_bus_stop(
+            email=current_user["email"],
+            bus_line=stop.bus_line,
+            stop_name=stop.stop_name,
+            latitude=stop.latitude,
+            longitude=stop.longitude,
+            start_time=stop.start_time,
+            end_time=stop.end_time
+        )
+        return {"status": "success", "message": "Bus stop registered successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error registering stop: {str(e)}")

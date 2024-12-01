@@ -42,18 +42,11 @@ def check_time(start, end):
 
 
 def stop_to_dict(stop):
-    start_time = str(stop[5])
-    end_time = str(stop[6])
-    stop_dict = {
-        "email": stop[0],
-        "bus_line": stop[1],
-        "stop_name": stop[2],
-        "lat": stop[3],
-        "lon": stop[4],
-        "start_time": datetime.strptime(start_time, "%H:%M:%S").time(),
-        "end_time": datetime.strptime(end_time, "%H:%M:%S").time(),
-    }
-    logging.info(f"Converted stop to dict: {json.dumps(stop_dict, indent=4)}")  # Updated
+    stop_dict = stop
+    start_time = str(stop.get("start_time"))
+    end_time = str(stop.get("end_time"))
+    stop_dict["start_time"] = datetime.strptime(start_time, "%H:%M:%S").time()
+    stop_dict["end_time"] = datetime.strptime(end_time, "%H:%M:%S").time()
     return stop_dict
 
 
@@ -101,7 +94,7 @@ async def process_stop(stop, service):
             f"Current time is within the interval for stop: {stop['stop_name']}"
         )
         buses = await get_filtered_bus_line(
-            stop["bus_line"],
+            stop["linha"],
             stop["start_time"],
             stop["end_time"],
             stop["stop_name"],
@@ -115,7 +108,7 @@ async def process_stop(stop, service):
         if bus_data:
             logging.info(f"Sending email to {stop['email']} with bus data!")  # Updated
             await asyncio.to_thread(
-                send_email, stop["email"], stop["bus_line"], stop["stop_name"], bus_data
+                send_email, stop["email"], stop["linha"], stop["stop_name"], bus_data
             )
             logging.info(f"Email sent to {stop['email']}")
         else:
