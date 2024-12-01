@@ -232,7 +232,12 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
                 }}
                 className="space-y-8"
             >
-                {isLoading && <Progress value={50} className="w-full" />}
+                {isLoading && (
+                    <div className="w-full">
+                        <span className="block mb-2 text-center text-sm text-gray-700">Carregando ...</span>
+                        <Progress value={50} className="w-full" />
+                    </div>
+                )}
                 <FormField
                     name="busLine"
                     control={form.control}
