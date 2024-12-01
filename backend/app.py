@@ -125,10 +125,10 @@ def get_travel_time_service() -> TravelTimeService:
 
 # Get user filtered bus lines
 async def get_filtered_bus_line(
-        bus_line: str,
-        start_time: str,
-        end_time: str,
-        bus_stop_name: str,
+    bus_line: str,
+    start_time: str,
+    end_time: str,
+    bus_stop_name: str,
 ):
     service = TravelTimeService()
     fetcher = BusDataFetcher()
@@ -141,9 +141,9 @@ async def get_filtered_bus_line(
 
         for line_data in buses_data:
             if (
-                    str(line_data["linha"]) == str(bus_line)
-                    and line_data["ordem"] not in seen_ordem
-                    and not seen_ordem.add(line_data["ordem"])
+                str(line_data["linha"]) == str(bus_line)
+                and line_data["ordem"] not in seen_ordem
+                and not seen_ordem.add(line_data["ordem"])
             ):
                 bus_info = {
                     "linha": line_data.get("linha"),
@@ -167,6 +167,7 @@ async def get_filtered_bus_line(
 
 
 # Endpoints
+
 
 # Get bus lines information
 @app.get("/infos/")
@@ -216,8 +217,8 @@ class StopRegistration(BaseModel):
 
 @app.post("/stops/register/")
 async def register_stop(
-        stop: StopRegistration,
-        current_user: dict = Depends(get_current_user)  # Ensure the user is authenticated
+    stop: StopRegistration,
+    current_user: dict = Depends(get_current_user),  # Ensure the user is authenticated
 ):
     db = BusStopDatabase()
 
@@ -230,7 +231,7 @@ async def register_stop(
             latitude=stop.latitude,
             longitude=stop.longitude,
             start_time=stop.start_time,
-            end_time=stop.end_time
+            end_time=stop.end_time,
         )
         return {"status": "success", "message": "Bus stop registered successfully"}
     except Exception as e:

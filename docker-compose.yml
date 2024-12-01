@@ -37,6 +37,18 @@ services:
         condition: service_healthy
     restart: on-failure
 
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "5173:5173"
+    networks:
+      - app-network
+    depends_on:
+      backend:
+        condition: service_started
+    restart: on-failure
+
 networks:
   app-network:
     driver: bridge

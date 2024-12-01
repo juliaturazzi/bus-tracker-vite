@@ -1,23 +1,26 @@
-import React, {useEffect, useState} from "react";
-import {SidebarProvider, SidebarTrigger} from "@/components/ui/sidebar";
-import {AppSidebar} from "@/components/app-sidebar";
-import {ThemeProvider} from "@/components/theme-provider";
+import React, { useState, useEffect } from "react";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
+import { ThemeProvider } from "@/components/theme-provider";
 import Map from "@/components/map";
 import stopsData from "@/stops.json";
 import busIcon from "@/images/bus-icon-app.png";
 import Header from "@/components/header";
 import FormBusTracker from "@/components/form-bus";
 import CopyRight from "@/components/copy-right";
-import {ModeToggle} from "@/components/mode-toggle";
+import { ModeToggle } from "@/components/mode-toggle";
 import BusPopup from "@/components/bus-popup";
-import {DialogCloseButton} from "@/components/login";
-export default function RootLayout({ }: Readonly<{children: React.ReactNode}>) {
+import { AuthDialog } from "@/components/login";
+import { useAuth } from "@/components/auth_context";
+
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+    const { isLoggedIn, logOut } = useAuth(); // Access login state from AuthContext
+    const [isDialogOpen, setIsDialogOpen] = useState(!isLoggedIn);
     const [busData, setBusData] = useState([]);
     const [formData, setFormData] = useState({});
     const [lineData, setLineData] = useState("");
     const [selectedStop, setSelectedStop] = useState("");
 
-    // write way to parse and get information from formData
     useEffect(() => {
         if (formData.busLine) {
             setLineData(formData.busLine);
@@ -25,56 +28,59 @@ export default function RootLayout({ }: Readonly<{children: React.ReactNode}>) {
     }, [formData]);
 
     useEffect(() => {
-        if (selectedStop) {
-            setSelectedStop(selectedStop);
-        }
         console.log("selectedStop:", selectedStop);
-    }
-        , [selectedStop]);
+    }, [selectedStop]);
 
     return (
         <div className="h-screen flex font-sans">
             <ThemeProvider storageKey="vite-ui-theme">
-                <div className="w-1/2">
-                <DialogCloseButton/>
-                    <SidebarProvider defaultOpen={false}>
-                        <AppSidebar />
-                        <main className="flex flex-1 flex-col gap-2 p-2 pt-0 w-full h-screen">
-                            <div className="flex gap-1 items-center">
-                                <SidebarTrigger/>
-                                <ModeToggle />
-                            </div>
-                            <div className="flex flex-col items-center p-20">
-                                <div className="flex flex-col w-full gap-4">
-                                    <img
-                                        src={busIcon}
-                                        className="w-12 h-12 rounded-full"
-                                        alt="Bus Icon"
-                                    />
-                                    <Header />
-                                </div>
-                                <div className="w-full gap-20">
-                                    <FormBusTracker mapStop={selectedStop} setBusData={setBusData} setFormData={setFormData} />
-                                </div>
-                                <div className="w-full gap-20">
-                                    <CopyRight />
-                                </div>
-                            </div>
-                        </main>
-                    </SidebarProvider>
-                </div>
-                <div className="w-1/2 h-screen relative">
-                    <Map
-                        submitted={false}
-                        onStopSelected={() => { }}
-                        selectedBusStop={null}
-                        setSelectStop={setSelectedStop}
-                        allStops={stopsData}
-                        busData={[]}
-                    />
-                    <BusPopup busData={busData} lineData={lineData} />
-                </div>
+                {isLoggedIn || !isDialogOpen ? (
+                    <>
+                        <div className="w-1/2">
+                            <SidebarProvider defaultOpen={false}>
+                                <AppSidebar isLoggedIn={isLoggedIn} />
+                                <main className="flex flex-1 flex-col gap-2 p-2 pt-0 w-full h-screen">
+                                    <div className="flex gap-1 items-center">
+                                        <SidebarTrigger />
+                                        <ModeToggle />
+                                    </div>
+                                    <div className="flex flex-col items-center p-20">
+                                        <div className="flex flex-col w-full gap-4">
+                                            <img src={busIcon} className="w-12 h-12 rounded-full" alt="Bus Icon" />
+                                            <Header />
+                                        </div>
+                                        <div className="w-full gap-20">
+                                            <FormBusTracker
+                                                isLoggedIn={isLoggedIn}
+                                                mapStop={selectedStop}
+                                                setBusData={setBusData}
+                                                setFormData={setFormData}
+                                            />
+                                        </div>
+                                        <div className="w-full gap-20">
+                                            <CopyRight />
+                                        </div>
+                                    </div>
+                                </main>
+                            </SidebarProvider>
+                        </div>
+                        <div className="w-1/2 h-screen relative">
+                            <Map
+                                submitted={false}
+                                onStopSelected={() => {}}
+                                selectedBusStop={null}
+                                setSelectStop={setSelectedStop}
+                                allStops={stopsData}
+                                busData={[]}
+                            />
+                            <BusPopup busData={busData} lineData={lineData} />
+                        </div>
+                    </>
+                ) : (
+                    <AuthDialog isOpen={isDialogOpen} onClose={() => setIsDialogOpen(false)} />
+                )}
             </ThemeProvider>
         </div>
     );
 }
+
