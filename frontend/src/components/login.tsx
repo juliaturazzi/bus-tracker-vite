@@ -26,9 +26,28 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isRegisterMode, setIsRegisterMode] = useState(false);
 
+  // Validação de email com regex
+  const isValidEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleRegister = async () => {
     setIsLoading(true);
     setError(null);
+
+    // Verificar email e senha antes do envio
+    if (!isValidEmail(email)) {
+      setError("Por favor, insira um email válido.");
+      setIsLoading(false);
+      return;
+    }
+
+    if (!password || password.length < 6) {
+      setError("A senha deve ter pelo menos 6 caracteres.");
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const response = await fetch("http://localhost:8000/register/", {
@@ -116,7 +135,7 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
             </div>
             {isRegisterMode && (
                 <div className="grid gap-2">
-                  <Label htmlFor="password">Usuário</Label>
+                  <Label htmlFor="username">Usuário</Label>
                   <Input
                       id="username"
                       type="text"

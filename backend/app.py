@@ -341,3 +341,83 @@ async def get_travel_times(
         import logging
         logging.error(f"Error in /travel_times/ endpoint: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
+class StopIdentifier(BaseModel):
+    stop_name: str
+    latitude: float
+    longitude: float
+    start_time: str
+    end_time: str
+
+
+# Utility Function to Convert timedelta to String
+def timedelta_to_str(td: timedelta) -> str:
+    seconds = int(td.total_seconds())
+    hours, remainder = divmod(seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    return f"{hours:02}:{minutes:02}:{seconds:02}"
+
+
+@app.get("/stops/registered/", response_model=List[StopRegistration])
+async def get_registered_stops(current_user: dict = Depends(get_current_user)):
+    """
+    Retrieve all bus stops registered by the current authenticated user.
+    """
+    # Fetch stops from database
+    raw_stops = db.get_stops_by_user(current_user["email"])
+
+    stops = [
+        {
+            "bus_line": stop["linha"],  # Assuming `linha` corresponds to `bus_line`
+            "email": stop["email"],
+            "stop_name": stop["stop_name"],
+            "latitude": stop["latitude"],
+            "longitude": stop["longitude"],
+            "start_time": timedelta_to_str(stop["start_time"]),
+            "end_time": timedelta_to_str(stop["end_time"]),
+        }
+        for stop in raw_stops
+    ]
+    return stops
+
+
+@app.delete("/stops/registered/")
+async def delete_registered_stop(
+        stop: StopIdentifier,
+        current_user: dict = Depends(get_current_user),
+):
+    """
+    Delete a specific bus stop registered by the current authenticated user.
+    """
+    try:
+        # Convert string times back to timedelta for comparison
+        start_time_td = timedelta(
+            hours=int(stop.start_time.split(":")[0]),
+            minutes=int(stop.start_time.split(":")[1]),
+            seconds=int(stop.start_time.split(":")[2]),
+        )
+        end_time_td = timedelta(
+            hours=int(stop.end_time.split(":")[0]),
+            minutes=int(stop.end_time.split(":")[1]),
+            seconds=int(stop.end_time.split(":")[2]),
+        )
+
+        # Call the deletion function
+        db.delete_stop(
+            email=current_user["email"],
+            stop_name=stop.stop_name,
+            latitude=stop.latitude,
+            longitude=stop.longitude,
+            start_time=start_time_td,
+            end_time=end_time_td,
+        )
+        return {"status": "success", "message": "Stop deleted successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting stop: {str(e)}")
+
+
+def timedelta_to_str(td: timedelta) -> str:
+    seconds = int(td.total_seconds())
+    hours, remainder = divmod(seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    return f"{hours:02}:{minutes:02}:{seconds:02}"

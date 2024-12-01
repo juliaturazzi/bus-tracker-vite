@@ -194,3 +194,45 @@ class BusStopDatabase:
         conn.commit()
         cursor.close()
         conn.close()
+
+    # Retrieve all bus stops registered by a specific user
+    def get_stops_by_user(self, email: str) -> List[Dict[str, Any]]:
+        conn = self._connect()
+        cursor = conn.cursor(dictionary=True)
+
+        cursor.execute("SELECT * FROM stops WHERE email = %s", (email,))
+        stops = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+
+        return stops
+
+    # Delete a specific bus stop registered by a user
+    def delete_stop(
+            self,
+            email: str,
+            stop_name: str,
+            latitude: float,
+            longitude: float,
+            start_time: str,
+            end_time: str,
+    ):
+        conn = self._connect()
+        cursor = conn.cursor()
+
+        cursor.execute(
+            """
+            DELETE FROM stops 
+            WHERE email = %s 
+              AND stop_name = %s 
+              AND latitude = %s 
+              AND longitude = %s 
+              AND start_time = %s 
+              AND end_time = %s
+            """,
+            (email, stop_name, latitude, longitude, start_time, end_time),
+        )
+        conn.commit()
+        cursor.close()
+        conn.close()
