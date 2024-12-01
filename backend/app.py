@@ -1,8 +1,7 @@
 from datetime import datetime, timedelta
 from typing import Dict, Any
-from pydantic import BaseModel
 import pandas as pd
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import jwt, JWTError
@@ -11,6 +10,19 @@ from passlib.context import CryptContext
 from db.create_db import BusStopDatabase
 from services.bus_data_fetcher import BusDataFetcher
 from services.travel_time_service import TravelTimeService
+from typing import List, Optional
+from pydantic import BaseModel, Field
+
+# Pydantic model for travel time response
+class BusTravelTime(BaseModel):
+    distance: float = Field(..., description="Distance to the bus in kilometers")
+    speed: float = Field(..., description="Speed of the bus in km/h")
+    order: str = Field(..., description="Order of the bus")
+
+class TravelTimeResponse(BaseModel):
+    buses: List[BusTravelTime] = Field(..., description="List of buses with travel times")
+
+
 
 # Constants
 SECRET_KEY = "SKW"
@@ -236,3 +248,96 @@ async def register_stop(
         return {"status": "success", "message": "Bus stop registered successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error registering stop: {str(e)}")
+
+
+@app.get("/travel_times/", response_model=TravelTimeResponse)
+async def get_travel_times(
+        bus_line: Optional[str] = Query(None, description="Bus line identifier"),
+        stop_name: str = Query(..., description="Name of the bus stop"),
+        latitude: float = Query(..., description="Latitude of the bus stop"),
+        longitude: float = Query(..., description="Longitude of the bus stop"),
+        start_time: str = Query(..., description="Start time in HH:MM:SS format"),
+        end_time: str = Query(..., description="End time in HH:MM:SS format"),
+):
+    """
+    GET endpoint to retrieve buses and their travel times from a bus stop.
+
+    Parameters:
+    - bus_line: (Optional) Filter buses by this bus line.
+    - stop_name: Name of the bus stop.
+    - latitude: Latitude of the bus stop.
+    - longitude: Longitude of the bus stop.
+    - start_time: Start time for fetching bus data (format: HH:MM:SS).
+    - end_time: End time for fetching bus data (format: HH:MM:SS).
+
+    Returns:
+    - buses: List of buses with their distance, speed, and order.
+    """
+    try:
+        # Initialize services
+        fetcher = BusDataFetcher()
+        service = TravelTimeService()
+
+        # Fetch bus data within the specified time range
+        buses_data = fetcher.get_buses_data(start_time, end_time)
+
+        if not buses_data:
+            return {"buses": []}
+
+        # Filter buses by bus_line if provided
+        if bus_line:
+            seen_ordem = set()
+            filtered_buses = []
+            for line_data in buses_data:
+                if (
+                        str(line_data.get("linha")) == str(bus_line)
+                        and line_data.get("ordem") not in seen_ordem
+                ):
+                    seen_ordem.add(line_data.get("ordem"))
+                    bus_info = {
+                        "linha": line_data.get("linha"),
+                        "velocidade": line_data.get("velocidade"),
+                        "latitude": parse_coords(line_data.get("latitude")),
+                        "longitude": parse_coords(line_data.get("longitude")),
+                        "ordem": line_data.get("ordem"),
+                    }
+                    filtered_buses.append(bus_info)
+        else:
+            # If no bus_line filter is applied, include all buses
+            filtered_buses = [
+                {
+                    "linha": bus.get("linha"),
+                    "velocidade": bus.get("velocidade"),
+                    "latitude": parse_coords(bus.get("latitude")),
+                    "longitude": parse_coords(bus.get("longitude")),
+                    "ordem": bus.get("ordem"),
+                }
+                for bus in buses_data
+            ]
+
+        if not filtered_buses:
+            return {"buses": []}
+
+        # Prepare bus stop coordinates
+        bus_stop_coords = {"lat": latitude, "lon": longitude}
+
+        # Calculate travel times using TravelTimeService
+        travel_times = service.get_travel_times(bus_stop_coords, filtered_buses)
+
+        # Format the response to match MOCK_BUS_DATA structure
+        response_buses = [
+            BusTravelTime(
+                distance=bus["distancia"],
+                speed=bus["velocidade"],
+                order=bus["ordem"],
+            )
+            for bus in travel_times
+        ]
+
+        return {"buses": response_buses}
+
+    except Exception as e:
+        # Log the error details (optional)
+        import logging
+        logging.error(f"Error in /travel_times/ endpoint: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")

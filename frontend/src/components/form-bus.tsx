@@ -61,15 +61,16 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
         defaultValues: {
             busLine: "",
             busStop: mapStop || "",
-            startTime: isLoggedIn ? "" : new Date().toISOString().slice(11, 16),
+            startTime: isLoggedIn
+                ? new Date().toISOString().slice(11, 16)
+                : new Date().toISOString().slice(11, 16),
             endTime: isLoggedIn
-                ? ""
-                : new Date(new Date().getTime() + 60 * 60 * 1000)
-                    .toISOString()
-                    .slice(11, 16),
+                ? new Date(new Date().getTime() + 60 * 60 * 1000).toISOString().slice(11, 16)
+                : new Date(new Date().getTime() + 60 * 60 * 1000).toISOString().slice(11, 16),
         },
         mode: "onChange",
     });
+
 
     const { isValid } = form.formState;
 
@@ -112,23 +113,25 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
     useEffect(() => {
         console.log("Form state changed. Validity:", isValid ? "✅ Valid" : "❌ Invalid");
         console.log("Current form values:", form.getValues());
+        console.log("Errors:", form.formState.errors);
     }, [isValid, watchAllFields]);
+
 
     const {theme} = useTheme();
     const onSubmit = async (data: FormData) => {
         console.log("Submitting form with data:", data);
         setIsLoading(true);
 
+        // Determine start and end times
         const startTime = isLoggedIn ? data.startTime : new Date().toISOString().slice(11, 16);
         const endTime = isLoggedIn
             ? data.endTime
-            : new Date(new Date().getTime() + 60 * 60 * 1000)
-                .toISOString()
-                .slice(11, 16);
+            : new Date(new Date().getTime() + 60 * 60 * 1000).toISOString().slice(11, 16);
 
-        const {lat, lon} = getStopCoords(selectedStop);
-        const formData = {
-            bus_line: data.busLine, // Adjust field names to match the Pydantic model
+        // Get bus stop coordinates
+        const { lat, lon } = getStopCoords(selectedStop);
+        const processedFormData = {
+            bus_line: data.busLine, // Adjust field names to match the backend Pydantic model
             stop_name: selectedStopName || "",
             latitude: parseFloat(lat) || 0, // Ensure correct data type
             longitude: parseFloat(lon) || 0,
@@ -136,34 +139,76 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
             end_time: endTime,     // Already set earlier
         };
 
+        console.log("Processed form data for submission:", processedFormData);
+        setFormData(processedFormData);
+        console.log("Data being sent to the server:", JSON.stringify(processedFormData));
 
-        console.log("Processed form data for submission:", formData);
+        if (isLoggedIn) {
+            // User is logged in: Register the stop and possibly handle additional logic
+            try {
+                const token = localStorage.getItem("authToken");
+                const response = await fetch("http://localhost:8000/stops/register/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`, // Include the token
+                    },
+                    body: JSON.stringify(processedFormData),
+                });
 
-        setFormData(formData);
-        console.log("Data being sent to the server:", JSON.stringify(formData));
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+                }
 
-        try {
-            const token = localStorage.getItem("authToken");
-            const response = await fetch("http://localhost:8000/stops/register", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`, // Include the token
-                },
-                body: JSON.stringify(formData),
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const result = await response.json();
+                console.log("Successfully registered stop:", result);
+                // Optionally, you might want to inform the user of successful registration
+                // For example, display a success message or update UI accordingly
+            } catch (error) {
+                console.error("Error registering bus stop:", error);
+                // Optionally, display an error message to the user
+            } finally {
+                setIsLoading(false);
             }
+        } else {
+            // User is not logged in: Fetch travel times
+            try {
+                // Construct query parameters
+                const queryParams = new URLSearchParams({
+                    bus_line: processedFormData.bus_line,
+                    stop_name: processedFormData.stop_name,
+                    latitude: processedFormData.latitude.toString(),
+                    longitude: processedFormData.longitude.toString(),
+                    start_time: processedFormData.start_time,
+                    end_time: processedFormData.end_time,
+                });
 
-            const buses = await response.json();
-            console.log("Received buses data from API:", buses);
-            setBusData(buses);
-        } catch (error) {
-            console.error("Error fetching bus data:", error);
-        } finally {
-            setIsLoading(false);
+                const url = `http://localhost:8000/travel_times/?${queryParams.toString()}`;
+
+                const response = await fetch(url, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        // No Authorization header needed since the user is logged out
+                    },
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log("Received travel times data from API:", data);
+
+                setBusData(data.buses);
+            } catch (error) {
+                console.error("Error fetching travel times:", error);
+                // Optionally, display an error message to the user
+            } finally {
+                setIsLoading(false);
+            }
         }
     };
 
@@ -190,7 +235,9 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
                                     {...field}
                                     onChange={(e) => {
                                         console.log("Bus line changed:", e.target.value);
-                                        field.onChange(e);
+                                        field.onChange(e); // Update form value
+                                        // Trigger validation for related fields
+                                        form.trigger(["busLine", "busStop"]);
                                     }}
                                 />
                             </FormControl>
@@ -198,6 +245,7 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
                         </FormItem>
                     )}
                 />
+
                 <FormItem>
                     <FormLabel>Ponto de ônibus</FormLabel>
                     <FormControl>
@@ -209,12 +257,15 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
                                 setSelectedStop(stopId);
                                 setSelectedStopName(stopName);
                                 setFormStop(stopName);
-                                form.setValue("busStop", stopName);
+                                form.setValue("busStop", stopName); // Update form value
+                                // Trigger validation for related fields
+                                form.trigger(["busLine", "busStop"]);
                             }}
                         />
                     </FormControl>
                     <FormMessage />
                 </FormItem>
+
 
                 {isLoggedIn && !isNow && (
                     <>
