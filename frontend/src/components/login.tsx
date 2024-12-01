@@ -122,7 +122,7 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
   return (
       <>
         <Dialog open={isOpen} onOpenChange={onClose}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="sm:max-w-md" showCloseButton={false}>
             <DialogHeader>
               <DialogTitle>{isRegisterMode ? "Cadastrar" : "Log In"}</DialogTitle>
               <DialogDescription>
@@ -183,7 +183,7 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
         {/* Success Popup */}
         {isSuccess && (
             <Dialog open={isSuccess}>
-              <DialogContent>
+              <DialogContent  showCloseButton={false}>
                 <DialogHeader>
                   <DialogTitle>Sucesso!</DialogTitle>
                 </DialogHeader>
