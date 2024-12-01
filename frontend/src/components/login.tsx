@@ -119,6 +119,10 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
     onClose();
   };
 
+  function toggleMode() {
+    setIsRegisterMode((prevMode) => !prevMode);
+    setError(null);
+  }
   return (
       <>
         <Dialog open={isOpen} onOpenChange={onClose}>
@@ -154,13 +158,12 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
               </div>
             </div>
             <div className="flex space-x-4">
-              <Button
-                  type="button"
-                  className="gap-2 text-sm py-2 px-4 flex items-center"
-                  onClick={() => setIsRegisterMode(!isRegisterMode)}
-              >
-                {isRegisterMode ? "Já possui conta?" : "Criar conta?"}
-              </Button>
+            <span
+              onClick={toggleMode}
+              className="text-blue-500 cursor-pointer hover:underline"
+            >
+              {isRegisterMode ? "Já possui conta? Entre aqui!" : "Não possui conta? Crie uma aqui!"}
+            </span>
             </div>
             {error && <div className="text-red-500 mt-2">{error}</div>}
             <DialogFooter>
