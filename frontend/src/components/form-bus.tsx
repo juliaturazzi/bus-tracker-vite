@@ -40,6 +40,7 @@ const schema = z
 
 type FormData = z.infer<typeof schema>;
 
+
 interface FormBusTrackerProps {
     mapStop?: string; // Optional prop for the initial stop ID
     setBusData: React.Dispatch<React.SetStateAction<any[]>>;
@@ -86,6 +87,13 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
         console.log("Found stop name:", name);
         return name;
     };
+    const getStopCoords = (stopId: string | null): { lat: string; lon: string } => {
+        console.log("Fetching stop coordinates for ID:", stopId);
+        const stop = allStops.find((stop) => stop.id === stopId);
+        const coords = stop ? {lat: stop.stop_lat, lon: stop.stop_lon} : {lat: '0.0', lon: '0.0'};
+        console.log("Found stop coordinates:", coords);
+        return coords;
+    };
 
     // Effect to handle initial stop based on mapStop
     useEffect(() => {
@@ -106,6 +114,7 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
         console.log("Current form values:", form.getValues());
     }, [isValid, watchAllFields]);
 
+    const {theme} = useTheme();
     const onSubmit = async (data: FormData) => {
         console.log("Submitting form with data:", data);
         setIsLoading(true);
@@ -117,11 +126,12 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
                 .toISOString()
                 .slice(11, 16);
 
+        const {lat, lon} = getStopCoords(selectedStop);
         const formData = {
             bus_line: data.busLine, // Adjust field names to match the Pydantic model
             stop_name: selectedStopName || "",
-            latitude: parseFloat(selectedStop?.lat) || 0, // Ensure correct data type
-            longitude: parseFloat(selectedStop?.lon) || 0,
+            latitude: parseFloat(lat) || 0, // Ensure correct data type
+            longitude: parseFloat(lon) || 0,
             start_time: startTime, // Already set earlier
             end_time: endTime,     // Already set earlier
         };
@@ -302,6 +312,7 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
                             setIsNow(!isLoggedIn);
                         }}
                     >
+                        <img src={theme === 'light'? CleanIconWhite : CleanIcon} className="w-4 h-4" alt="Icon" />
                         Limpar campos
                     </Button>
                     <Button

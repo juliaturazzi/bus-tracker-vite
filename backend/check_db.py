@@ -53,8 +53,8 @@ def stop_to_dict(stop):
 async def evaluate_travel_time(stop, buses, service):
     bus_stop_info = {
         "bus_stop": stop["stop_name"],
-        "lat": stop["lat"],
-        "lon": stop["lon"],
+        "lat": stop["latitude"],
+        "lon": stop["longitude"],
     }
     logging.info(
         f"Evaluating travel time for stop: {stop['stop_name']} with buses: {[bus['ordem'] for bus in buses]}"
