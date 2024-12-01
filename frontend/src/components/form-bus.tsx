@@ -41,6 +41,18 @@ const schema = z
 type FormData = z.infer<typeof schema>;
 
 
+const getLocalTimeWithOffset = (offsetHours: number = 0) => {
+    const now = new Date();
+    now.setHours(now.getHours() + offsetHours); // Add offset in hours
+    const options: Intl.DateTimeFormatOptions = {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+        timeZone: 'America/Sao_Paulo',
+    };
+    return new Intl.DateTimeFormat('pt-BR', options).format(now);
+};
+
 interface FormBusTrackerProps {
     mapStop?: string; // Optional prop for the initial stop ID
     setBusData: React.Dispatch<React.SetStateAction<any[]>>;
@@ -61,12 +73,10 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
         defaultValues: {
             busLine: "",
             busStop: mapStop || "",
-            startTime: isLoggedIn
-                ? new Date().toISOString().slice(11, 16)
-                : new Date().toISOString().slice(11, 16),
+            startTime: isLoggedIn ? "" : getLocalTimeWithOffset(),
             endTime: isLoggedIn
-                ? new Date(new Date().getTime() + 60 * 60 * 1000).toISOString().slice(11, 16)
-                : new Date(new Date().getTime() + 60 * 60 * 1000).toISOString().slice(11, 16),
+                ? ""
+                : getLocalTimeWithOffset(1),
         },
         mode: "onChange",
     });
