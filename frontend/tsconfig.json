@@ -2,7 +2,8 @@
   "compilerOptions": {
     "baseUrl": ".", 
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@images/*": ["images/*"]
     },
     "moduleResolution": "node", // Ensures TypeScript resolves modules correctly
     "esModuleInterop": true,    // Allows default imports for CommonJS-style modules

@@ -6,7 +6,8 @@ import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/
 import {Button} from "@/components/ui/button";
 import {Progress} from "@/components/ui/progress";
 import * as z from "zod";
-import CleanIcon from "@/images/clear-icon.svg";
+import CleanIcon from "@/images/clear-icon.png";
+import CleanIconWhite from "@/images/clear-icon-white.png";
 import StopsDropdown from "./stops-dropdown";
 import {Slider} from "@/components/ui/slider";
 import allStops from "@/stops.json"; // JSON containing the stops data
@@ -22,8 +23,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {useTheme} from "@/components/theme-provider";
 
-// Validation schema for the form
+
 const schema = z
   .object({
     busLine: z.string().min(1, "Linha do ônibus é obrigatória"),
@@ -88,6 +90,7 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({setFormStop, mapStop, se
     console.log("Current form values:", form.getValues());
   }, [isValid, form.watch()]);
 
+  const {theme} = useTheme();
 
   const onSubmit = async (data: FormData) => {
     console.log("Form data before processing:", data);
@@ -246,7 +249,7 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({setFormStop, mapStop, se
               setIsNow(false); // Reset the switch state
             }}
           >
-            <img src={CleanIcon} className="w-4 h-4" alt="Icon" />
+            <img src={theme === 'light'? CleanIconWhite : CleanIcon} className="w-4 h-4" alt="Icon" />
             Limpar campos
           </Button>
           <AlertDialog>

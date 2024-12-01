@@ -48,7 +48,7 @@ export function DialogCloseButton() {
         </Button>
         <DialogClose asChild>
           <Button type="button" variant="secondary">
-            Fechar
+            Continuar sem log in
           </Button>
         </DialogClose>
       </DialogFooter>

@@ -1,0 +1,8 @@
+
+.custom-time-input::-webkit-calendar-picker-indicator {
+  filter: invert(1); /* Example to change icon color */
+}
+
+.custom-time-input::-webkit-calendar-picker-indicator {
+  color: white;
+}
