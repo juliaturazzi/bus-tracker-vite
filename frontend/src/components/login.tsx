@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -74,6 +74,12 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
     }
   };
 
+  useEffect(() => {
+    if (email) {
+      setUsername(email);
+    }
+  } , [email]);
+
   const handleLogin = async () => {
     setIsLoading(true);
     setError(null);
@@ -136,18 +142,6 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
                     disabled={isLoading}
                 />
               </div>
-              {isRegisterMode && (
-                  <div className="grid gap-2">
-                    <Label htmlFor="username">Usuário</Label>
-                    <Input
-                        id="username"
-                        type="text"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        disabled={isLoading}
-                    />
-                  </div>
-              )}
               <div className="grid gap-2">
                 <Label htmlFor="password">Senha</Label>
                 <Input
