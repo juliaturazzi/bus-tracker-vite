@@ -128,11 +128,11 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
         <Dialog open={isOpen} onOpenChange={onClose}>
           <DialogContent className="sm:max-w-md" showCloseButton={false}>
             <DialogHeader>
-              <DialogTitle>{isRegisterMode ? "Cadastrar" : "Log In"}</DialogTitle>
+              <DialogTitle>{isRegisterMode ? "Cadastre-se" : "Bem vindo de volta!"}</DialogTitle>
               <DialogDescription>
                 {isRegisterMode
                     ? "Crie uma nova conta preenchendo os campos abaixo."
-                    : "Digite seu nome de usuário e senha para fazer login."}
+                    : "Digite seu email e senha para fazer login."}
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4">
