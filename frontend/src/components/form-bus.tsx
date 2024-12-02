@@ -19,18 +19,8 @@ import StopsDropdown from "./stops-dropdown";
 import { Slider } from "@/components/ui/slider";
 import allStops from "@/stops.json"; // JSON containing the stops data
 import { Switch } from "@/components/ui/switch";
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { useTheme } from "@/components/theme-provider";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 // Define the validation schema using Zod
 const schema = z
@@ -550,6 +540,18 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
                     >
                         Enviar
                     </Button>
+
+                    {successfulRegistration && (
+                        <Dialog open={successfulRegistration} onOpenChange={setSuccessfulRegistration}>
+                        <DialogTitle>Alerta registrado!</DialogTitle>
+                        <DialogContent showCloseButton={true}>
+                            <p><strong>Linha do ônibus:</strong> {form.getValues().busLine}</p>
+                            <p><strong>Ponto de ônibus:</strong> {form.getValues().busStop}</p>
+                            <p><strong>Horário Inicial:</strong> {form.getValues().startTime}</p>
+                            <p><strong>Horário Final</strong> {form.getValues().endTime}</p>
+                        </DialogContent>
+                        </Dialog>
+                    )}
                 </div>
             </form>
         </Form>
