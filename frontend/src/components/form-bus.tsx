@@ -104,6 +104,7 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
     const [isLoading, setIsLoading] = useState(false);
     const [progress, setProgress] = useState(0);
     const [errorMessage, setErrorMessage] = useState<string | null>(null); // Optional error message state
+    const [successfulRegistration, setSuccessfulRegistration] = useState(false);
 
     const { theme } = useTheme();
 
@@ -208,6 +209,7 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
                     errorData.detail || `HTTP error! status: ${response.status}`
                 );
             }
+            setSuccessfulRegistration(true);
 
             const result = await response.json();
             console.log("Successfully registered stop:", result);
