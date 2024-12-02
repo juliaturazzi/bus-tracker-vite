@@ -53,7 +53,8 @@ class BusStopDatabase:
                 longitude DOUBLE NOT NULL,
                 start_time TIME NOT NULL,
                 end_time TIME NOT NULL,
-                PRIMARY KEY (email, stop_name, latitude, longitude, start_time, end_time)
+                max_distance INT NOT NULL,
+                PRIMARY KEY (email, stop_name, latitude, longitude, start_time, end_time, max_distance)
             );
             """
         )
@@ -83,16 +84,17 @@ class BusStopDatabase:
         longitude: float,
         start_time: str,
         end_time: str,
+        max_distance: int,
     ):
         conn = self._connect()
         cursor = conn.cursor()
 
         cursor.execute(
             f"""
-            INSERT INTO stops (email, linha, stop_name, latitude, longitude, start_time, end_time)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO stops (email, linha, stop_name, latitude, longitude, start_time, end_time, max_distance)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """,
-            (email, bus_line, stop_name, latitude, longitude, start_time, end_time),
+            (email, bus_line, stop_name, latitude, longitude, start_time, end_time, max_distance),
         )
 
         conn.commit()
@@ -217,6 +219,7 @@ class BusStopDatabase:
             longitude: float,
             start_time: str,
             end_time: str,
+            max_distance: int,
     ):
         conn = self._connect()
         cursor = conn.cursor()
@@ -230,8 +233,9 @@ class BusStopDatabase:
               AND longitude = %s 
               AND start_time = %s 
               AND end_time = %s
+              AND max_distance = %s
             """,
-            (email, stop_name, latitude, longitude, start_time, end_time),
+            (email, stop_name, latitude, longitude, start_time, end_time, max_distance),
         )
         conn.commit()
         cursor.close()

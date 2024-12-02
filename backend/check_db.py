@@ -74,11 +74,12 @@ async def collect_bus_data(stop, buses, service):
     updated_buses = await evaluate_travel_time(stop, buses, service)
     for bus in updated_buses:
         distancia = bus.get("distancia")
+        max_distance = stop.get("max_distance")
         # Ensure 'id' exists; adjust if your identifier is different
         bus_id = bus.get("id") or bus.get("ordem")
         logging.info(f"Processing bus ID: {bus_id}, Distance: {distancia}")
         if distancia != "Not found" and bus_id:
-            if NEARBY_BUSES_MINUTES_MIN <= float(distancia) < NEARBY_BUSES_MINUTES_MAX:
+            if 0 <= float(distancia) < max_distance:
                 bus_data[bus_id] = distancia
                 logging.info(f"Bus ID {bus_id} is within range: {distancia} minutes")
             else:

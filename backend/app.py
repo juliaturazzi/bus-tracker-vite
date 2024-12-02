@@ -15,6 +15,8 @@ from pydantic import BaseModel, Field
 
 # Pydantic model for travel time response
 class BusTravelTime(BaseModel):
+    latitude: float = Field(..., description="Latitude of the bus stop")
+    longitude: float = Field(..., description="Longitude of the bus stop")
     distance: float = Field(..., description="Distance to the bus in kilometers")
     speed: float = Field(..., description="Speed of the bus in km/h")
     order: str = Field(..., description="Order of the bus")
@@ -225,6 +227,7 @@ class StopRegistration(BaseModel):
     longitude: float
     start_time: str
     end_time: str
+    max_distance: int
 
 
 @app.post("/stops/register/")
@@ -244,6 +247,7 @@ async def register_stop(
             longitude=stop.longitude,
             start_time=stop.start_time,
             end_time=stop.end_time,
+            max_distance=stop.max_distance,
         )
         return {"status": "success", "message": "Bus stop registered successfully"}
     except Exception as e:
@@ -327,6 +331,8 @@ async def get_travel_times(
         # Format the response to match MOCK_BUS_DATA structure
         response_buses = [
             BusTravelTime(
+                latitude=bus["latitude"],
+                longitude=bus["longitude"],
                 distance=bus["distancia"],
                 speed=bus["velocidade"],
                 order=bus["ordem"],
@@ -375,6 +381,7 @@ async def get_registered_stops(current_user: dict = Depends(get_current_user)):
             "longitude": stop["longitude"],
             "start_time": timedelta_to_str(stop["start_time"]),
             "end_time": timedelta_to_str(stop["end_time"]),
+            "max_distance": stop["max_distance"],
         }
         for stop in raw_stops
     ]
@@ -410,6 +417,7 @@ async def delete_registered_stop(
             longitude=stop.longitude,
             start_time=start_time_td,
             end_time=end_time_td,
+            max_distance=stop.max_distance,
         )
         return {"status": "success", "message": "Stop deleted successfully"}
     except Exception as e:

@@ -37,6 +37,8 @@ const OpenLayersMap: React.FC<OpenLayersMapProps> = ({
 
     const [stopNotFound, setStopNotFound] = useState(false);
 
+    console.log("busData", busData);
+
     // Initialize the map
     useEffect(() => {
         const busFeatures = busData.map((bus: { longitude: number; latitude: number }) => {
@@ -86,8 +88,8 @@ const OpenLayersMap: React.FC<OpenLayersMapProps> = ({
                 new TileLayer({
                     source: new OSM(),
                 }),
-                busLayer,
                 stopLayer,
+                busLayer,
             ],
             view: new View({
                 center: fromLonLat([-43.1729, -22.9068]),

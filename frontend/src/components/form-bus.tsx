@@ -33,6 +33,7 @@ const schema = z
         endTime: z
             .string()
             .regex(/^([0-1]\d|2[0-3]):([0-5]\d)$/, "Formato de horário inválido"),
+        distance: z.number().min(1, "Distância é obrigatória"),
     })
     .refine((data) => data.startTime < data.endTime, {
         message: "O horário inicial deve ser anterior ao horário final",
@@ -80,13 +81,15 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
             busStop: mapStop || "",
             startTime: isLoggedIn ? "" : getLocalTimeWithOffset(),
             endTime: isLoggedIn ? "" : getLocalTimeWithOffset(1),
+            distance: 10, // Default distance
         },
         mode: "onChange",
     });
 
     const { isValid } = form.formState;
 
-    const [sliderValue, setSliderValue] = useState<number[]>([10]);
+    const [sliderValue, setSliderValue] = useState<number[]>([form.getValues("distance") || 10]);
+
     const [selectedStop, setSelectedStop] = useState<string | null>(null);
     const [selectedStopName, setSelectedStopName] = useState<string | null>(null);
     const [isNow, setIsNow] = useState(!isLoggedIn); // Default to true for non-logged-in users.
@@ -220,6 +223,7 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
                 longitude: data.longitude.toString(),
                 start_time: data.start_time,
                 end_time: data.end_time,
+                max_distance: data.distance,
             });
 
             const url = `${API_BASE_URL}/travel_times/?${queryParams.toString()}`;
@@ -274,6 +278,7 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
                 longitude: parseFloat(lon) || 0,
                 start_time: startTime, // Already set earlier
                 end_time: endTime, // Already set earlier
+                max_distance: data.distance,
             };
 
             console.log(
@@ -466,20 +471,16 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
                             />
                         </div>
                         <FormItem>
-                            <FormLabel>
-                                Distância do ônibus (em minutos)
-                            </FormLabel>
+                            <FormLabel>Distância do ônibus (em minutos)</FormLabel>
                             <div className="flex items-center space-x-4 text-sm">
                                 <Slider
                                     value={sliderValue}
                                     onValueChange={(value) => {
-                                        console.log(
-                                            "Slider value changed:",
-                                            value
-                                        );
+                                        console.log("Slider value changed:", value);
                                         setSliderValue(value);
+                                        form.setValue("distance", value[0], { shouldValidate: true }); // Update form value
+                                        form.setValue("max_distance", value[0], { shouldValidate: true }); // Add this line
                                     }}
-                                    defaultValue={[10]}
                                     min={1}
                                     max={60}
                                     step={1}
@@ -552,7 +553,7 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
                                 <p><strong>Ponto de ônibus: </strong> {form.getValues().busStop}</p>
                                 <p><strong>Horário Inicial: </strong> {form.getValues().startTime}</p>
                                 <p><strong>Horário Final: </strong> {form.getValues().endTime}</p>
-                                <p><strong>Distância em minutos para o alerta: </strong> {form.getValues().endTime}</p>
+                                <p><strong>Distância em minutos para o alerta: </strong> {form.getValues().distance}</p>
                             </DialogContent>
                         </Dialog>
                     )}

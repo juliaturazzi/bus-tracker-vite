@@ -16,5 +16,6 @@ CREATE TABLE IF NOT EXISTS stops (
     longitude DOUBLE NOT NULL,
     start_time TIME NOT NULL,
     end_time TIME NOT NULL,
-    PRIMARY KEY (email, stop_name, latitude, longitude, start_time, end_time)
+    max_distance INT NOT NULL,
+    PRIMARY KEY (email, stop_name, latitude, longitude, start_time, end_time, max_distance)
 );
