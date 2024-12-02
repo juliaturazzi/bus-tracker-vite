@@ -1,5 +1,3 @@
-// src/components/HomePage.jsx
-import React from 'react';
 import FormBusTracker from "@/components/form-bus";
 import Header from "@/components/header";
 import busIcon from "@/images/bus-icon-app.png";
@@ -34,7 +32,7 @@ export function HomePage = () => {
             </div>
             <div className="w-full gap-20">
                 <FormBusTracker
-                    isLoggedIn={true} // Adjust based on your auth logic
+                    isLoggedIn={true}
                     mapStop={selectedStop}
                     setBusData={setBusData}
                     setFormData={setFormData}

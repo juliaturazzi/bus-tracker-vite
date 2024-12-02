@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { LogOutIcon, LogInIcon, List, CircleHelp } from "lucide-react";
 import { NavUser } from "@/components/nav-user";
 import {
@@ -48,20 +48,19 @@ export function AppSidebar({ isLoggedIn, ...props }: AppSidebarProps) {
                 <SidebarContent>
                     <Collapsible asChild className="group/collapsible">
                         <div className="space-y-2">
-                            {/* Button to open the Registered Stops dialog */}
                             <button
                                 onClick={isLoggedIn ? () => setIsDialogOpen(true) : undefined}
                                 className={`flex h-8 items-center space-x-4 rounded-md px-3 text-sm font-medium text-sidebar-foreground/70 transition [&>svg]:w-6 [&>svg]:h-6 [&>svg]:shrink-0
-        ${isLoggedIn ? "hover:bg-sidebar-hover focus-visible:outline focus-visible:ring-2 focus-visible:ring-sidebar-ring" : "opacity-50 cursor-not-allowed"}`}
+                                            ${isLoggedIn ? "hover:bg-sidebar-hover focus-visible:outline focus-visible:ring-2 focus-visible:ring-sidebar-ring" 
+                                            : "opacity-50 cursor-not-allowed"}`}
                                 aria-expanded={isLoggedIn ? isDialogOpen : undefined}
                                 aria-controls="registered-stops-dialog"
-                                disabled={!isLoggedIn} // Optional: Disable button if not logged in
+                                disabled={!isLoggedIn} 
                             >
                                 <List className="w-6 h-6"/>
                                 <span>Todos os alertas</span>
                             </button>
 
-                            {/* Dialog for Registered Stops */}
                             {isDialogOpen && (
                                 <RegisteredStops
                                     onClose={() => setIsDialogOpen(false)}
@@ -69,7 +68,6 @@ export function AppSidebar({ isLoggedIn, ...props }: AppSidebarProps) {
                                 />
                             )}
 
-                            {/* Button to open the Bus Tracker Instructions dialog */}
                             <button
                                 onClick={() => setIsInstructionsOpen(true)}
                                 className="flex h-8 items-center space-x-4 rounded-md px-3 text-sm font-medium text-sidebar-foreground/70 transition hover:bg-sidebar-hover focus-visible:outline focus-visible:ring-2 focus-visible:ring-sidebar-ring [&>svg]:w-6 [&>svg]:h-6 [&>svg]:shrink-0"
@@ -77,10 +75,9 @@ export function AppSidebar({ isLoggedIn, ...props }: AppSidebarProps) {
                                 aria-controls="bus-tracker-instructions-dialog"
                             >
                                 <CircleHelp className="w-6 h-6"/>
-                                <span>Instruções do Rastreador</span>
+                                <span>Instruções do Bus Tracker</span>
                             </button>
 
-                            {/* Dialog for Bus Tracker Instructions */}
                             <BusTrackerInstructions
                                 open={isInstructionsOpen}
                                 onClose={() => setIsInstructionsOpen(false)}
@@ -88,17 +85,17 @@ export function AppSidebar({ isLoggedIn, ...props }: AppSidebarProps) {
                             <button
                                 onClick={handleLogout}
                                 className="flex h-8 items-center space-x-4 rounded-md px-3 text-sm font-medium text-sidebar-foreground/70 transition hover:bg-sidebar-hover focus-visible:outline focus-visible:ring-2 focus-visible:ring-sidebar-ring [&>svg]:w-6 [&>svg]:h-6 [&>svg]:shrink-0"
-                                aria-label={isLoggedIn ? "Log Out" : "Log In"}
+                                aria-label={isLoggedIn ? "Sair" : "Entrar"}
                             >
                                 {isLoggedIn ? (
                                     <>
                                         <LogOutIcon className="w-6 h-6"/>
-                                        <span>Log Out</span>
+                                        <span>Sair</span>
                                     </>
                                 ) : (
                                     <>
                                         <LogInIcon className="w-6 h-6" />
-                                        <span>Log In</span>
+                                        <span>Entrar</span>
                                     </>
                                 )}
                             </button>

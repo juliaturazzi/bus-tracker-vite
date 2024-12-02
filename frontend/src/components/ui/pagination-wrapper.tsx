@@ -5,14 +5,13 @@ import {
     PaginationItem,
     PaginationLink,
     PaginationPrevious,
-    PaginationNext,
-    PaginationEllipsis,
+    PaginationNext
 } from "@/components/ui/pagination";
 
 type PaginationWrapperProps = {
-    currentPage: number; // Current active page
-    totalPages: number; // Total number of pages
-    onPageChange: (page: number) => void; // Callback for page change
+    currentPage: number; 
+    totalPages: number; 
+    onPageChange: (page: number) => void; 
 };
 
 const PaginationWrapper: React.FC<PaginationWrapperProps> = ({

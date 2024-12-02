@@ -1,13 +1,6 @@
-import React, { useState, useEffect, forwardRef } from "react";
-import stopsData from "@/stops.json"; // Adjust the path to your JSON file
-import { Combobox } from "@/components/ui/combo-box"; // Adjust based on your project structure
-
-interface Stop {
-    id: string;
-    stop_name: string;
-    stop_lat: number;
-    stop_lon: number;
-}
+import { useState, useEffect, forwardRef } from "react";
+import stopsData from "@/stops.json"; 
+import { Combobox } from "@/components/ui/combo-box"; 
 
 interface StopsDropdownProps {
     onChange: (value: string | null) => void;
@@ -19,13 +12,13 @@ const StopsDropdown = forwardRef<HTMLDivElement, StopsDropdownProps>(
         const [stops, setStops] = useState<{ value: string; label: string }[]>([]);
 
         useEffect(() => {
-            console.log("Loaded stopsData:", stopsData); // Log stops data from JSON
+            console.log("Loaded stopsData:", stopsData); 
             const firstTenStops = stopsData.slice(0, stopsData.length);
             const formattedStops = firstTenStops.map((stop) => ({
-                value: stop.id, // Use `id` as the value
-                label: stop.stop_name, // Use `stop_name` as the label
+                value: stop.id,
+                label: stop.stop_name,
             }));
-            console.log("Formatted dropdown options:", formattedStops); // Log formatted stops
+            console.log("Formatted dropdown options:", formattedStops); 
             setStops(formattedStops);
         }, []);
 
@@ -35,13 +28,13 @@ const StopsDropdown = forwardRef<HTMLDivElement, StopsDropdownProps>(
                     options={stops}
                     value={value}
                     onChange={(selectedValue) => {
-                        console.log("Dropdown value selected:", selectedValue); // Log selected value
-                        onChange(selectedValue); // Pass value to parent
+                        console.log("Dropdown value selected:", selectedValue); 
+                        onChange(selectedValue); 
                     }}
                     placeholder="Escolha um ponto..."
-                    virtualized={true} // Enable virtualization for larger datasets
-                    height={300} // Adjust height if necessary
-                    itemSize={40} // Adjust item height
+                    virtualized={true} 
+                    height={300} 
+                    itemSize={40} 
                 />
             </div>
         );

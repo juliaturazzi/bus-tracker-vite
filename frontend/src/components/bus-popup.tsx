@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Table } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import PaginationWrapper from "@/components/ui/pagination-wrapper"; // Import wrapper
+import PaginationWrapper from "@/components/ui/pagination-wrapper"; 
 
 const BusTable = ({ busData, currentPage, onPageChange }) => {
     const itemsPerPage = 10;
@@ -49,7 +49,7 @@ const BusTable = ({ busData, currentPage, onPageChange }) => {
 
 const BusPopup = ({ busData, lineData }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [currentPage, setCurrentPage] = useState(1); // Move pagination state here
+    const [currentPage, setCurrentPage] = useState(1); 
 
     if (!busData?.length) return null;
 
@@ -88,7 +88,7 @@ const BusPopup = ({ busData, lineData }) => {
                     <BusTable
                         busData={orderedBusData}
                         currentPage={currentPage}
-                        onPageChange={setCurrentPage} // Pass pagination handlers
+                        onPageChange={setCurrentPage} 
                     />
                     <div className="mt-4 flex justify-center">
                         <Button

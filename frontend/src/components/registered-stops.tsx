@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogAction, AlertDialogCancel } from "@/components/ui/alert-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -9,7 +9,7 @@ const RegisteredStops = ({ onClose }: { onClose: () => void }) => {
     const [stops, setStops] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [dialogOpen, setDialogOpen] = useState(true); // Keeps track of dialog state
+    const [dialogOpen, setDialogOpen] = useState(true); 
 
     useEffect(() => {
         const fetchStops = async () => {
@@ -37,7 +37,7 @@ const RegisteredStops = ({ onClose }: { onClose: () => void }) => {
                 console.log("Data received: ", data);
                 setStops(data);
             } catch (err) {
-                setError((err as Error).message || "Failed to fetch registered stops.");
+                setError((err as Error).message || "Erro ao consultar pontos cadastrados.");
             } finally {
                 setLoading(false);
             }
@@ -50,7 +50,7 @@ const RegisteredStops = ({ onClose }: { onClose: () => void }) => {
         try {
             const token = localStorage.getItem("authToken");
             if (!token) {
-                throw new Error("No authentication token found.");
+                throw new Error("Token de autenticação não encontrado.");
             }
 
             const response = await fetch("http://localhost:8000/stops/registered/", {
@@ -80,14 +80,14 @@ const RegisteredStops = ({ onClose }: { onClose: () => void }) => {
                 )
             );
         } catch (err) {
-            alert(`Failed to delete the stop: ${(err as Error).message}`);
+            alert(`Erro ao deletar ponto: ${(err as Error).message}`);
         }
     };
 
     return (
         <Dialog open={dialogOpen} onOpenChange={(open) => {
             setDialogOpen(open);
-            if (!open) onClose(); // Notify parent to close the dialog
+            if (!open) onClose(); 
         }}>
             <DialogContent className="max-w-3xl">
                 <DialogHeader>

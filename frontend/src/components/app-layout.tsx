@@ -13,9 +13,9 @@ import BusPopup from "@/components/bus-popup";
 import { AuthDialog } from "@/components/login";
 import { useAuth } from "@/components/auth_context";
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-    const { isLoggedIn } = useAuth(); // Access login state from AuthContext
-    const [hasSkippedLogin, setHasSkippedLogin] = useState(false); // Tracks if user skips login
+export default function RootLayout({ }: Readonly<{ children: React.ReactNode }>) {
+    const { isLoggedIn } = useAuth(); 
+    const [hasSkippedLogin, setHasSkippedLogin] = useState(false); 
     const [busData, setBusData] = useState([]);
     const [formData, setFormData] = useState({});
     const [lineData, setLineData] = useState("");
@@ -32,7 +32,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         console.log("selectedStop:", selectedStop);
     }, [selectedStop]);
 
-    // Show AuthDialog only if the user isn't logged in and hasn't skipped login
     if (!isLoggedIn && !hasSkippedLogin) {
         return (
             <ThemeProvider storageKey="vite-ui-theme">
@@ -46,7 +45,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         );
     }
 
-    // Render main app layout for both logged-in users and users who skipped login
     return (
         <div className="h-screen flex font-sans">
             <ThemeProvider storageKey="vite-ui-theme">

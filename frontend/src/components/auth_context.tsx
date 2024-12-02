@@ -2,8 +2,8 @@ import React, { createContext, useContext, useState } from "react";
 
 interface AuthContextProps {
     isLoggedIn: boolean;
-    email: string | null; // Add email to the context
-    logIn: (token: string, email: string) => void; // Accept a token and email when logging in
+    email: string | null; 
+    logIn: (token: string, email: string) => void; 
     logOut: () => void;
 }
 
@@ -16,20 +16,20 @@ const AuthContext = createContext<AuthContextProps>({
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("authToken"));
-    const [email, setEmail] = useState<string | null>(localStorage.getItem("authEmail")); // Retrieve email from storage
+    const [email, setEmail] = useState<string | null>(localStorage.getItem("authEmail"));
 
     const logIn = (token: string, email: string) => {
-        localStorage.setItem("authToken", token); // Store token
-        localStorage.setItem("authEmail", email); // Store email
-        setEmail(email); // Update email state
-        setIsLoggedIn(true); // Update login state
+        localStorage.setItem("authToken", token); 
+        localStorage.setItem("authEmail", email); 
+        setEmail(email); 
+        setIsLoggedIn(true); 
     };
 
     const logOut = () => {
-        localStorage.removeItem("authToken"); // Clear token
-        localStorage.removeItem("authEmail"); // Clear email
-        setEmail(null); // Clear email state
-        setIsLoggedIn(false); // Update login state
+        localStorage.removeItem("authToken"); 
+        localStorage.removeItem("authEmail"); 
+        setEmail(null); 
+        setIsLoggedIn(false); 
     };
 
     return (
@@ -39,5 +39,4 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
 };
 
-// Custom hook for consuming the context
 export const useAuth = () => useContext(AuthContext);

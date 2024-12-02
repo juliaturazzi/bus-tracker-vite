@@ -19,7 +19,7 @@ type OpenLayersMapProps = {
     allStops: any;
     busData: any;
     setSelectStop?: (value: ((prevState: string) => string) | string) => void;
-    formStop?: string | null; // The selected stop ID from the form
+    formStop?: string | null;
 };
 
 const OpenLayersMap: React.FC<OpenLayersMapProps> = ({
@@ -39,7 +39,7 @@ const OpenLayersMap: React.FC<OpenLayersMapProps> = ({
 
     console.log("busData", busData);
 
-    // Initialize the map
+
     useEffect(() => {
         const busFeatures = busData.map((bus: { longitude: number; latitude: number }) => {
             const feature = new Feature({
@@ -99,7 +99,7 @@ const OpenLayersMap: React.FC<OpenLayersMapProps> = ({
 
         mapInstance.current = map;
 
-        // Initialize formStopMarker
+
         const formStopSource = new VectorSource();
         const formStopLayer = new VectorLayer({
             source: formStopSource,
@@ -114,7 +114,6 @@ const OpenLayersMap: React.FC<OpenLayersMapProps> = ({
         map.addLayer(formStopLayer);
         formStopMarker.current = formStopLayer;
 
-        // Initialize popup
         const popup = new Overlay({
             element: popupRef.current as HTMLElement,
             positioning: "bottom-center",
@@ -123,7 +122,6 @@ const OpenLayersMap: React.FC<OpenLayersMapProps> = ({
         });
         map.addOverlay(popup);
 
-        // Handle map click to show a popup and zoom to the stop
         map.on("singleclick", (evt) => {
             let foundStop = false;
 
@@ -148,7 +146,6 @@ const OpenLayersMap: React.FC<OpenLayersMapProps> = ({
                         popupElement.style.display = "block";
                     }
 
-                    // Highlight the selected stop using formStopMarker
                     if (formStopMarker.current) {
                         const selectedFeature = new Feature({
                             geometry: new Point(coordinates),
@@ -165,14 +162,12 @@ const OpenLayersMap: React.FC<OpenLayersMapProps> = ({
                     popupElement.style.display = "none";
                 }
 
-                // Clear the formStopMarker if click is not on a stop
                 if (formStopMarker.current) {
                     formStopMarker.current.getSource()?.clear();
                 }
             }
         });
 
-        // Handle hover event to show popup
         map.on("pointermove", (evt) => {
             const popupElement = popup.getElement();
             if (popupElement) {
@@ -192,7 +187,6 @@ const OpenLayersMap: React.FC<OpenLayersMapProps> = ({
         return () => map.setTarget(undefined);
     }, [busData, allStops, setSelectStop]);
 
-    // Zoom to formStop without hiding other layers
     useEffect(() => {
         if (mapInstance.current) {
             const map = mapInstance.current;
@@ -208,11 +202,7 @@ const OpenLayersMap: React.FC<OpenLayersMapProps> = ({
                     console.log("Coordinates 2:", coordinates);
                     map.getView().animate({ center: coordinates, zoom: 15, duration: 500 });
 
-                    // Removed layer visibility toggles to keep all stops and buses visible
-                    // if (busLayerRef.current) busLayerRef.current.setVisible(false);
-                    // if (stopLayerRef.current) stopLayerRef.current.setVisible(false);
 
-                    // Highlight the selected formStop using formStopMarker
                     if (formStopMarker.current) {
                         const selectedFeature = new Feature({
                             geometry: new Point(coordinates),
@@ -225,9 +215,6 @@ const OpenLayersMap: React.FC<OpenLayersMapProps> = ({
                 }
             } else {
                 formStopMarker.current?.getSource()?.clear();
-                // Keep all layers visible
-                // if (busLayerRef.current) busLayerRef.current.setVisible(true);
-                // if (stopLayerRef.current) stopLayerRef.current.setVisible(true);
                 map.getView().animate({ center: fromLonLat([-43.1729, -22.9068]), zoom: 12, duration: 500 });
                 setStopNotFound(false);
             }
@@ -244,7 +231,7 @@ const OpenLayersMap: React.FC<OpenLayersMapProps> = ({
             ></div>
             {stopNotFound && (
                 <div className="absolute top-5 left-5 bg-red-100 text-red-700 p-2 rounded">
-                    Stop not found. Please check your selection.
+                    Ponto de Ônibus não encontrado. Por favor, verifique novamente.
                 </div>
             )}
         </div>

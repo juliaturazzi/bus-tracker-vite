@@ -1,6 +1,5 @@
-// AuthDialog.js
-import React, {useState, useEffect} from "react";
-import {Button} from "@/components/ui/button";
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
 import {
     Dialog,
     DialogContent,
@@ -12,8 +11,6 @@ import {
 import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label";
 import {useAuth} from "@/components/auth_context";
-
-import {CircleX, CheckCircle} from "lucide-react";
 
 interface AuthDialogProps {
     isOpen: boolean;
@@ -37,12 +34,10 @@ export function AuthDialog({isOpen, onClose}: AuthDialogProps) {
         return emailRegex.test(email);
     };
 
-    // Function to extract query parameters from the URL
     const getQueryParams = () => {
         return new URLSearchParams(window.location.search);
     };
 
-    // Handle email verification
     const handleVerification = async (token: string) => {
         setIsVerifying(true);
         setVerificationMessage(null);
@@ -68,19 +63,17 @@ export function AuthDialog({isOpen, onClose}: AuthDialogProps) {
         }
     };
 
-    // Check for token in URL on component mount
     useEffect(() => {
         const query = getQueryParams();
         const token = query.get("token");
 
         if (token && isOpen) {
             handleVerification(token);
-            // Optionally, remove the token from the URL after handling
             const url = new URL(window.location.href);
             url.searchParams.delete("token");
             window.history.replaceState({}, document.title, url.toString());
         }
-    }, [isOpen]); // Re-run when the dialog opens
+    }, [isOpen]); 
 
     const handleRegister = async () => {
         setIsLoading(true);
@@ -113,12 +106,12 @@ export function AuthDialog({isOpen, onClose}: AuthDialogProps) {
                 throw new Error(errorData.detail || "Falha ao registrar o usuário.");
             }
 
-            setIsSuccess(true); // Show success popup
+            setIsSuccess(true); 
             setVerificationMessage("Cadastro realizado com sucesso! Por favor, verifique seu email para ativar sua conta.");
             setTimeout(() => {
-                setIsSuccess(false); // Hide popup
-                setIsRegisterMode(false); // Optionally switch to login mode
-            }, 2000); // 5-second delay
+                setIsSuccess(false); 
+                setIsRegisterMode(false); 
+            }, 2000); 
         } catch (err: any) {
             setError(err.message || "Ocorreu um erro durante o registro.");
         } finally {
@@ -149,7 +142,6 @@ export function AuthDialog({isOpen, onClose}: AuthDialogProps) {
             const data = await response.json();
 
             if (!response.ok) {
-                // Check for specific error messages
                 if (data.detail.includes("Email not verified")) {
                     throw new Error("Email não verificado. Por favor, verifique seu email.");
                 } else {
@@ -224,7 +216,6 @@ export function AuthDialog({isOpen, onClose}: AuthDialogProps) {
                         </DialogDescription>
                     </DialogHeader>
 
-                    {/* Notification Messages */}
                     {verificationMessage && (
                         <div className="mb-4 p-4 rounded-md border border-green-300 bg-green-200 text-green-800">
                             {verificationMessage}
@@ -240,13 +231,11 @@ export function AuthDialog({isOpen, onClose}: AuthDialogProps) {
                                     onClick={handleResendVerification}
                                     className="text-red-500 cursor-pointer hover:underline"
                                 >
-        Reenviar Verificação
-      </span>
+                              Reenviar Verificação
+                            </span>
                             )}
                         </div>
                     )}
-
-
 
                     <div className="grid gap-4">
                         <div className="grid gap-2">
@@ -297,7 +286,6 @@ export function AuthDialog({isOpen, onClose}: AuthDialogProps) {
                 </DialogContent>
             </Dialog>
 
-            {/* Success Popup for Verification */}
             {isVerifying && (
                 <Dialog open={isVerifying}>
                     <DialogContent showCloseButton={false}>

@@ -17,12 +17,11 @@ import CleanIcon from "@/images/clear-icon.png";
 import CleanIconWhite from "@/images/clear-icon-white.png";
 import StopsDropdown from "./stops-dropdown";
 import { Slider } from "@/components/ui/slider";
-import allStops from "@/stops.json"; // JSON containing the stops data
+import allStops from "@/stops.json"; 
 import { Switch } from "@/components/ui/switch";
 import { useTheme } from "@/components/theme-provider";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
-// Define the validation schema using Zod
 const schema = z
     .object({
         busLine: z.string().min(1, "Linha do ônibus é obrigatória"),
@@ -40,13 +39,11 @@ const schema = z
         path: ["endTime"],
     });
 
-// Infer the form data type from the schema
 type FormData = z.infer<typeof schema>;
 
-// Helper function to get local time with an optional offset
 const getLocalTimeWithOffset = (offsetHours: number = 0) => {
     const now = new Date();
-    now.setHours(now.getHours() + offsetHours); // Add offset in hours
+    now.setHours(now.getHours() + offsetHours);
     const options: Intl.DateTimeFormatOptions = {
         hour: "2-digit",
         minute: "2-digit",
@@ -56,12 +53,11 @@ const getLocalTimeWithOffset = (offsetHours: number = 0) => {
     return new Intl.DateTimeFormat("pt-BR", options).format(now);
 };
 
-// Define the component's props interface
 interface FormBusTrackerProps {
-    mapStop?: string; // Optional prop for the initial stop ID
+    mapStop?: string; 
     setBusData: React.Dispatch<React.SetStateAction<any[]>>;
     setFormData: React.Dispatch<React.SetStateAction<any>>;
-    isLoggedIn: boolean; // Tracks user authentication
+    isLoggedIn: boolean; 
     setFormStop: React.Dispatch<React.SetStateAction<string>>;
 }
 
@@ -81,7 +77,7 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
             busStop: mapStop || "",
             startTime: isLoggedIn ? "" : getLocalTimeWithOffset(),
             endTime: isLoggedIn ? "" : getLocalTimeWithOffset(1),
-            distance: 10, // Default distance
+            distance: 10, 
         },
         mode: "onChange",
     });
@@ -92,37 +88,28 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
 
     const [selectedStop, setSelectedStop] = useState<string | null>(null);
     const [selectedStopName, setSelectedStopName] = useState<string | null>(null);
-    const [isNow, setIsNow] = useState(!isLoggedIn); // Default to true for non-logged-in users.
+    const [isNow, setIsNow] = useState(!isLoggedIn); 
 
     const [isLoading, setIsLoading] = useState(false);
     const [progress, setProgress] = useState(0);
-    const [errorMessage, setErrorMessage] = useState<string | null>(null); // Optional error message state
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [successfulRegistration, setSuccessfulRegistration] = useState(false);
 
     const { theme } = useTheme();
 
-    /**
-     * Simulate progress for loading indication.
-     * Increments progress by 10% every 1.25 seconds until reaching 90%.
-     */
     const simulateProgress = useCallback(() => {
         const interval = setInterval(() => {
             setProgress((prev) => {
-                const nextProgress = prev + 10; // Increment progress by 10
+                const nextProgress = prev + 10; 
                 if (nextProgress >= 90) {
-                    clearInterval(interval); // Stop at 90%, API completion will set to 100%
+                    clearInterval(interval); 
                     return 90;
                 }
                 return nextProgress;
             });
-        }, 1250); // Update progress every 1.25 seconds
+        }, 1250); 
     }, []);
 
-    /**
-     * Helper function to get stop name by ID.
-     * @param stopId - The ID of the stop.
-     * @returns The name of the stop or an empty string if not found.
-     */
     const getStopName = useCallback((stopId: string | null): string => {
         console.log("Fetching stop name for ID:", stopId);
         const stop = allStops.find((stop) => stop.id === stopId);
@@ -131,11 +118,7 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
         return name;
     }, []);
 
-    /**
-     * Helper function to get stop coordinates by ID.
-     * @param stopId - The ID of the stop.
-     * @returns An object containing latitude and longitude as strings.
-     */
+   
     const getStopCoords = useCallback(
         (stopId: string | null): { lat: string; lon: string } => {
             console.log("Fetching stop coordinates for ID:", stopId);
@@ -149,9 +132,6 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
         []
     );
 
-    /**
-     * Initialize the selected stop based on the `mapStop` prop.
-     */
     useEffect(() => {
         if (mapStop) {
             console.log("Initial mapStop provided:", mapStop);
@@ -162,9 +142,6 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
         }
     }, [mapStop, getStopName, form]);
 
-    /**
-     * Watch all form fields for changes and log them for debugging.
-     */
     const watchAllFields = form.watch();
 
     useEffect(() => {
@@ -176,10 +153,6 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
         console.log("Errors:", form.formState.errors);
     }, [isValid, watchAllFields, form.formState.errors]);
 
-    /**
-     * Function to register a bus stop.
-     * @param data - The processed form data.
-     */
     const registerStop = useCallback(
         async (data: any): Promise<void> => {
             const token = localStorage.getItem("authToken");
@@ -210,10 +183,6 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
         []
     );
 
-    /**
-     * Function to fetch bus data.
-     * @param data - The processed form data.
-     */
     const fetchBusData = useCallback(
         async (data: any): Promise<void> => {
             const queryParams = new URLSearchParams({
@@ -250,18 +219,14 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
         [setBusData]
     );
 
-    /**
-     * Main function to handle form submission.
-     */
     const handleSubmit = useCallback(
         async (data: FormData) => {
             console.log("Submitting form with data:", data);
             setIsLoading(true);
             setProgress(0);
-            setErrorMessage(null); // Reset any previous error messages
-            simulateProgress(); // Start simulating progress
+            setErrorMessage(null); 
+            simulateProgress(); 
 
-            // Determine start and end times
             const startTime = isLoggedIn
                 ? data.startTime
                 : getLocalTimeWithOffset();
@@ -269,15 +234,14 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
                 ? data.endTime
                 : getLocalTimeWithOffset(1);
 
-            // Get bus stop coordinates
             const { lat, lon } = getStopCoords(selectedStop);
             let processedFormData = {
-                bus_line: data.busLine, // Adjust field names to match the backend Pydantic model
+                bus_line: data.busLine, 
                 stop_name: selectedStopName || "",
-                latitude: parseFloat(lat) || 0, // Ensure correct data type
+                latitude: parseFloat(lat) || 0,
                 longitude: parseFloat(lon) || 0,
-                start_time: startTime, // Already set earlier
-                end_time: endTime, // Already set earlier
+                start_time: startTime, 
+                end_time: endTime,
                 max_distance: data.distance,
             };
 
@@ -293,24 +257,22 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
 
             try {
                 if (isLoggedIn) {
-                    // Step 1: Register the bus stop
                     await registerStop(processedFormData);
-                    setProgress(50); // Update progress after registration
+                    setProgress(50); 
                 }
 
                 processedFormData.start_time = getLocalTimeWithOffset();
                 processedFormData.end_time = getLocalTimeWithOffset(1);
 
-                // Step 2: Fetch the bus data
                 await fetchBusData(processedFormData);
-                setProgress(100); // Update progress after fetching data
+                setProgress(100); 
             } catch (error: any) {
                 console.error("An error occurred:", error);
                 setErrorMessage(
                     error.message || "An unexpected error occurred."
                 );
             } finally {
-                setIsLoading(false); // Operation completed
+                setIsLoading(false); 
             }
         },
         [
@@ -325,9 +287,6 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
         ]
     );
 
-    /**
-     * Helper function to reset the form to its initial state.
-     */
     const resetForm = useCallback(() => {
         console.log("Resetting form...");
         form.reset({ busStop: mapStop || "" });
@@ -361,7 +320,6 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
                     </div>
                 )}
 
-                {/* Optional: Display error message */}
                 {errorMessage && (
                     <div
                         className="w-full text-center text-red-500"
@@ -386,8 +344,7 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
                                             "Bus line changed:",
                                             e.target.value
                                         );
-                                        field.onChange(e); // Update form value
-                                        // Trigger validation for related fields
+                                        field.onChange(e);
                                         form.trigger(["busLine", "busStop"]);
                                     }}
                                 />
@@ -411,8 +368,7 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
                                 setSelectedStop(stopId);
                                 setSelectedStopName(stopName);
                                 setFormStop(stopName);
-                                form.setValue("busStop", stopName); // Update form value
-                                // Trigger validation for related fields
+                                form.setValue("busStop", stopName); 
                                 form.trigger(["busLine", "busStop"]);
                             }}
                         />
@@ -478,8 +434,8 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
                                     onValueChange={(value) => {
                                         console.log("Slider value changed:", value);
                                         setSliderValue(value);
-                                        form.setValue("distance", value[0], { shouldValidate: true }); // Update form value
-                                        form.setValue("max_distance", value[0], { shouldValidate: true }); // Add this line
+                                        form.setValue("distance", value[0], { shouldValidate: true });
+                                        form.setValue("max_distance", value[0], { shouldValidate: true }); 
                                     }}
                                     min={1}
                                     max={60}
@@ -495,7 +451,7 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
                     <FormField
                         name="now"
                         control={form.control}
-                        render={({ field }) => (
+                        render={({ }) => (
                             <FormItem className="w-full center">
                                 <Switch
                                     checked={isNow}
