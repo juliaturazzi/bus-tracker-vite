@@ -20,7 +20,7 @@ import { Slider } from "@/components/ui/slider";
 import allStops from "@/stops.json"; // JSON containing the stops data
 import { Switch } from "@/components/ui/switch";
 import { useTheme } from "@/components/theme-provider";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 // Define the validation schema using Zod
 const schema = z
@@ -543,13 +543,17 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
 
                     {successfulRegistration && (
                         <Dialog open={successfulRegistration} onOpenChange={setSuccessfulRegistration}>
-                        <DialogTitle>Alerta registrado!</DialogTitle>
-                        <DialogContent showCloseButton={true}>
-                            <p><strong>Linha do ônibus:</strong> {form.getValues().busLine}</p>
-                            <p><strong>Ponto de ônibus:</strong> {form.getValues().busStop}</p>
-                            <p><strong>Horário Inicial:</strong> {form.getValues().startTime}</p>
-                            <p><strong>Horário Final</strong> {form.getValues().endTime}</p>
-                        </DialogContent>
+                            <DialogContent className="sm:max-w-md">
+                                <DialogHeader>
+                                    <DialogTitle className="text-center font-bold">Alerta registrado!</DialogTitle>
+                                    <DialogDescription className="text-center">Aqui estão as informações do alerta cadastrado</DialogDescription>
+                                </DialogHeader>
+                                <p><strong>Linha do ônibus: </strong> {form.getValues().busLine}</p>
+                                <p><strong>Ponto de ônibus: </strong> {form.getValues().busStop}</p>
+                                <p><strong>Horário Inicial: </strong> {form.getValues().startTime}</p>
+                                <p><strong>Horário Final: </strong> {form.getValues().endTime}</p>
+                                <p><strong>Distância em minutos para o alerta: </strong> {form.getValues().endTime}</p>
+                            </DialogContent>
                         </Dialog>
                     )}
                 </div>
