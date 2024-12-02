@@ -83,10 +83,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                     <Map
                         submitted={false}
                         onStopSelected={() => {}}
-                        selectedBusStop={null}
+                        selectedBusStop={formStop}
                         setSelectStop={setSelectedStop}
                         allStops={stopsData}
                         busData={[]}
+                        formStop={formStop}
                     />
                     <BusPopup busData={busData} lineData={lineData} />
                 </div>

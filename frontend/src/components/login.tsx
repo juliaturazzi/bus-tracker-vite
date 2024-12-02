@@ -66,7 +66,7 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
       setTimeout(() => {
         setIsSuccess(false); // Hide popup
         setIsRegisterMode(false); // Switch to login mode
-      }, 3000); // 3-second delay
+      }, 1500); // 1.5-second delay
     } catch (err: any) {
       setError(err.message || "An error occurred during registration.");
     } finally {
