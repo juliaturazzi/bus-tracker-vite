@@ -60,12 +60,15 @@ class BusStopDatabase:
         )
 
         # Create `users` table
+        # Inside the BusStopDatabase class in your existing code
         cursor.execute(
             f"""
             CREATE TABLE IF NOT EXISTS users (
                 email VARCHAR(255) PRIMARY KEY,
                 username VARCHAR(255) NOT NULL,
-                hashed_password VARCHAR(255) NOT NULL
+                hashed_password VARCHAR(255) NOT NULL,
+                is_verified BOOLEAN NOT NULL DEFAULT FALSE,
+                verification_token VARCHAR(255)
             );
             """
         )
@@ -115,37 +118,80 @@ class BusStopDatabase:
         return results
 
     # Register a new user into the `users` table
-    def register_user(self, email: str, username: str, hashed_password: str):
+    def register_user(self, email: str, username: str, hashed_password: str, verification_token: str):
         conn = self._connect()
         cursor = conn.cursor()
 
         try:
             cursor.execute(
                 f"""
-                INSERT INTO users (email, username, hashed_password)
-                VALUES (%s, %s, %s)
+                INSERT INTO users (email, username, hashed_password, verification_token)
+                VALUES (%s, %s, %s, %s)
                 """,
-                (email, username, hashed_password),
+                (email, username, hashed_password, verification_token),
             )
             conn.commit()
         except mysql.connector.IntegrityError:
-            raise ValueError("Email already registered")
+            raise ValueError("Email já registrado")
         finally:
             cursor.close()
             conn.close()
 
-    # Retrieve a user by email from the `users` table
-    def get_user(self, email: str) -> Dict[str, Any]:
+    def verify_user(self, token: str) -> bool:
         conn = self._connect()
-        cursor = conn.cursor(dictionary=True)
+        cursor = conn.cursor()
 
-        cursor.execute(f"SELECT * FROM users WHERE email = %s", (email,))
-        user = cursor.fetchone()
+        cursor.execute(
+            f"SELECT email FROM users WHERE verification_token = %s AND is_verified = FALSE",
+            (token,),
+        )
+        result = cursor.fetchone()
 
+        if not result:
+            cursor.close()
+            conn.close()
+            return False
+
+        email = result[0]
+
+        cursor.execute(
+            f"""
+            UPDATE users 
+            SET is_verified = TRUE, verification_token = NULL 
+            WHERE email = %s
+            """,
+            (email,),
+        )
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return True
+
+    def update_verification_token(self, email: str, new_token: str):
+        conn = self._connect()
+        cursor = conn.cursor()
+
+        cursor.execute(
+            f"""
+            UPDATE users 
+            SET verification_token = %s 
+            WHERE email = %s
+            """,
+            (new_token, email),
+        )
+        conn.commit()
         cursor.close()
         conn.close()
 
-        return user
+
+    def get_user(self, email: str) -> Dict[str, Any]:
+        conn = self._connect()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute(f"SELECT * FROM users WHERE email = %s", (email,))
+        result = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        return result
 
     # Retrieve all users from the `users` table
     def get_all_users(self) -> List[Dict[str, Any]]:
@@ -240,3 +286,4 @@ class BusStopDatabase:
         conn.commit()
         cursor.close()
         conn.close()
+

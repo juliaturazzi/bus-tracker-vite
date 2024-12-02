@@ -112,6 +112,7 @@ const RegisteredStops = ({ onClose }: { onClose: () => void }) => {
                                 <TableHead>Longitude</TableHead>
                                 <TableHead>Começo</TableHead>
                                 <TableHead>Fim</TableHead>
+                                <TableHead>Distância</TableHead>
                                 <TableHead>Ações</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -124,6 +125,7 @@ const RegisteredStops = ({ onClose }: { onClose: () => void }) => {
                                     <TableCell>{stop.longitude}</TableCell>
                                     <TableCell>{stop.start_time}</TableCell>
                                     <TableCell>{stop.end_time}</TableCell>
+                                    <TableCell>{stop.max_distance}</TableCell>
                                     <TableCell>
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>

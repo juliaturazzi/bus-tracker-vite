@@ -14,67 +14,72 @@ SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
 
 def send_email(receiver_email, linha, ponto, onibus_data):
-    msg = create_email(receiver_email, linha, ponto, onibus_data)
-
-    try:
-        # Connect to the email server and send the email
-        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
-            server.starttls()  # Secure the connection
-            server.login(EMAIL_SENDER_ALIAS, EMAIL_SENDER_PASSWORD)
-            server.send_message(msg)
-            print("Email sent successfully!")
-    except Exception as e:
-        # Log the error and raise it for debugging
-        print(f"Error sending email: {e}")
-        raise
-
-def create_email(receiver_email, linha, ponto, onibus_data):
+    # Define the HTML content
     html_content = f"""
     <!DOCTYPE html>
-    <html>
+    <html lang="en">
     <head>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Bus Tracker Alertas</title>
         <style>
+            body {{
+                font-family: 'Helvetica Neue', Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+                background-color: #f4f4f4;
+            }}
             .email-container {{
-                width: 100%;
                 max-width: 600px;
-                margin: 0 auto;
-                font-family: Arial, sans-serif;
-                color: #333333;
+                margin: 20px auto;
                 background-color: #ffffff;
+                border-radius: 10px;
+                overflow: hidden;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             }}
             .header {{
-                background-color: #0044cc; /* Dark blue background */
-                color: #ffffff; /* White text */
+                background-color: #FFA844;
+                color: #ffffff;
                 text-align: center;
-                padding: 20px;
+                padding: 30px 20px;
+            }}
+            .header img {{
+                max-width: 30px;
+                margin-bottom: 10px;
             }}
             .header h1 {{
-                color: #FFFFFF !important; /* Ensure title is always white */
                 margin: 0;
                 font-size: 24px;
+                font-weight: bold;
             }}
             .content {{
                 padding: 20px;
+                color: #333333;
+                line-height: 1.6;
             }}
             .content h2 {{
-                color: #333333;
-            }}
-            .content p {{
-                font-size: 16px;
-                line-height: 1.5;
+                color: #FFA844;
+                font-size: 20px;
+                margin-bottom: 15px;
             }}
             .content ul {{
-                list-style-type: none;
-                padding: 0;
+                padding-left: 20px;
             }}
-            .content li {{
-                background-color: #FFD700; /* Consistent yellow color */
-                color: #333333;
-                padding: 10px;
+            .content ul li {{
                 margin-bottom: 10px;
+            }}
+            .button-container {{
+                text-align: center;
+                margin: 20px 0;
+            }}
+            .button {{
+                background-color: #FFA844;
+                color: #ffffff;
+                padding: 10px 20px;
+                text-decoration: none;
                 border-radius: 5px;
                 font-weight: bold;
+                display: inline-block;
             }}
             .footer {{
                 background-color: #f9f9f9;
@@ -83,31 +88,13 @@ def create_email(receiver_email, linha, ponto, onibus_data):
                 padding: 10px;
                 font-size: 12px;
             }}
-            /* Prevent automatic dark mode adjustments */
-            @media (prefers-color-scheme: dark) {{
-                .email-container {{
-                    background-color: #1a1a1a !important;
-                    color: #f0f0f0 !important;
-                }}
-                .header {{
-                    background-color: #333333 !important;
-                }}
-                .content li {{
-                    background-color: #FFD700 !important; /* Maintain yellow in dark mode */
-                    color: #1a1a1a !important;
-                }}
-                .footer {{
-                    background-color: #2c2c2c !important;
-                    color: #dddddd !important;
-                }}
-            }}
         </style>
     </head>
     <body>
         <div class="email-container">
             <!-- Header Section -->
             <div class="header">
-                <img src="https://res.cloudinary.com/dlx31jbcz/image/upload/v1733106928/bus-icon-app_txjwpn.png" alt="App Icon" style="width: 50px; height: 50px;" />
+                <img src="https://res.cloudinary.com/dlx31jbcz/image/upload/v1733106928/bus-icon-app_txjwpn.png" alt="App Icon" />
                 <h1>Bus Tracker</h1>
             </div>
             <!-- Content Section -->
@@ -152,6 +139,71 @@ def create_email(receiver_email, linha, ponto, onibus_data):
         print(f"Error sending email: {e}")
         raise
 
+
+def send_verification_email(receiver_email: str, token: str):
+    verification_link = f"http://localhost:5173/verify?token={token}"  # Replace with your actual frontend verification URL
+
+    subject = "Verify Your Email - Bus Tracker"
+
+    html_content = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Verify Your Email</title>
+        <style>
+            /* Add your email styles here */
+            body {{
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f4;
+                padding: 20px;
+            }}
+            .container {{
+                background-color: #ffffff;
+                padding: 20px;
+                border-radius: 5px;
+                text-align: center;
+            }}
+            .button {{
+                background-color: #FFA844;
+                color: #ffffff;
+                padding: 10px 20px;
+                text-decoration: none;
+                border-radius: 5px;
+                display: inline-block;
+                margin-top: 20px;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>Bem vindo ao Bus Tracker!</h2>
+            <p>Obrigado por se registrar. Por favor, verifique seu email clicando no botão abaixo:</p>
+            <a href="{verification_link}" class="button">Verificar Email</a>
+            <p>Se você não se registrou, por favor ignore este email.</p>
+        </div>
+    </body>
+    </html>
+    """
+
+    # Create the email
+    msg = MIMEMultipart("alternative")
+    msg["From"] = EMAIL_SENDER_ALIAS
+    msg["To"] = receiver_email
+    msg["Subject"] = subject
+
+    # Attach the HTML content
+    msg.attach(MIMEText(html_content, "html"))
+
+    try:
+        # Connect to the email server and send the email
+        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+            server.starttls()  # Secure the connection
+            server.login(EMAIL_SENDER_ALIAS, EMAIL_SENDER_PASSWORD)
+            server.send_message(msg)
+            print("Verification email sent successfully!")
+    except Exception as e:
+        print(f"Error sending verification email: {e}")
+        raise
 # Example usage
 if __name__ == "__main__":
     receiver = "recipient@example.com"

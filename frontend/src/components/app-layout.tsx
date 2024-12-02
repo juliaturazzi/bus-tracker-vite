@@ -36,13 +36,13 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     if (!isLoggedIn && !hasSkippedLogin) {
         return (
             <ThemeProvider storageKey="vite-ui-theme">
-            <div className="flex items-center justify-center h-screen">
-                <AuthDialog
-                    isOpen={true}
-                    onClose={() => setHasSkippedLogin(true)} // User chooses to skip login
-                />
-            </div>
-                </ThemeProvider>
+                <div className="flex items-center justify-center h-screen">
+                    <AuthDialog
+                        isOpen={true}
+                        onClose={() => setHasSkippedLogin(true)} // User chooses to skip login
+                    />
+                </div>
+            </ThemeProvider>
         );
     }
 

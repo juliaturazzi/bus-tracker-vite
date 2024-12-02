@@ -5,7 +5,7 @@ const CopyRight: React.FC = () => {
     <div>
       <hr className="my-4 border-t" />
       <div className="text-left text-xs font-normal">
-        &copy; Copyright {new Date().getFullYear()} Julia - Bus Tracker
+        &copy; Copyright {new Date().getFullYear()} Julia Turazzi - Bus Tracker
       </div>
       </div>
   )

@@ -1,17 +1,21 @@
+# main.py
+
 from datetime import datetime, timedelta
-from typing import Dict, Any
+from typing import Dict, Any, List, Optional
 import pandas as pd
-from fastapi import FastAPI, HTTPException, Depends, Query
+from fastapi import FastAPI, HTTPException, Depends, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import jwt, JWTError
 from passlib.context import CryptContext
-
+from pydantic import BaseModel, Field, EmailStr
+import os
 from db.create_db import BusStopDatabase
 from services.bus_data_fetcher import BusDataFetcher
 from services.travel_time_service import TravelTimeService
-from typing import List, Optional
-from pydantic import BaseModel, Field
+from utils.tokenizer import generate_verification_token, confirm_verification_token
+from services.email_service import send_verification_email
+
 
 # Pydantic model for travel time response
 class BusTravelTime(BaseModel):
@@ -21,13 +25,13 @@ class BusTravelTime(BaseModel):
     speed: float = Field(..., description="Speed of the bus in km/h")
     order: str = Field(..., description="Order of the bus")
 
+
 class TravelTimeResponse(BaseModel):
     buses: List[BusTravelTime] = Field(..., description="List of buses with travel times")
 
 
-
 # Constants
-SECRET_KEY = "SKW"
+SECRET_KEY = os.getenv("SECRET_KEY", "SKW")  # Ensure to set this in .env
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -54,7 +58,6 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
 # Database instance
 db = BusStopDatabase()
 
-
 def authenticate_user(email: str, password: str):
     user = db.get_user(email)
     if not user or not verify_password(password, user["hashed_password"]):
@@ -79,10 +82,10 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 # Initialize FastAPI app
 app = FastAPI()
 
-# Fixing CORS middleware
+# CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # Update this with your frontend URL in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -139,10 +142,10 @@ def get_travel_time_service() -> TravelTimeService:
 
 # Get user filtered bus lines
 async def get_filtered_bus_line(
-    bus_line: str,
-    start_time: str,
-    end_time: str,
-    bus_stop_name: str,
+        bus_line: str,
+        start_time: str,
+        end_time: str,
+        bus_stop_name: str,
 ):
     service = TravelTimeService()
     fetcher = BusDataFetcher()
@@ -155,9 +158,9 @@ async def get_filtered_bus_line(
 
         for line_data in buses_data:
             if (
-                str(line_data["linha"]) == str(bus_line)
-                and line_data["ordem"] not in seen_ordem
-                and not seen_ordem.add(line_data["ordem"])
+                    str(line_data["linha"]) == str(bus_line)
+                    and line_data["ordem"] not in seen_ordem
+                    and not seen_ordem.add(line_data["ordem"])
             ):
                 bus_info = {
                     "linha": line_data.get("linha"),
@@ -182,7 +185,6 @@ async def get_filtered_bus_line(
 
 # Endpoints
 
-
 # Get bus lines information
 @app.get("/infos/")
 async def read_info(bus_line: str, start_time: str, end_time: str, bus_stop: str):
@@ -195,23 +197,79 @@ def read_stops():
     return parse_stops()
 
 
+# Registration Endpoint with Email Verification
+class RegisterRequest(BaseModel):
+    email: EmailStr
+    username: str
+    password: str
+
+
+@app.post("/register/")
+async def register_user(request: RegisterRequest):
+    hashed_password = get_password_hash(request.password)
+    token = generate_verification_token(request.email)
+    try:
+        db.register_user(request.email, request.username, hashed_password, token)
+        send_verification_email(request.email, token)
+        return {"status": "success",
+                "message": "User registered successfully. Please check your email to verify your account."}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+# Verification Endpoint
+@app.get("/verify/")
+async def verify_email(token: str):
+    try:
+        email = confirm_verification_token(token)
+        success = db.verify_user(token)
+        if not success:
+            raise HTTPException(status_code=400, detail="Invalid or expired verification token.")
+        return {"status": "success", "message": "Email verificado com sucesso!"}
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+# Resend Verification Email Endpoint (Optional)
+class ResendVerificationRequest(BaseModel):
+    email: EmailStr
+
+
+@app.post("/resend-verification/")
+async def resend_verification(request: ResendVerificationRequest):
+    user = db.get_user(request.email)
+    if not user:
+        raise HTTPException(status_code=400, detail="User not found.")
+    if user["is_verified"]:
+        raise HTTPException(status_code=400, detail="User is already verified.")
+
+    # Generate a new token
+    new_token = generate_verification_token(request.email)
+    db.update_verification_token(request.email, new_token)
+
+    # Send the verification email
+    try:
+        send_verification_email(request.email, new_token)
+        return {"status": "success", "message": "Verification email resent successfully."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to send verification email.")
+
+
+# Modify the Login Endpoint to Check Verification
 @app.post("/token")
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
-    access_token = create_access_token({"sub": form_data.username})
+    if not user["is_verified"]:
+        raise HTTPException(status_code=400, detail="Email not verified. Please verify your email before logging in.")
+    access_token = create_access_token({"sub": form_data.username},
+                                       expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     return {"access_token": access_token, "token_type": "bearer"}
-
-
-@app.post("/register/")
-async def register_user(data: Dict[Any, Any]):
-    hashed_password = get_password_hash(data["password"])
-    try:
-        db.register_user(data["email"], data["username"], hashed_password)
-        return {"status": "success", "message": "User registered successfully"}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
 
 
 @app.get("/users/me")
@@ -232,8 +290,8 @@ class StopRegistration(BaseModel):
 
 @app.post("/stops/register/")
 async def register_stop(
-    stop: StopRegistration,
-    current_user: dict = Depends(get_current_user),  # Ensure the user is authenticated
+        stop: StopRegistration,
+        current_user: dict = Depends(get_current_user),  # Ensure the user is authenticated
 ):
     db = BusStopDatabase()
 
@@ -252,6 +310,9 @@ async def register_stop(
         return {"status": "success", "message": "Bus stop registered successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error registering stop: {str(e)}")
+
+
+# ... [Rest of your existing endpoints] ...
 
 
 @app.get("/travel_times/", response_model=TravelTimeResponse)
@@ -354,6 +415,7 @@ class StopIdentifier(BaseModel):
     longitude: float
     start_time: str
     end_time: str
+    max_distance: int
 
 
 # Utility Function to Convert timedelta to String

@@ -13,3 +13,7 @@ python-jose
 passlib
 bcrypt
 python-multipart
+sqlalchemy
+alembic
+email-validator
+itsdangerous
