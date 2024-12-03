@@ -37,7 +37,21 @@ const schema = z
     .refine((data) => data.startTime < data.endTime, {
         message: "O horário inicial deve ser anterior ao horário final",
         path: ["endTime"],
+    })
+    .refine((data) => {
+        const [startHour, startMinute] = data.startTime.split(":").map(Number);
+        const [endHour, endMinute] = data.endTime.split(":").map(Number);
+
+        const startInMinutes = startHour * 60 + startMinute;
+        const endInMinutes = endHour * 60 + endMinute;
+
+        return endInMinutes - startInMinutes <= 60; // Ensure the difference is 60 minutes or less
+    }, {
+        message: "A diferença entre os horários deve ser no máximo 1 hora",
+        path: ["endTime"],
     });
+
+;
 
 type FormData = z.infer<typeof schema>;
 

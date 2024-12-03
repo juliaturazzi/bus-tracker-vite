@@ -1,6 +1,8 @@
 import requests
 from datetime import datetime
 from json import dumps
+
+
 class BusDataFetcher:
     """
     A class to fetch bus data from an API for a specified time range.
