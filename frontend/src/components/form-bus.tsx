@@ -144,6 +144,14 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
 
     const watchAllFields = form.watch();
 
+
+    useEffect(() => {
+        if (isNow) {
+            form.setValue("startTime", getLocalTimeWithOffset());
+            form.setValue("endTime", getLocalTimeWithOffset(1));
+        }
+    } , [isNow]);
+
     useEffect(() => {
         console.log(
             "Form state changed. Validity:",
@@ -227,10 +235,12 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
             setErrorMessage(null); 
             simulateProgress(); 
 
-            const startTime = isLoggedIn
+            const isNowChecked = isLoggedIn && isNow;
+
+            const startTime = isNowChecked
                 ? data.startTime
                 : getLocalTimeWithOffset();
-            const endTime = isLoggedIn
+            const endTime = isNowChecked
                 ? data.endTime
                 : getLocalTimeWithOffset(1);
 
