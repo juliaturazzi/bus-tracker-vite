@@ -384,6 +384,10 @@ async def get_travel_times(
         # Calculate travel times using TravelTimeService
         travel_times = service.get_travel_times(bus_stop_coords, filtered_buses)
 
+        for bus in travel_times:
+            if bus["distancia"] == "Not found":
+                bus["distancia"] = 999.0
+
         # Format the response to match MOCK_BUS_DATA structure
         response_buses = [
             BusTravelTime(
@@ -395,6 +399,8 @@ async def get_travel_times(
             )
             for bus in travel_times
         ]
+
+        print(f"Response: {response_buses}")
 
         return {"buses": response_buses}
 
