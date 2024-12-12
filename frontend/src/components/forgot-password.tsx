@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { DialogHeader } from "./ui/dialog";
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState("");
@@ -53,9 +55,12 @@ const ForgotPassword = () => {
 
     return (
         <ThemeProvider storageKey="vite-ui-theme">
-        <div className="flex items-center justify-center min-h-screen">
-            <div className="p-8 rounded shadow-md w-full max-w-md">
-                <h2 className="text-2xl mb-4">Solicitar Redefinição de Senha</h2>
+            <Dialog open={true}>    
+                <DialogContent className="sm:max-w-md" showCloseButton={false}>
+                    <DialogHeader>
+                        <DialogTitle>Solicitar Redefinição de Senha</DialogTitle>
+                        </DialogHeader>
+
                 {success && (
                     <div className="mb-4 p-4 bg-green-200 text-green-800 rounded">
                         {success}
@@ -66,6 +71,7 @@ const ForgotPassword = () => {
                         {error}
                     </div>
                 )}
+               
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
                         <Label htmlFor="email">Email</Label>
@@ -82,8 +88,8 @@ const ForgotPassword = () => {
                         {isLoading ? "Enviando..." : "Enviar Link de Redefinição"}
                     </Button>
                 </form>
-            </div>
-        </div>
+            </DialogContent>
+        </Dialog>
         </ThemeProvider>
     );
 };

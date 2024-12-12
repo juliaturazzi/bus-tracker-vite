@@ -4,6 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ThemeProvider } from "@/components/theme-provider";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 
 const ResetPassword: React.FC = () => {
     const location = useLocation();
@@ -80,9 +86,11 @@ const ResetPassword: React.FC = () => {
 
     return (
         <ThemeProvider storageKey="vite-ui-theme">
-        <div className="flex items-center justify-center min-h-screen">
-            <div className="p-8 rounded shadow-md w-full max-w-md">
-                <h2 className="text-2xl mb-4">Redefinir Senha</h2>
+        <Dialog>
+                <DialogContent className="sm:max-w-md" showCloseButton={false}>
+                    <DialogHeader>
+                        <DialogTitle> Redefinir Senha</DialogTitle>
+                </DialogHeader>
                 {success && (
                     <div className="mb-4 p-4 bg-green-200 text-green-800 rounded">
                         {success}
@@ -120,8 +128,8 @@ const ResetPassword: React.FC = () => {
                         {isLoading ? 'Redefinindo...' : 'Redefinir Senha'}
                     </Button>
                 </form>
-            </div>
-        </div>
+                </DialogContent>
+            </Dialog>
         </ThemeProvider>
     );
 };
