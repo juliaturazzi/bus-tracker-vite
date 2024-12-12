@@ -8,6 +8,7 @@ from email.mime.multipart import MIMEMultipart
 load_dotenv()
 EMAIL_SENDER_ALIAS = os.getenv("EMAIL_SENDER_ALIAS")
 EMAIL_SENDER_PASSWORD = os.getenv("EMAIL_SENDER_PASSWORD")
+WEBSITE_URL = os.getenv("WEBSITE_URL")
 
 # Email server settings
 SMTP_SERVER = "smtp.gmail.com"
@@ -141,7 +142,7 @@ def send_email(receiver_email, linha, ponto, onibus_data):
 
 
 def send_verification_email(receiver_email: str, token: str):
-    verification_link = f"http://localhost:5173/verify?token={token}"  # Replace with your actual frontend verification URL
+    verification_link = f"{WEBSITE_URL}verify?token={token}"  # Replace with your actual frontend verification URL
 
     subject = "Verifique seu Email - Bus Tracker"
 
@@ -207,7 +208,7 @@ def send_verification_email(receiver_email: str, token: str):
 
 
 def send_password_reset_email(receiver_email: str, token: str):
-    reset_link = f"http://localhost:5173/reset-password?token={token}"  # Replace with your actual frontend reset URL
+    reset_link = f"{WEBSITE_URL}reset-password?token={token}"  # Replace with your actual frontend reset URL
 
     subject = "Redefina sua senha - Bus Tracker"
 

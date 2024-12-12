@@ -22,6 +22,7 @@ const App: React.FC = () => {
             <Router>
                     <Routes>
                         <Route path="/" element={<LayoutWithChildren />} />
+                        <Route path="/verify" element={<LayoutWithChildren />} />
                         <Route path="/forgot-password" element={<ForgotPassword />} />
                         <Route path="/reset-password" element={<ResetPassword />} />
                     </Routes>
