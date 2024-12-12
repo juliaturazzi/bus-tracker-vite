@@ -53,7 +53,7 @@ class TravelTimeService:
         except openrouteservice.exceptions.ApiError as e:
             print(f"API Error: {e}")
         except Exception as e:
-            print(f"Unexpected Error: {e}")
+            print(f"Error of type: {type(e).__name__} has occurred!")
         # Assign "Not found" if there's an error
         for bus in buses_info:
             bus["distancia"] = "Not found"
