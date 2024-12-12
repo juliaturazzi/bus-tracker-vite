@@ -61,6 +61,7 @@ class BusStopDatabase:
 
         # Create `users` table
         # Inside the BusStopDatabase class in your existing code
+        # Create `users` table with `reset_token`
         cursor.execute(
             f"""
             CREATE TABLE IF NOT EXISTS users (
@@ -68,7 +69,8 @@ class BusStopDatabase:
                 username VARCHAR(255) NOT NULL,
                 hashed_password VARCHAR(255) NOT NULL,
                 is_verified BOOLEAN NOT NULL DEFAULT FALSE,
-                verification_token VARCHAR(255)
+                verification_token VARCHAR(255),
+                reset_token VARCHAR(255)  -- New column for password reset
             );
             """
         )
@@ -287,3 +289,54 @@ class BusStopDatabase:
         cursor.close()
         conn.close()
 
+
+    # Set reset token for a user
+    def set_reset_token(self, email: str, reset_token: str):
+        conn = self._connect()
+        cursor = conn.cursor()
+
+        cursor.execute(
+            """
+            UPDATE users 
+            SET reset_token = %s 
+            WHERE email = %s
+            """,
+            (reset_token, email),
+        )
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+    # Get user by reset token
+    def get_user_by_reset_token(self, reset_token: str) -> Dict[str, Any]:
+        conn = self._connect()
+        cursor = conn.cursor(dictionary=True)
+
+        cursor.execute(
+            """
+            SELECT * FROM users 
+            WHERE reset_token = %s
+            """,
+            (reset_token,),
+        )
+        user = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        return user
+
+    # Clear reset token after successful password reset
+    def clear_reset_token(self, email: str):
+        conn = self._connect()
+        cursor = conn.cursor()
+
+        cursor.execute(
+            """
+            UPDATE users 
+            SET reset_token = NULL 
+            WHERE email = %s
+            """,
+            (email,),
+        )
+        conn.commit()
+        cursor.close()
+        conn.close()

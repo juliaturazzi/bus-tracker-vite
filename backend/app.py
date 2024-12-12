@@ -1,5 +1,3 @@
-# main.py
-
 from datetime import datetime, timedelta
 from typing import Dict, Any, List, Optional
 import pandas as pd
@@ -13,8 +11,8 @@ import os
 from db.create_db import BusStopDatabase
 from services.bus_data_fetcher import BusDataFetcher
 from services.travel_time_service import TravelTimeService
-from utils.tokenizer import generate_verification_token, confirm_verification_token
-from services.email_service import send_verification_email
+from utils.tokenizer import generate_verification_token, confirm_verification_token, generate_reset_token, confirm_reset_token
+from services.email_service import send_verification_email, send_password_reset_email
 
 
 # Pydantic model for travel time response
@@ -233,7 +231,6 @@ async def verify_email(token: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
-
 # Resend Verification Email Endpoint (Optional)
 class ResendVerificationRequest(BaseModel):
     email: EmailStr
@@ -311,8 +308,6 @@ async def register_stop(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error registering stop: {str(e)}")
 
-
-# ... [Rest of your existing endpoints] ...
 
 
 @app.get("/travel_times/", response_model=TravelTimeResponse)
@@ -491,3 +486,62 @@ def timedelta_to_str(td: timedelta) -> str:
     hours, remainder = divmod(seconds, 3600)
     minutes, seconds = divmod(remainder, 60)
     return f"{hours:02}:{minutes:02}:{seconds:02}"
+
+
+# Password Reset Request Model
+class PasswordResetRequest(BaseModel):
+    email: EmailStr
+
+# Endpoint to request password reset
+@app.post("/request-password-reset/", summary="Request a password reset")
+async def request_password_reset(request: PasswordResetRequest):
+    user = db.get_user(request.email)
+    if not user:
+        # To prevent user enumeration, respond with success even if user doesn't exist
+        return {"status": "success", "message": "If the email is registered, a password reset link has been sent."}
+
+    # Generate a reset token
+    reset_token = generate_reset_token(request.email)
+
+    # Store the reset token in the database
+    db.set_reset_token(request.email, reset_token)
+
+    # Send password reset email
+    try:
+        send_password_reset_email(request.email, reset_token)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to send password reset email.")
+
+    return {"status": "success", "message": "If the email is registered, a password reset link has been sent."}
+
+# Password Reset Model
+class PasswordReset(BaseModel):
+    token: str
+    new_password: str
+
+@app.post("/reset-password/", summary="Reset your password")
+async def reset_password(reset: PasswordReset):
+    try:
+        # Validate the reset token
+        email = confirm_reset_token(reset.token)
+
+        # Retrieve user by reset token
+        user = db.get_user_by_reset_token(reset.token)
+        if not user:
+            raise HTTPException(status_code=400, detail="Invalid or expired password reset token.")
+
+        # Hash the new password
+        hashed_password = get_password_hash(reset.new_password)
+
+        # Update the user's password in the database
+        db.update_user(email=email, hashed_password=hashed_password)
+
+        # Clear the reset token
+        db.clear_reset_token(email)
+
+        return {"status": "success", "message": "Your password has been reset successfully."}
+
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Internal Server Error")

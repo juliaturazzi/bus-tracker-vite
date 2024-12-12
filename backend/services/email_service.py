@@ -143,13 +143,13 @@ def send_email(receiver_email, linha, ponto, onibus_data):
 def send_verification_email(receiver_email: str, token: str):
     verification_link = f"http://localhost:5173/verify?token={token}"  # Replace with your actual frontend verification URL
 
-    subject = "Verify Your Email - Bus Tracker"
+    subject = "Verifique seu Email - Bus Tracker"
 
     html_content = f"""
     <!DOCTYPE html>
     <html>
     <head>
-        <title>Verify Your Email</title>
+        <title>Verifique seu Email</title>
         <style>
             /* Add your email styles here */
             body {{
@@ -204,6 +204,74 @@ def send_verification_email(receiver_email: str, token: str):
     except Exception as e:
         print(f"Error sending verification email: {e}")
         raise
+
+
+def send_password_reset_email(receiver_email: str, token: str):
+    reset_link = f"http://localhost:5173/reset-password?token={token}"  # Replace with your actual frontend reset URL
+
+    subject = "Redefina sua senha - Bus Tracker"
+
+    html_content = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Redefina sua senha</title>
+        <style>
+            /* Add your email styles here */
+            body {{
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f4;
+                padding: 20px;
+            }}
+            .container {{
+                background-color: #ffffff;
+                padding: 20px;
+                border-radius: 5px;
+                text-align: center;
+            }}
+            .button {{
+                background-color: #FFA844;
+                color: #ffffff;
+                padding: 10px 20px;
+                text-decoration: none;
+                border-radius: 5px;
+                display: inline-block;
+                margin-top: 20px;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>Redefina sua senha</h2>
+            <p>Você informou que gostaria de redefinir a senha cadastrada no Bus Tracker. Clique no botão abaixo para gerar uma nova senha:</p>
+            <a href="{reset_link}" class="button">Reset Redefinir senha</a>
+            <p>Se não foi você que requisitou a mudança de senha, por favor desconsidere esse email.</p>
+        </div>
+    </body>
+    </html>
+    """
+
+    # Create the email
+    msg = MIMEMultipart("alternative")
+    msg["From"] = EMAIL_SENDER_ALIAS
+    msg["To"] = receiver_email
+    msg["Subject"] = subject
+
+    # Attach the HTML content
+    msg.attach(MIMEText(html_content, "html"))
+
+    try:
+        # Connect to the email server and send the email
+        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+            server.starttls()  # Secure the connection
+            server.login(EMAIL_SENDER_ALIAS, EMAIL_SENDER_PASSWORD)
+            server.send_message(msg)
+            print("Password reset email sent successfully!")
+    except Exception as e:
+        # Log the error and raise it for debugging
+        print(f"Error sending password reset email: {e}")
+        raise
+    
 # Example usage
 if __name__ == "__main__":
     receiver = "recipient@example.com"

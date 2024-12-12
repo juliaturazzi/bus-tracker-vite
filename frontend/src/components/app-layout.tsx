@@ -10,7 +10,7 @@ import FormBusTracker from "@/components/form-bus";
 import CopyRight from "@/components/copy-right";
 import { ModeToggle } from "@/components/mode-toggle";
 import BusPopup from "@/components/bus-popup";
-import { AuthDialog } from "@/components/login";
+import AuthDialog from "@/components/login";
 import { useAuth } from "@/components/auth_context";
 
 export default function RootLayout({ }: Readonly<{ children: React.ReactNode }>) {

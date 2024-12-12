@@ -1,3 +1,4 @@
+// src/components/AuthDialog.js
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,26 +9,30 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import {Input} from "@/components/ui/input";
-import {Label} from "@/components/ui/label";
-import {useAuth} from "@/components/auth_context";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useAuth } from "@/components/auth_context";
+import { useNavigate } from "react-router-dom"; // Importar useNavigate para redirecionamento
 
 interface AuthDialogProps {
     isOpen: boolean;
     onClose: () => void;
 }
 
-export function AuthDialog({isOpen, onClose}: AuthDialogProps) {
-    const {logIn} = useAuth();
+export default function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
+    const { logIn } = useAuth();
+    const navigate = useNavigate(); // Inicializar useNavigate
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [username, setUsername] = useState("");
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isRegisterMode, setIsRegisterMode] = useState(false);
+    const [isForgotPasswordMode, setIsForgotPasswordMode] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false); // Success state
     const [verificationMessage, setVerificationMessage] = useState<string | null>(null);
     const [isVerifying, setIsVerifying] = useState(false); // Verification state
+    const [resetEmail, setResetEmail] = useState("");
 
     const isValidEmail = (email: string): boolean => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -73,7 +78,7 @@ export function AuthDialog({isOpen, onClose}: AuthDialogProps) {
             url.searchParams.delete("token");
             window.history.replaceState({}, document.title, url.toString());
         }
-    }, [isOpen]); 
+    }, [isOpen]);
 
     const handleRegister = async () => {
         setIsLoading(true);
@@ -98,7 +103,7 @@ export function AuthDialog({isOpen, onClose}: AuthDialogProps) {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({email, username, password}),
+                body: JSON.stringify({ email, username, password }),
             });
 
             if (!response.ok) {
@@ -106,12 +111,12 @@ export function AuthDialog({isOpen, onClose}: AuthDialogProps) {
                 throw new Error(errorData.detail || "Falha ao registrar o usuário.");
             }
 
-            setIsSuccess(true); 
+            setIsSuccess(true);
             setVerificationMessage("Cadastro realizado com sucesso! Por favor, verifique seu email para ativar sua conta.");
             setTimeout(() => {
-                setIsSuccess(false); 
-                setIsRegisterMode(false); 
-            }, 2000); 
+                setIsSuccess(false);
+                setIsRegisterMode(false);
+            }, 2000);
         } catch (err: any) {
             setError(err.message || "Ocorreu um erro durante o registro.");
         } finally {
@@ -136,7 +141,7 @@ export function AuthDialog({isOpen, onClose}: AuthDialogProps) {
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded",
                 },
-                body: new URLSearchParams({username: email, password}),
+                body: new URLSearchParams({ username: email, password }),
             });
 
             const data = await response.json();
@@ -169,7 +174,7 @@ export function AuthDialog({isOpen, onClose}: AuthDialogProps) {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({email}),
+                body: JSON.stringify({ email }),
             });
 
             const data = await response.json();
@@ -185,8 +190,46 @@ export function AuthDialog({isOpen, onClose}: AuthDialogProps) {
             setIsLoading(false);
         }
     };
+
+    const handlePasswordResetRequest = async () => {
+        setIsLoading(true);
+        setError(null);
+        setVerificationMessage(null);
+
+        if (!isValidEmail(resetEmail)) {
+            setError("Por favor, insira um email válido.");
+            setIsLoading(false);
+            return;
+        }
+
+        try {
+            const response = await fetch("http://localhost:8000/request-password-reset/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email: resetEmail }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.detail || "Falha ao solicitar a redefinição de senha.");
+            }
+
+            setVerificationMessage("Se o email estiver registrado, um link de redefinição de senha foi enviado.");
+            setIsForgotPasswordMode(false);
+        } catch (err: any) {
+            setError(err.message || "Ocorreu um erro durante a solicitação.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const handleSubmit = () => {
-        if (isRegisterMode) {
+        if (isForgotPasswordMode) {
+            handlePasswordResetRequest();
+        } else if (isRegisterMode) {
             handleRegister();
         } else {
             handleLogin();
@@ -201,18 +244,32 @@ export function AuthDialog({isOpen, onClose}: AuthDialogProps) {
         setIsRegisterMode((prevMode) => !prevMode);
         setError(null);
         setVerificationMessage(null);
+        setIsForgotPasswordMode(false);
     }
+
+    const handleForgotPasswordNavigation = () => {
+        onClose(); // Fechar o diálogo de autenticação
+        navigate("/forgot-password"); // Redirecionar para a página de solicitação de redefinição
+    };
 
     return (
         <>
             <Dialog open={isOpen} onOpenChange={onClose}>
                 <DialogContent className="sm:max-w-md" showCloseButton={false}>
                     <DialogHeader>
-                        <DialogTitle>{isRegisterMode ? "Cadastre-se" : "Bem vindo de volta!"}</DialogTitle>
+                        <DialogTitle>
+                            {isRegisterMode
+                                ? "Cadastre-se"
+                                : isForgotPasswordMode
+                                    ? "Recuperar Senha"
+                                    : "Bem-vindo de volta!"}
+                        </DialogTitle>
                         <DialogDescription>
                             {isRegisterMode
                                 ? "Crie uma nova conta preenchendo os campos abaixo."
-                                : "Digite seu email e senha para fazer login."}
+                                : isForgotPasswordMode
+                                    ? "Insira seu email para receber um link de redefinição de senha."
+                                    : "Digite seu email e senha para fazer login."}
                         </DialogDescription>
                     </DialogHeader>
 
@@ -231,53 +288,95 @@ export function AuthDialog({isOpen, onClose}: AuthDialogProps) {
                                     onClick={handleResendVerification}
                                     className="text-red-500 cursor-pointer hover:underline"
                                 >
-                              Reenviar Verificação
-                            </span>
+                                    Reenviar Verificação
+                                </span>
                             )}
                         </div>
                     )}
 
-                    <div className="grid gap-4">
-                        <div className="grid gap-2">
-                            <Label htmlFor="email">Email</Label>
-                            <Input
-                                id="email"
-                                type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                disabled={isLoading}
-                            />
+                    {!isForgotPasswordMode ? (
+                        <div className="grid gap-4">
+                            <div className="grid gap-2">
+                                <Label htmlFor="email">Email</Label>
+                                <Input
+                                    id="email"
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    disabled={isLoading}
+                                />
+                            </div>
+                            <div className="grid gap-2">
+                                <Label htmlFor="password">Senha</Label>
+                                <Input
+                                    id="password"
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    disabled={isLoading}
+                                />
+                            </div>
                         </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="password">Senha</Label>
-                            <Input
-                                id="password"
-                                type="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                disabled={isLoading}
-                            />
+                    ) : (
+                        <div className="grid gap-4">
+                            <div className="grid gap-2">
+                                <Label htmlFor="reset-email">Email</Label>
+                                <Input
+                                    id="reset-email"
+                                    type="email"
+                                    value={resetEmail}
+                                    onChange={(e) => setResetEmail(e.target.value)}
+                                    disabled={isLoading}
+                                />
+                            </div>
                         </div>
-                    </div>
+                    )}
+
                     <div className="flex space-x-4 mt-2">
-            <span
-                onClick={toggleMode}
-                className="text-blue-500 cursor-pointer hover:underline"
-            >
-              {isRegisterMode
-                  ? "Já possui conta? Entre aqui!"
-                  : "Não possui conta? Crie uma aqui!"}
-            </span>
+                        {!isForgotPasswordMode && (
+                            <span
+                                onClick={toggleMode}
+                                className="text-blue-500 cursor-pointer hover:underline"
+                            >
+                                {isRegisterMode
+                                    ? "Já possui conta? Entre aqui!"
+                                    : "Não possui conta? Crie uma aqui!"}
+                            </span>
+                        )}
+                        {isForgotPasswordMode && (
+                            <span
+                                onClick={() => setIsForgotPasswordMode(false)}
+                                className="text-blue-500 cursor-pointer hover:underline"
+                            >
+                                Voltar para o login
+                            </span>
+                        )}
                     </div>
+
+                    {!isForgotPasswordMode && (
+                        <div className="flex justify-end mt-2">
+                            <span
+                                onClick={handleForgotPasswordNavigation}
+                                className="text-blue-500 cursor-pointer hover:underline"
+                            >
+                                Esqueceu sua senha?
+                            </span>
+                        </div>
+                    )}
+
                     <DialogFooter className="mt-4">
                         <Button onClick={handleSubmit} disabled={isLoading}>
                             {isLoading
                                 ? isRegisterMode
                                     ? "Cadastrando..."
-                                    : "Fazendo login..."
+                                    : isForgotPasswordMode
+                                        ? "Enviando..."
+                                        : "Fazendo login..."
                                 : isRegisterMode
                                     ? "Cadastrar"
-                                    : "Log In"}
+                                    : isForgotPasswordMode
+                                        ? "Enviar Solicitação"
+                                        : "Log In"}
                         </Button>
                         <Button type="button" variant="secondary" onClick={handleUseWithoutLogin}>
                             Entrar sem login

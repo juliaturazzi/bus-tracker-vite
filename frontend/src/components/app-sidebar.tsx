@@ -30,12 +30,12 @@ export function AppSidebar({ isLoggedIn, ...props }: AppSidebarProps) {
         if (isLoggedIn) {
             try {
                 await logOut();
-                handleNavigation("/login");
+                handleNavigation("/");
             } catch (err) {
                 console.error("Error during logout:", err);
             }
         } else {
-            handleNavigation("/login");
+            handleNavigation("/");
         }
     };
 
