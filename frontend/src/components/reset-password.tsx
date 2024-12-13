@@ -84,7 +84,7 @@ const ResetPassword: React.FC = () => {
 
     return (
         <ThemeProvider storageKey="vite-ui-theme">
-        <Dialog>
+        <Dialog open={true}>
                 <DialogContent className="sm:max-w-md" showCloseButton={false}>
                     <DialogHeader>
                         <DialogTitle> Redefinir Senha</DialogTitle>
