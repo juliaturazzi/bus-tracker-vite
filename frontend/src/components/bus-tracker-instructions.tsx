@@ -5,6 +5,7 @@ import {
     DialogTitle,
     DialogDescription,
 } from "@/components/ui/dialog";
+import CopyRight from "./copy-right";
 
 interface BusTrackerInstructionsProps {
     open: boolean;
@@ -20,7 +21,7 @@ export function BusTrackerInstructions({ open, onClose }: BusTrackerInstructions
                         Guia Bus Tracker
                     </DialogTitle>
                     <DialogDescription className="mt-4 text-sm">
-                        O Bus Tracker é um aplicativo inteligente que ajuda você a rastrear ônibus em tempo real e configurar alertas personalizados para nunca perder o transporte. Siga este guia para entender como utilizá-lo.
+                        O Bus Tracker é um aplicativo inteligente que ajuda você a rastrear ônibus em tempo real e configurar alertas personalizados para nunca perder o seu ônibus. Siga este guia para entender como utilizá-lo.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-6">
@@ -30,13 +31,13 @@ export function BusTrackerInstructions({ open, onClose }: BusTrackerInstructions
                             <div>
                                 <h3 className="font-semibold">Usuário Não Cadastrado</h3>
                                 <ul className="mt-1 ml-4 list-disc text-sm">
-                                    <li>Selecione uma linha de ônibus: Digite o número ou nome da linha desejada.</li>
+                                    <li>Selecione uma linha de ônibus: Digite o número ou código da linha desejada.</li>
                                     <li>Escolha um ponto de ônibus: Encontre o ponto de interesse no mapa ou na lista.</li>
                                     <li>
                                         Confira os resultados:
                                         <ul className="ml-4 list-disc">
-                                            <li>Uma tabela será exibida com todos os ônibus da linha escolhida, indicando a distância de cada um até o ponto selecionado.</li>
-                                            <li>O mapa mostrará os ônibus em tempo real através de ícones, facilitando o acompanhamento.</li>
+                                            <li>Uma tabela será exibida com todos os ônibus da linha escolhida, indicando a distância atual de cada um até o ponto selecionado.</li>
+                                            <li>O mapa mostrará os ônibus em tempo real através de ícones, facilitando a visualização.</li>
                                         </ul>
                                     </li>
                                 </ul>
@@ -54,23 +55,23 @@ export function BusTrackerInstructions({ open, onClose }: BusTrackerInstructions
                                 <p className="mt-1 text-sm">Você pode configurar alertas personalizados de duas formas:</p>
                                 <ul className="mt-1 ml-4 list-disc text-sm">
                                     <li>
-                                        <strong>Configuração Completa:</strong> Insira linha de ônibus, ponto de ônibus, intervalo de tempo e distância mínima para notificações.
+                                        <strong>Configuração Completa:</strong> Insira linha de ônibus, ponto de ônibus, intervalo de tempo (de no máximo uma hora) e distância máxima do ônibus até o ponto escolhido para receber as notificações.
                                     </li>
                                     <li>
-                                        <strong>Configuração Rápida:</strong> Informe apenas a linha e o ponto de ônibus. O sistema usará o horário atual para calcular notificações.
+                                        <strong>Configuração Rápida:</strong> Informe apenas a linha e o ponto de ônibus. O sistema usará o horário atual para calcular a distância entre os ônibus até o ponto escolhido e mostrar os ônibus em tempo real.
                                     </li>
                                 </ul>
                             </div>
                             <div>
                                 <h3 className="font-semibold">2. Gerenciar Agendamentos</h3>
                                 <p className="mt-1 text-sm">
-                                    Acesse a aba Agendamentos para visualizar, editar ou excluir alertas cadastrados.
+                                    Acesse a aba Agendamentos para visualizar ou excluir alertas cadastrados.
                                 </p>
                             </div>
                             <div>
                                 <h3 className="font-semibold">3. Receber Notificações por E-mail</h3>
                                 <p className="mt-1 text-sm">
-                                    Sempre que um ônibus atender aos critérios configurados, você será notificado por e-mail.
+                                    Sempre que um ônibus atender aos critérios configurados, você será notificado pelo e-mail cadastrado no aplicativo.
                                 </p>
                             </div>
                         </div>
@@ -92,6 +93,9 @@ export function BusTrackerInstructions({ open, onClose }: BusTrackerInstructions
                                 bustrackerrio@gmail.com
                             </a>
                         </p>
+                    </section>
+                    <section>
+                        <CopyRight/>
                     </section>
                 </div>
             </DialogContent>
