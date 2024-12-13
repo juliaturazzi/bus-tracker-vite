@@ -4,18 +4,15 @@ from dotenv import load_dotenv
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
-# Load email credentials
 load_dotenv()
 EMAIL_SENDER_ALIAS = os.getenv("EMAIL_SENDER_ALIAS")
 EMAIL_SENDER_PASSWORD = os.getenv("EMAIL_SENDER_PASSWORD")
 WEBSITE_URL = os.getenv("WEBSITE_URL")
 
-# Email server settings
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
 
 def send_email(receiver_email, linha, ponto, onibus_data):
-    # Define the HTML content
     html_content = f"""
     <!DOCTYPE html>
     <html lang="en">
@@ -119,31 +116,26 @@ def send_email(receiver_email, linha, ponto, onibus_data):
     </html>
     """
 
-    # Create the email
     msg = MIMEMultipart("alternative")
     msg["From"] = EMAIL_SENDER_ALIAS
     msg["To"] = receiver_email
     msg["Subject"] = "Bus Tracker Updates"
 
-    # Attach the HTML content
     msg.attach(MIMEText(html_content, "html"))
 
     try:
-        # Connect to the email server and send the email
         with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
             server.starttls()  # Secure the connection
             server.login(EMAIL_SENDER_ALIAS, EMAIL_SENDER_PASSWORD)
             server.send_message(msg)
             print("Email sent successfully!")
     except Exception as e:
-        # Log the error and raise it for debugging
         print(f"Error sending email: {e}")
         raise
 
 
 def send_verification_email(receiver_email: str, token: str):
-    verification_link = f"{WEBSITE_URL}verify?token={token}"  # Replace with your actual frontend verification URL
-
+    verification_link = f"{WEBSITE_URL}verify?token={token}"  
     subject = "Verifique seu Email - Bus Tracker"
 
     html_content = f"""
@@ -152,7 +144,6 @@ def send_verification_email(receiver_email: str, token: str):
     <head>
         <title>Verifique seu Email</title>
         <style>
-            /* Add your email styles here */
             body {{
                 font-family: Arial, sans-serif;
                 background-color: #f4f4f4;
@@ -186,17 +177,14 @@ def send_verification_email(receiver_email: str, token: str):
     </html>
     """
 
-    # Create the email
     msg = MIMEMultipart("alternative")
     msg["From"] = EMAIL_SENDER_ALIAS
     msg["To"] = receiver_email
     msg["Subject"] = subject
 
-    # Attach the HTML content
     msg.attach(MIMEText(html_content, "html"))
 
     try:
-        # Connect to the email server and send the email
         with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
             server.starttls()  # Secure the connection
             server.login(EMAIL_SENDER_ALIAS, EMAIL_SENDER_PASSWORD)
@@ -208,7 +196,7 @@ def send_verification_email(receiver_email: str, token: str):
 
 
 def send_password_reset_email(receiver_email: str, token: str):
-    reset_link = f"{WEBSITE_URL}reset-password?token={token}"  # Replace with your actual frontend reset URL
+    reset_link = f"{WEBSITE_URL}reset-password?token={token}" 
 
     subject = "Redefina sua senha - Bus Tracker"
 
@@ -218,7 +206,6 @@ def send_password_reset_email(receiver_email: str, token: str):
     <head>
         <title>Redefina sua senha</title>
         <style>
-            /* Add your email styles here */
             body {{
                 font-family: Arial, sans-serif;
                 background-color: #f4f4f4;
@@ -252,28 +239,23 @@ def send_password_reset_email(receiver_email: str, token: str):
     </html>
     """
 
-    # Create the email
     msg = MIMEMultipart("alternative")
     msg["From"] = EMAIL_SENDER_ALIAS
     msg["To"] = receiver_email
     msg["Subject"] = subject
 
-    # Attach the HTML content
     msg.attach(MIMEText(html_content, "html"))
 
     try:
-        # Connect to the email server and send the email
         with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
             server.starttls()  # Secure the connection
             server.login(EMAIL_SENDER_ALIAS, EMAIL_SENDER_PASSWORD)
             server.send_message(msg)
             print("Password reset email sent successfully!")
     except Exception as e:
-        # Log the error and raise it for debugging
         print(f"Error sending password reset email: {e}")
         raise
     
-# Example usage
 if __name__ == "__main__":
     receiver = "recipient@example.com"
     linha = "42B"

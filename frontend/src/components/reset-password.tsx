@@ -22,14 +22,12 @@ const ResetPassword: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-        // Extrai o token da query string
         const queryParams = new URLSearchParams(location.search);
         const tokenParam = queryParams.get('token');
         setToken(tokenParam);
     }, [location.search]);
 
     const isValidPassword = (password: string): boolean => {
-        // Implemente aqui sua lógica de validação de senha
         return password.length >= 6;
     };
 

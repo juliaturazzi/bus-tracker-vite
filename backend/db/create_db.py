@@ -15,7 +15,6 @@ class BusStopDatabase:
         self._create_database()
         self._create_tables()
 
-    # Create MySQL database connection
     def _connect(self):
         return mysql.connector.connect(
             host=self.host,
@@ -24,7 +23,6 @@ class BusStopDatabase:
             database=self.database,
         )
 
-    # Create the database
     def _create_database(self):
         conn = mysql.connector.connect(
             host=self.host,
@@ -37,12 +35,10 @@ class BusStopDatabase:
         cursor.close()
         conn.close()
 
-    # Create necessary tables
     def _create_tables(self):
         conn = self._connect()
         cursor = conn.cursor()
 
-        # Create `stops` table
         cursor.execute(
             f"""
             CREATE TABLE IF NOT EXISTS stops (
@@ -59,9 +55,6 @@ class BusStopDatabase:
             """
         )
 
-        # Create `users` table
-        # Inside the BusStopDatabase class in your existing code
-        # Create `users` table with `reset_token`
         cursor.execute(
             f"""
             CREATE TABLE IF NOT EXISTS users (
@@ -79,7 +72,6 @@ class BusStopDatabase:
         cursor.close()
         conn.close()
 
-    # Insert a new bus stop into the `stops` table
     def insert_bus_stop(
         self,
         email: str,
@@ -106,7 +98,6 @@ class BusStopDatabase:
         cursor.close()
         conn.close()
 
-    # Retrieve all bus stops from the `stops` table
     def get_all_bus_stops(self) -> List[Dict[str, Any]]:
         conn = self._connect()
         cursor = conn.cursor(dictionary=True)
@@ -119,7 +110,6 @@ class BusStopDatabase:
 
         return results
 
-    # Register a new user into the `users` table
     def register_user(self, email: str, username: str, hashed_password: str, verification_token: str):
         conn = self._connect()
         cursor = conn.cursor()
@@ -195,7 +185,6 @@ class BusStopDatabase:
         conn.close()
         return result
 
-    # Retrieve all users from the `users` table
     def get_all_users(self) -> List[Dict[str, Any]]:
         conn = self._connect()
         cursor = conn.cursor(dictionary=True)
@@ -208,7 +197,6 @@ class BusStopDatabase:
 
         return results
 
-    # Delete a user from the `users` table
     def delete_user(self, email: str):
         conn = self._connect()
         cursor = conn.cursor()
@@ -219,7 +207,6 @@ class BusStopDatabase:
         cursor.close()
         conn.close()
 
-    # Update a user's information in the `users` table
     def update_user(
         self, email: str, username: str = None, hashed_password: str = None
     ):
@@ -245,7 +232,6 @@ class BusStopDatabase:
         cursor.close()
         conn.close()
 
-    # Retrieve all bus stops registered by a specific user
     def get_stops_by_user(self, email: str) -> List[Dict[str, Any]]:
         conn = self._connect()
         cursor = conn.cursor(dictionary=True)
@@ -258,7 +244,6 @@ class BusStopDatabase:
 
         return stops
 
-    # Delete a specific bus stop registered by a user
     def delete_stop(
             self,
             email: str,
@@ -290,7 +275,6 @@ class BusStopDatabase:
         conn.close()
 
 
-    # Set reset token for a user
     def set_reset_token(self, email: str, reset_token: str):
         conn = self._connect()
         cursor = conn.cursor()
@@ -307,7 +291,6 @@ class BusStopDatabase:
         cursor.close()
         conn.close()
 
-    # Get user by reset token
     def get_user_by_reset_token(self, reset_token: str) -> Dict[str, Any]:
         conn = self._connect()
         cursor = conn.cursor(dictionary=True)
@@ -324,7 +307,6 @@ class BusStopDatabase:
         conn.close()
         return user
 
-    # Clear reset token after successful password reset
     def clear_reset_token(self, email: str):
         conn = self._connect()
         cursor = conn.cursor()

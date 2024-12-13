@@ -4,16 +4,9 @@ from json import dumps
 
 
 class BusDataFetcher:
-    """
-    A class to fetch bus data from an API for a specified time range.
-    """
-
     BASE_API_URL = "https://dados.mobilidade.rio/gps/sppo?"
 
     def __init__(self):
-        """
-        Initializes the BusDataFetcher class.
-        """
         self.today = datetime.now().strftime("%d-%m-%Y")
 
     def get_buses_data(self, start_time: str, end_time: str):
@@ -26,7 +19,7 @@ class BusDataFetcher:
             response.raise_for_status()
 
             data = response.json()
-            if not isinstance(data, list):  # Assuming API returns a list of buses
+            if not isinstance(data, list):  
                 print(f"Unexpected data format: {type(data)} - {data}")
                 return []
 
@@ -40,7 +33,6 @@ class BusDataFetcher:
             return []
 
 
-# Example usage
 if __name__ == "__main__":
     fetcher = BusDataFetcher()
     data = fetcher.get_buses_data("10:00:00", "11:00:00")

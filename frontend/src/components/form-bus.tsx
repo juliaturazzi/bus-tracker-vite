@@ -45,7 +45,7 @@ const schema = z
         const startInMinutes = startHour * 60 + startMinute;
         const endInMinutes = endHour * 60 + endMinute;
 
-        return endInMinutes - startInMinutes <= 60; // Ensure the difference is 60 minutes or less
+        return endInMinutes - startInMinutes <= 60; 
     }, {
         message: "A diferença entre os horários deve ser no máximo 1 hora",
         path: ["endTime"],

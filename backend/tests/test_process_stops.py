@@ -3,7 +3,6 @@ import csv
 import json
 import unittest
 import sys
-# Add the parent directory to the system path to allow imports from utils
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
 
@@ -14,48 +13,30 @@ OUTPUT_FILE = "../data/test_stops_updated.jsx"
 
 
 class TestProcessStops(unittest.TestCase):
-    """
-    Test class for the process_stops function.
-    """
 
     def setUp(self):
-        """
-        Set up necessary resources before each test.
-        """
         self.input_file = INPUT_FILE
         self.output_file = OUTPUT_FILE
 
     def tearDown(self):
-        """
-        Clean up after each test.
-        """
         if os.path.exists(self.input_file):
             os.remove(self.input_file)
         if os.path.exists(self.output_file):
             os.remove(self.output_file)
 
     def setup_csv(self, stops_data, header=["stop_name", "stop_lat", "stop_lon", "extra_column"]):
-        """
-        Helper method to set up CSV input files.
-        """
         with open(self.input_file, mode="w", newline="", encoding="utf-8") as csv_file:
             writer = csv.writer(csv_file)
             writer.writerow(header)
             writer.writerows(stops_data)
 
     def read_jsx(self, file_path):
-        """
-        Helper method to read JSX output files.
-        """
         with open(file_path, "r", encoding="utf-8") as file:
             content = file.read()
             json_data = content.split("const stopsData = ", 1)[1].rsplit(";\n\nexport default stopsData;\n", 1)[0]
             return json.loads(json_data)
 
     def test_basic_functionality(self):
-        """
-        Test the basic functionality of process_stops with duplicate stop names.
-        """
         stops_data = [
             ["Main St", "40.7128", "-74.0060", "Extra 1"],
             ["Main St", "40.7138", "-74.0070", "Extra 2"],
@@ -76,9 +57,6 @@ class TestProcessStops(unittest.TestCase):
         self.assertNotIn("extra_column", stops_dict[0])
 
     def test_no_duplicates(self):
-        """
-        Test process_stops when there are no duplicate stop names.
-        """
         stops_data = [
             ["First St", "40.7128", "-74.0060", "Extra 1"],
             ["Second St", "40.7138", "-74.0070", "Extra 2"],
@@ -94,9 +72,6 @@ class TestProcessStops(unittest.TestCase):
         self.assertEqual(stops_dict[1]["stop_lon"], "-74.0070")
 
     def test_duplicates_with_numbers(self):
-        """
-        Test process_stops with a mix of unique and already numbered duplicate stop names.
-        """
         stops_data = [
             ["Main St", "40.7128", "-74.0060", "Extra 1"],
             ["Main St 2", "40.7138", "-74.0070", "Extra 2"],
@@ -112,9 +87,6 @@ class TestProcessStops(unittest.TestCase):
         self.assertEqual(stops_dict[2]["stop_name"], "Main St 3")
 
     def test_only_relevant_columns(self):
-        """
-        Test that process_stops removes irrelevant columns.
-        """
         stops_data = [
             ["Main St", "40.7128", "-74.0060", "Extra Data"],
             ["Second St", "40.7138", "-74.0070", "Extra Data"],

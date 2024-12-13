@@ -7,7 +7,6 @@ import pandas as pd
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
 
-# Add the parent directory to the system path to allow imports from utils
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
 
@@ -16,12 +15,10 @@ from app import app, get_stop_coords, parse_coords
 class TestApp(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        # Initialize FastAPI TestClient
         cls.client = TestClient(app)
 
     @patch("app.load_stops")
     def test_get_stop_coords_valid(self, mock_load_stops):
-        # Mock the load_stops function to simulate CSV data
         mock_load_stops.return_value = pd.DataFrame({
             "stop_name": ["Stop A"],
             "stop_lat": [12.34],
@@ -35,7 +32,6 @@ class TestApp(unittest.TestCase):
 
     @patch("app.load_stops")
     def test_get_stop_coords_invalid(self, mock_load_stops):
-        # Mock the load_stops function to simulate CSV data
         mock_load_stops.return_value = pd.DataFrame({
             "stop_name": ["Stop A"],
             "stop_lat": [12.34],
@@ -56,7 +52,6 @@ class TestApp(unittest.TestCase):
 
     @patch("app.load_stops")
     def test_read_stops(self, mock_load_stops):
-        # Mock the load_stops function
         mock_load_stops.return_value = pd.DataFrame({
             "stop_name": ["Stop A", "Stop B"],
             "stop_lat": [12.34, 23.45],
@@ -70,7 +65,6 @@ class TestApp(unittest.TestCase):
 
     @patch("app.get_filtered_bus_line")
     async def test_read_info(self, mock_get_filtered_bus_line):
-        # Mock the get_filtered_bus_line function
         mock_get_filtered_bus_line.return_value = [{"linha": "123", "ordem": "1"}]
 
         response = self.client.get(
@@ -88,18 +82,15 @@ class TestApp(unittest.TestCase):
     @patch("app.load_stops")
     @patch("app.BusStopDatabase")
     def test_register_endpoint(self, mock_db, mock_load_stops):
-        # Mock load_stops to return a predefined DataFrame
         mock_load_stops.return_value = pd.DataFrame({
             "stop_name": ["Stop A"],
             "stop_lat": [12.34],
             "stop_lon": [56.78]
         })
 
-        # Mock the database insertion method
         mock_db_instance = mock_db.return_value
         mock_db_instance.insert_bus_stop.return_value = None
 
-        # Call the POST /register/ endpoint
         response = self.client.post(
             "/register/",
             json={
@@ -111,11 +102,9 @@ class TestApp(unittest.TestCase):
             }
         )
 
-        # Validate the response
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"status": "success", "message": "Email sent successfully"})
 
-        # Ensure the mocked database insertion method was called
         mock_db_instance.insert_bus_stop.assert_called_once_with(
             "test@example.com", "123", "Stop A", 12.34, 56.78, "08:00", "10:00"
         )

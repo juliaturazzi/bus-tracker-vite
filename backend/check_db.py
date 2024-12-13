@@ -1,6 +1,4 @@
 import asyncio
-import time
-import json  # Added import for JSON handling
 from datetime import datetime
 
 from dotenv import load_dotenv
@@ -12,17 +10,14 @@ from db.create_db import BusStopDatabase
 from services.email_service import send_email
 from services.travel_time_service import TravelTimeService
 
-# Load environment variables from a .env file
 load_dotenv()
 
-# Configure logging
 logging.basicConfig(
-    level=logging.INFO,  # Set the logging level to INFO
-    format="%(asctime)s - %(levelname)s - %(message)s",  # Define the log message format
-    handlers=[logging.StreamHandler(sys.stdout)],  # Output logs to stdout
+    level=logging.INFO,  
+    format="%(asctime)s - %(levelname)s - %(message)s",  
+    handlers=[logging.StreamHandler(sys.stdout)],  
 )
 
-# Constants for bus time range
 NEARBY_BUSES_MINUTES_MIN = 0
 NEARBY_BUSES_MINUTES_MAX = 11.00
 
@@ -31,7 +26,6 @@ def check_time(start, end):
     current_time = datetime.now().time()
     logging.info(f"Checking time: {current_time} against start: {start} and end: {end}")
 
-    # If end time is before start time, the interval crosses midnight
     if end < start:
         result = current_time >= start or current_time < end
     else:
@@ -58,13 +52,12 @@ async def evaluate_travel_time(stop, buses, service):
     }
     logging.info(
         f"Evaluating travel time for stop: {stop['stop_name']} with buses: {[bus['ordem'] for bus in buses]}"
-    )  # Updated
+    )  
 
-    # Run the synchronous get_travel_times in a separate thread
     updated_buses = await asyncio.to_thread(
         service.get_travel_times, bus_stop_info, buses
     )
-    logging.info(f"Updated buses with travel times: {[bus['distancia'] for bus in updated_buses]}")  # Updated
+    logging.info(f"Updated buses with travel times: {[bus['distancia'] for bus in updated_buses]}") 
     return updated_buses
 
 
@@ -75,7 +68,6 @@ async def collect_bus_data(stop, buses, service):
     for bus in updated_buses:
         distancia = bus.get("distancia")
         max_distance = stop.get("max_distance")
-        # Ensure 'id' exists; adjust if your identifier is different
         bus_id = bus.get("id") or bus.get("ordem")
         logging.info(f"Processing bus ID: {bus_id}, Distance: {distancia}")
         if distancia != "Not found" and bus_id:
@@ -84,7 +76,7 @@ async def collect_bus_data(stop, buses, service):
                 logging.info(f"Bus ID {bus_id} is within range: {distancia} minutes")
             else:
                 logging.info(f"Bus ID {bus_id} is out of range: {distancia} minutes")
-    logging.info(f"Collected bus data! Bus data is {'ok' if bus_data else 'not ok'}")  # Updated
+    logging.info(f"Collected bus data! Bus data is {'ok' if bus_data else 'not ok'}") 
     return bus_data
 
 
@@ -100,14 +92,13 @@ async def process_stop(stop, service):
             stop["end_time"],
             stop["stop_name"],
         )
-        logging.info(f"Retrieved filtered buses: DATA is {'ok' if buses else 'not ok'}")  # Updated
+        logging.info(f"Retrieved filtered buses: DATA is {'ok' if buses else 'not ok'}")  
         if not buses:
             logging.info(f"No buses found for stop: {stop['stop_name']}")
-            return  # No buses to process
-
+            return  
         bus_data = await collect_bus_data(stop, buses, service)
         if bus_data:
-            logging.info(f"Sending email to {stop['email']} with bus data!")  # Updated
+            logging.info(f"Sending email to {stop['email']} with bus data!")  
             await asyncio.to_thread(
                 send_email, stop["email"], stop["linha"], stop["stop_name"], bus_data
             )
@@ -143,13 +134,12 @@ async def main():
             tasks.append(process_stop(stop, service))
         if tasks:
             logging.info(f"Running {len(tasks)} tasks concurrently")
-            # Run all tasks concurrently
             await asyncio.gather(*tasks)
             logging.info("Completed all tasks in this iteration")
         else:
             logging.info("No tasks to run in this iteration")
         logging.info("Sleeping for 60 seconds before the next check")
-        await asyncio.sleep(60)  # Wait for a minute before the next check
+        await asyncio.sleep(60)  
 
 
 if __name__ == "__main__":

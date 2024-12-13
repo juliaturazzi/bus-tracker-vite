@@ -38,7 +38,7 @@ export default function RootLayout({ }: Readonly<{ children: React.ReactNode }>)
                 <div className="flex items-center justify-center h-screen">
                     <AuthDialog
                         isOpen={true}
-                        onClose={() => setHasSkippedLogin(true)} // User chooses to skip login
+                        onClose={() => setHasSkippedLogin(true)} 
                     />
                 </div>
             </ThemeProvider>

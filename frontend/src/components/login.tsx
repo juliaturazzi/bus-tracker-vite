@@ -1,4 +1,3 @@
-// src/components/AuthDialog.js
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/components/auth_context";
-import { useNavigate } from "react-router-dom"; // Importar useNavigate para redirecionamento
+import { useNavigate } from "react-router-dom";
 
 interface AuthDialogProps {
     isOpen: boolean;
@@ -21,7 +20,7 @@ interface AuthDialogProps {
 
 export default function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
     const { logIn } = useAuth();
-    const navigate = useNavigate(); // Inicializar useNavigate
+    const navigate = useNavigate(); 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [username, setUsername] = useState("");
@@ -29,9 +28,9 @@ export default function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [isRegisterMode, setIsRegisterMode] = useState(false);
     const [isForgotPasswordMode, setIsForgotPasswordMode] = useState(false);
-    const [isSuccess, setIsSuccess] = useState(false); // Success state
+    const [isSuccess, setIsSuccess] = useState(false); 
     const [verificationMessage, setVerificationMessage] = useState<string | null>(null);
-    const [isVerifying, setIsVerifying] = useState(false); // Verification state
+    const [isVerifying, setIsVerifying] = useState(false); 
     const [resetEmail, setResetEmail] = useState("");
 
     const isValidEmail = (email: string): boolean => {
