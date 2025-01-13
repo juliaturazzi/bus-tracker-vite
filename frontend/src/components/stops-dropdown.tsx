@@ -1,4 +1,4 @@
-import {useState, useEffect, forwardRef} from "react";
+import {useState, useEffect, forwardRef, useRef} from "react";
 import stopsData from "@/stops.json";
 import {FixedSizeList as List} from "react-window";
 
@@ -40,8 +40,8 @@ const VirtualizedDropdown = ({
                 return (
                     <div
                         className={`px-4 py-2 cursor-pointer ${value === option.value
-                                ? "bg-gray-700 text-white"
-                                : "bg-black text-gray-200 hover:bg-gray-800"
+                            ? "bg-gray-700 text-white"
+                            : "bg-black text-gray-200 hover:bg-gray-800"
                             }`}
                         style={style}
                         onClick={() => handleSelect(option.value)}
@@ -62,6 +62,7 @@ const StopsDropdown = forwardRef<HTMLDivElement, StopsDropdownProps>(
             {value: string; label: string}[]
         >([]);
         const [isOpen, setIsOpen] = useState<boolean>(false); // Track dropdown open/close state
+        const searchInputRef = useRef<HTMLInputElement>(null);
 
         useEffect(() => {
             const formattedStops = stopsData.map((stop) => ({
@@ -81,35 +82,75 @@ const StopsDropdown = forwardRef<HTMLDivElement, StopsDropdownProps>(
             );
         }, [search, stops]);
 
+        // Close dropdown when clicking outside
+        useEffect(() => {
+            const handleClickOutside = (event: MouseEvent) => {
+                if (ref.current && !ref.current.contains(event.target as Node)) {
+                    setIsOpen(false);
+                }
+            };
+            document.addEventListener("mousedown", handleClickOutside);
+            return () => {
+                document.removeEventListener("mousedown", handleClickOutside);
+            };
+        }, [ref]);
+
+        const handleToggle = () => {
+            setIsOpen((prev) => !prev);
+            if (!isOpen) {
+                setTimeout(() => {
+                    searchInputRef.current?.focus();
+                }, 0);
+            } else {
+                setSearch(""); // Reset search when closing
+            }
+        };
+
+        const handleSelect = (selectedValue: string) => {
+            onChange(selectedValue);
+            setIsOpen(false);
+            setSearch("");
+        };
+
         return (
             <div ref={ref} className="w-72 relative">
-                {/* Search Input */}
+                {/* Main Display Area */}
                 <div
-                    className="w-full px-4 py-2 text-gray-200 bg-gray-800 rounded focus:outline-none cursor-pointer"
-                    onClick={() => setIsOpen(!isOpen)} // Toggle dropdown on click
+                    className="w-full px-4 py-2 text-gray-200 bg-gray-800 rounded focus:outline-none cursor-pointer flex items-center justify-between"
+                    onClick={handleToggle} // Toggle dropdown on click
                 >
-                    {value ? stops.find((stop) => stop.value === value)?.label : "Select a stop"}
-                </div>
-
-                {isOpen && (
-                    <div
-                        className="absolute z-10 mt-2 w-full border border-gray-700 rounded bg-black"
-                    >
+                    {isOpen ? (
                         <input
+                            ref={searchInputRef}
                             type="text"
                             placeholder="Search..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="w-full px-4 py-2 text-gray-200 bg-gray-800 focus:outline-none"
+                            className="w-full bg-transparent text-gray-200 focus:outline-none"
+                            onClick={(e) => e.stopPropagation()} // Prevent toggle when clicking inside input
                         />
+                    ) : (
+                        <span>
+                            {value
+                                ? stops.find((stop) => stop.value === value)?.label
+                                : "Select a stop"}
+                        </span>
+                    )}
+                    <span className="ml-2">
+                        {/* Icon can be added here, e.g., a dropdown arrow */}
+
+                    </span>
+                </div>
+
+                {isOpen && (
+                    <div
+                        className="absolute z-10 mt-1 w-full border border-gray-700 rounded bg-black"
+                    >
                         <VirtualizedDropdown
                             options={filteredStops}
                             value={value}
-                            onChange={(selectedValue) => {
-                                onChange(selectedValue);
-                                setIsOpen(false); // Close the dropdown on selection
-                            }}
-                            closeDropdown={() => setIsOpen(false)} // Explicitly close the dropdown
+                            onChange={handleSelect}
+                            closeDropdown={() => setIsOpen(false)}
                             maxHeight={300} // Total height of the dropdown
                         />
                     </div>
