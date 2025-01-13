@@ -1,12 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { Check, ChevronsUpDown, ChevronLeft, ChevronRight } from "lucide-react";
+import {Check, ChevronsUpDown, ChevronLeft, ChevronRight} from "lucide-react";
 
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {cn} from "@/lib/utils";
+import {Button} from "@/components/ui/button";
+import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList} from "@/components/ui/command";
+import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
 
 interface Option {
     value: string;
@@ -23,7 +23,7 @@ interface ComboboxProps {
 const PAGE_SIZE = 800;
 
 
-export function Combobox({ options, placeholder, value, onChange }: ComboboxProps) {
+export function Combobox({options, placeholder, value, onChange}: ComboboxProps) {
     const [open, setOpen] = React.useState(false);
     const [currentPage, setCurrentPage] = React.useState(0);
 
