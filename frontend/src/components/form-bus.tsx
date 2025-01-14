@@ -21,6 +21,7 @@ import allStops from "@/stops.json";
 import { Switch } from "@/components/ui/switch";
 import { useTheme } from "@/components/theme-provider";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { CalendarFold } from "lucide-react";
 
 const schema = z
     .object({
@@ -519,7 +520,15 @@ const FormBusTracker: React.FC<FormBusTrackerProps> = ({
                         }`}
                         disabled={!isValid || isLoading}
                     >
-                        Enviar
+                        {isLoggedIn && !isNow ? (
+                            <>
+                                <CalendarFold className="w-6 h-6"/>
+                                <span>Agendar</span>
+                            </>
+                        ) : (
+                            <>
+                                <span>Enviar</span>
+                            </>)}
                     </Button>
 
                     {successfulRegistration && (
