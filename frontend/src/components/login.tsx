@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import {useState, useEffect} from "react";
+import {Button} from "@/components/ui/button";
 import {
     Dialog,
     DialogContent,
@@ -8,19 +8,19 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useAuth } from "@/components/auth_context";
-import { useNavigate } from "react-router-dom";
+import {Input} from "@/components/ui/input";
+import {Label} from "@/components/ui/label";
+import {useAuth} from "@/components/auth_context";
+import {useNavigate} from "react-router-dom";
 
 interface AuthDialogProps {
     isOpen: boolean;
     onClose: () => void;
 }
 
-export default function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
-    const { logIn } = useAuth();
-    const navigate = useNavigate(); 
+export default function AuthDialog({isOpen, onClose}: AuthDialogProps) {
+    const {logIn} = useAuth();
+    const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [username, setUsername] = useState("");
@@ -28,9 +28,9 @@ export default function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [isRegisterMode, setIsRegisterMode] = useState(false);
     const [isForgotPasswordMode, setIsForgotPasswordMode] = useState(false);
-    const [isSuccess, setIsSuccess] = useState(false); 
+    const [isSuccess, setIsSuccess] = useState(false);
     const [verificationMessage, setVerificationMessage] = useState<string | null>(null);
-    const [isVerifying, setIsVerifying] = useState(false); 
+    const [isVerifying, setIsVerifying] = useState(false);
     const [resetEmail, setResetEmail] = useState("");
 
     const isValidEmail = (email: string): boolean => {
@@ -102,7 +102,7 @@ export default function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ email, username, password }),
+                body: JSON.stringify({email, username, password}),
             });
 
             if (!response.ok) {
@@ -140,7 +140,7 @@ export default function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded",
                 },
-                body: new URLSearchParams({ username: email, password }),
+                body: new URLSearchParams({username: email, password}),
             });
 
             const data = await response.json();
@@ -173,7 +173,7 @@ export default function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ email }),
+                body: JSON.stringify({email}),
             });
 
             const data = await response.json();
@@ -207,7 +207,7 @@ export default function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ email: resetEmail }),
+                body: JSON.stringify({email: resetEmail}),
             });
 
             const data = await response.json();
@@ -254,16 +254,16 @@ export default function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
     return (
         <>
             <Dialog open={isOpen} onOpenChange={onClose}>
-                <DialogContent className="sm:max-w-md" showCloseButton={false}>
+                <DialogContent className="w-full max-w-lg p-4 sm:p-6 lg:max-w-md" showCloseButton={false}>
                     <DialogHeader>
-                        <DialogTitle>
+                        <DialogTitle className="text-xl sm:text-2xl">
                             {isRegisterMode
                                 ? "Cadastre-se"
                                 : isForgotPasswordMode
                                     ? "Recuperar Senha"
                                     : "Bem-vindo de volta!"}
                         </DialogTitle>
-                        <DialogDescription>
+                        <DialogDescription className="text-sm sm:text-base">
                             {isRegisterMode
                                 ? "Crie uma nova conta preenchendo os campos abaixo."
                                 : isForgotPasswordMode
@@ -281,7 +281,7 @@ export default function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
                     {error && (
                         <div
                             className="mb-4 p-4 rounded-md border border-red-300 bg-red-200 text-red-800 flex flex-col items-center gap-2">
-                            <span>{error}</span>
+                            <span className="text-center">{error}</span>
                             {error.includes("Email não verificado") && (
                                 <span
                                     onClick={handleResendVerification}
@@ -303,6 +303,7 @@ export default function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     disabled={isLoading}
+                                    className="w-full"
                                 />
                             </div>
                             <div className="grid gap-2">
@@ -313,6 +314,7 @@ export default function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     disabled={isLoading}
+                                    className="w-full"
                                 />
                             </div>
                         </div>
@@ -326,16 +328,17 @@ export default function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
                                     value={resetEmail}
                                     onChange={(e) => setResetEmail(e.target.value)}
                                     disabled={isLoading}
+                                    className="w-full"
                                 />
                             </div>
                         </div>
                     )}
 
-                    <div className="flex space-x-4 mt-2">
+                    <div className="flex flex-col sm:flex-row sm:justify-between space-y-2 sm:space-y-0 sm:space-x-4 mt-2">
                         {!isForgotPasswordMode && (
                             <span
                                 onClick={toggleMode}
-                                className="text-blue-500 cursor-pointer hover:underline"
+                                className="text-blue-500 cursor-pointer hover:underline text-center sm:text-left"
                             >
                                 {isRegisterMode
                                     ? "Já possui conta? Entre aqui!"
@@ -345,7 +348,7 @@ export default function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
                         {isForgotPasswordMode && (
                             <span
                                 onClick={() => setIsForgotPasswordMode(false)}
-                                className="text-blue-500 cursor-pointer hover:underline"
+                                className="text-blue-500 cursor-pointer hover:underline text-center sm:text-left"
                             >
                                 Voltar para o login
                             </span>
@@ -353,18 +356,18 @@ export default function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
                     </div>
 
                     {!isForgotPasswordMode && (
-                        <div className="flex justify-end mt-2">
+                        <div className="flex justify-center sm:justify-end mt-2">
                             <span
                                 onClick={handleForgotPasswordNavigation}
-                                className="text-blue-500 cursor-pointer hover:underline"
+                                className="text-blue-500 cursor-pointer hover:underline text-center sm:text-right"
                             >
                                 Esqueceu sua senha?
                             </span>
                         </div>
                     )}
 
-                    <DialogFooter className="mt-4">
-                        <Button onClick={handleSubmit} disabled={isLoading}>
+                    <DialogFooter className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
+                        <Button onClick={handleSubmit} disabled={isLoading} className="w-full sm:w-auto">
                             {isLoading
                                 ? isRegisterMode
                                     ? "Cadastrando..."
@@ -377,7 +380,7 @@ export default function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
                                         ? "Enviar Solicitação"
                                         : "Log In"}
                         </Button>
-                        <Button type="button" variant="secondary" onClick={handleUseWithoutLogin}>
+                        <Button type="button" variant="secondary" onClick={handleUseWithoutLogin} className="w-full sm:w-auto">
                             Entrar sem login
                         </Button>
                     </DialogFooter>
@@ -386,11 +389,11 @@ export default function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
 
             {isVerifying && (
                 <Dialog open={isVerifying}>
-                    <DialogContent showCloseButton={false}>
+                    <DialogContent className="w-full max-w-sm p-4 sm:p-6" showCloseButton={false}>
                         <DialogHeader>
-                            <DialogTitle>Verificando...</DialogTitle>
+                            <DialogTitle className="text-xl sm:text-2xl">Verificando...</DialogTitle>
                         </DialogHeader>
-                        <p>Aguarde enquanto verificamos seu email.</p>
+                        <p className="text-center">Aguarde enquanto verificamos seu email.</p>
                     </DialogContent>
                 </Dialog>
             )}
