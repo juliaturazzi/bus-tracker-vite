@@ -338,7 +338,7 @@ async def get_travel_times(
 
         for bus in travel_times:
             if bus["distancia"] == "Not found":
-                bus["distancia"] = 999.0
+                bus["distancia"] = "-"
 
         response_buses = [
             BusTravelTime(
