@@ -1,9 +1,10 @@
-import { useState } from "react";
-import { Table } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import PaginationWrapper from "@/components/ui/pagination-wrapper"; 
+import {useState} from "react";
+import {Table} from "@/components/ui/table";
+import {Button} from "@/components/ui/button";
+import PaginationWrapper from "@/components/ui/pagination-wrapper";
 
-const BusTable = ({ busData, currentPage, onPageChange }) => {
+
+const BusTable = ({busData, currentPage, onPageChange}) => {
     const itemsPerPage = 10;
 
     const paginatedData = busData.slice(
@@ -12,31 +13,30 @@ const BusTable = ({ busData, currentPage, onPageChange }) => {
     );
 
     return (
-        <div className="overflow-hidden rounded-lg shadow-md">
-            <Table className="w-full text-center border-collapse">
+        <div className="overflow-hidden rounded-lg">
+            <Table className="w-full text-center border-collapse bg-slate-300 text-black dark:bg-zinc-800 dark:text-white">
                 <thead>
-                <tr className="bg-black-800 text-white">
-                    <th className="py-2 px-4">Ordem</th>
-                    <th className="py-2 px-4">Velocidade</th>
-                    <th className="py-2 px-4">Distância</th>
-                </tr>
+                    <tr className="bg-slate-50 text-black dark:bg-zinc-800 dark:text-white">
+                        <th className="py-2 px-4">Ordem</th>
+                        <th className="py-2 px-4">Velocidade</th>
+                        <th className="py-2 px-4">Distância</th>
+                    </tr>
                 </thead>
                 <tbody>
-                {paginatedData.map((bus, index) => (
-                    <tr
-                        key={index}
-                        className={`${
-                            index % 2 === 0 ? "bg-zinc-950" : "bg-zinc-900"
-                        }`}
-                    >
-                        <td className="py-2 px-4">{bus.order}</td>
-                        <td className="py-2 px-4">{bus.speed}km/h</td>
-                        <td className="py-2 px-4">{bus.distance}</td>
-                    </tr>
-                ))}
+                    {paginatedData.map((bus, index) => (
+                        <tr
+                            key={index}
+                            className={`${index % 2 === 0 ? "bg-slate-100 dark:bg-zinc-950" : "bg-slate-200 dark:bg-zinc-900"
+                                }`}
+                        >
+                            <td className="py-2 px-4 text-black dark:text-white">{bus.order}</td>
+                            <td className="py-2 px-4 text-black dark:text-white">{bus.speed}km/h</td>
+                            <td className="py-2 px-4 text-black dark:text-white">{bus.distance}</td>
+                        </tr>
+                    ))}
                 </tbody>
             </Table>
-            <div className="mt-4 flex justify-center">
+            <div className="mt-4 flex justify-center bg-slate-300 dark:bg-zinc-950">
                 <PaginationWrapper
                     currentPage={currentPage}
                     totalPages={Math.ceil(busData.length / itemsPerPage)}
@@ -47,28 +47,31 @@ const BusTable = ({ busData, currentPage, onPageChange }) => {
     );
 };
 
-const BusPopup = ({ busData, lineData }) => {
+
+
+
+
+const BusPopup = ({busData, lineData}) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [currentPage, setCurrentPage] = useState(1); 
+    const [currentPage, setCurrentPage] = useState(1);
 
     if (!busData?.length) return null;
 
     const orderedBusData = busData.sort((a, b) => a.distance - b.distance);
 
     const nearestBus = busData.reduce((prev, current) =>
-            prev.distance < current.distance ? prev : current,
+        prev.distance < current.distance ? prev : current,
         busData[0]
     );
 
     return (
         <div
-            className={`absolute bottom-10 left-1/2 transform -translate-x-1/2 bg-black ${
-                isOpen ? 'w-[95%] max-w-4xl p-6 rounded-3xl' : 'w-[90%] max-w-xl p-2 rounded-full'
-            } shadow-lg flex flex-col items-center text-white transition-all duration-100`}
+            className={`fixed md:absolute bottom-10 left-1/2 transform -translate-x-1/2 border-2 border-solid border-black dark:border-slate-800 bg-slate-300 dark:bg-zinc-950 ${isOpen ? 'w-[95%] max-w-4xl p-6 rounded-3xl' : 'w-[90%] max-w-xl p-2 rounded-full'
+                } shadow-lg flex flex-col items-center text-white transition-all duration-100`}
             onClick={!isOpen ? () => setIsOpen(true) : undefined}
         >
             {!isOpen ? (
-                <div className="flex items-center justify-between w-full">
+                <div className="flex text-black dark:text-white items-center justify-between w-full">
                     <div className="flex-1 text-center border-r border-gray-500 px-4">
                         <p className="text-xs">Ordem</p>
                         <p className="text-lg font-bold">{nearestBus.order}</p>
@@ -83,12 +86,12 @@ const BusPopup = ({ busData, lineData }) => {
                     </div>
                 </div>
             ) : (
-                <div className="w-full">
+                <div className="w-full bg-slate-300 dark:bg-zinc-950 text-black dark:text-white">
                     <h2 className="text-lg font-extrabold text-left mb-4">Todos os ônibus - {lineData}</h2>
                     <BusTable
                         busData={orderedBusData}
                         currentPage={currentPage}
-                        onPageChange={setCurrentPage} 
+                        onPageChange={setCurrentPage}
                     />
                     <div className="mt-4 flex justify-center">
                         <Button

@@ -1,8 +1,8 @@
-import { useState, useEffect, forwardRef, useRef } from "react";
+import {useState, useEffect, forwardRef, useRef} from "react";
 import stopsData from "@/stops.json";
-import { FixedSizeList as List } from "react-window";
-import { cn } from "@/lib/utils";
-import { Input } from "@/components/ui/input";
+import {FixedSizeList as List} from "react-window";
+import {cn} from "@/lib/utils";
+import {Input} from "@/components/ui/input";
 
 
 interface StopsDropdownProps {
@@ -19,7 +19,7 @@ const VirtualizedDropdown = ({
   closeDropdown,
   maxHeight,
 }: {
-  options: { value: string; label: string }[];
+  options: {value: string; label: string}[];
   value: string | null;
   onChange: (value: string) => void;
   closeDropdown: () => void;
@@ -37,7 +37,7 @@ const VirtualizedDropdown = ({
       itemSize={height}
       width="100%"
     >
-      {({ index, style }) => {
+      {({index, style}) => {
         const option = options[index];
         return (
           <div
@@ -59,11 +59,11 @@ const VirtualizedDropdown = ({
 };
 
 const StopsDropdown = forwardRef<HTMLDivElement, StopsDropdownProps>(
-  ({ value, onChange }, ref) => {
-    const [stops, setStops] = useState<{ value: string; label: string }[]>([]);
+  ({value, onChange}, ref) => {
+    const [stops, setStops] = useState<{value: string; label: string}[]>([]);
     const [search, setSearch] = useState<string>("");
     const [filteredStops, setFilteredStops] = useState<
-      { value: string; label: string }[]
+      {value: string; label: string}[]
     >([]);
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const searchInputRef = useRef<HTMLInputElement>(null);
@@ -115,33 +115,33 @@ const StopsDropdown = forwardRef<HTMLDivElement, StopsDropdownProps>(
     };
 
     return (
-      <div ref={ref} className="w-72 relative">
+      <div ref={ref} className="w-full relative">
         <div
-            className={cn(
-                "w-full px-4 py-2 rounded flex items-center justify-between cursor-pointer transition-colors",
-                "bg-white text-black dark:bg-gray-900 dark:text-white"
-            )}
-            onClick={handleToggle}
-            >
-            {isOpen ? (
-                <div className="flex w-full items-center gap-2">
-                <Input
-                    ref={searchInputRef}
-                    type="text"
-                    placeholder="Search..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    onClick={(e) => e.stopPropagation()}
-                />
-                </div>
-            ) : (
-                <span>
-                {value
-                    ? stops.find((stop) => stop.value === value)?.label
-                    : "Select a stop"}
-                </span>
-            )}
+          className={cn(
+            "w-full px-4 py-2 rounded flex items-center justify-between cursor-pointer transition-colors",
+            "bg-white text-black dark:bg-gray-950 dark:text-white border-solid border-inherit border"
+          )}
+          onClick={handleToggle}
+        >
+          {isOpen ? (
+            <div className="flex w-full items-center gap-2">
+              <Input
+                ref={searchInputRef}
+                type="text"
+                placeholder="Pesquisar..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onClick={(e) => e.stopPropagation()}
+              />
             </div>
+          ) : (
+            <span>
+              {value
+                ? stops.find((stop) => stop.value === value)?.label
+                : "Select a stop"}
+            </span>
+          )}
+        </div>
 
         {isOpen && (
           <div
