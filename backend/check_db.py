@@ -1,5 +1,6 @@
 import asyncio
 from datetime import datetime
+from collections import defaultdict, deque
 
 from dotenv import load_dotenv
 import logging
@@ -13,13 +14,15 @@ from services.travel_time_service import TravelTimeService
 load_dotenv()
 
 logging.basicConfig(
-    level=logging.INFO,  
-    format="%(asctime)s - %(levelname)s - %(message)s",  
-    handlers=[logging.StreamHandler(sys.stdout)],  
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)],
 )
 
 NEARBY_BUSES_MINUTES_MIN = 0
 NEARBY_BUSES_MINUTES_MAX = 11.00
+
+bus_positions = defaultdict(lambda: deque(maxlen=2))
 
 
 def check_time(start, end):
@@ -52,12 +55,14 @@ async def evaluate_travel_time(stop, buses, service):
     }
     logging.info(
         f"Evaluating travel time for stop: {stop['stop_name']} with buses: {[bus['ordem'] for bus in buses]}"
-    )  
+    )
 
     updated_buses = await asyncio.to_thread(
         service.get_travel_times, bus_stop_info, buses
     )
-    logging.info(f"Updated buses with travel times: {[bus['distancia'] for bus in updated_buses]}") 
+    logging.info(
+        f"Updated buses with travel times: {[bus['distancia'] for bus in updated_buses]}"
+    )
     return updated_buses
 
 
@@ -70,13 +75,41 @@ async def collect_bus_data(stop, buses, service):
         max_distance = stop.get("max_distance")
         bus_id = bus.get("id") or bus.get("ordem")
         logging.info(f"Processing bus ID: {bus_id}, Distance: {distancia}")
+
         if distancia != "Not found" and bus_id:
-            if 0 <= float(distancia) < max_distance:
-                bus_data[bus_id] = distancia
-                logging.info(f"Bus ID {bus_id} is within range: {distancia} minutes")
+            try:
+                current_distance = float(distancia)
+            except ValueError:
+                logging.warning(
+                    f"Invalid distance value for bus ID {bus_id}: {distancia}"
+                )
+                continue
+
+            if 0 <= current_distance < max_distance:
+                previous_distances = bus_positions[bus_id]
+                is_approaching = False
+                if len(previous_distances) == 2:
+                    if (
+                        previous_distances[0] > previous_distances[1]
+                        and previous_distances[1] > current_distance
+                    ):
+                        is_approaching = True
+                elif len(previous_distances) == 1:
+                    if previous_distances[0] > current_distance:
+                        is_approaching = True
+                else:
+                    is_approaching = True
+
+                if is_approaching:
+                    bus_data[bus_id] = distancia
+                    logging.info(f"Bus ID {bus_id} is approaching: {distancia} minutes")
+                else:
+                    logging.info(f"Bus ID {bus_id} is moving away: {distancia} minutes")
+
+                bus_positions[bus_id].append(current_distance)
             else:
                 logging.info(f"Bus ID {bus_id} is out of range: {distancia} minutes")
-    logging.info(f"Collected bus data! Bus data is {'ok' if bus_data else 'not ok'}") 
+    logging.info(f"Collected bus data! Bus data is {'ok' if bus_data else 'not ok'}")
     return bus_data
 
 
@@ -92,13 +125,13 @@ async def process_stop(stop, service):
             stop["end_time"],
             stop["stop_name"],
         )
-        logging.info(f"Retrieved filtered buses: DATA is {'ok' if buses else 'not ok'}")  
+        logging.info(f"Retrieved filtered buses: DATA is {'ok' if buses else 'not ok'}")
         if not buses:
             logging.info(f"No buses found for stop: {stop['stop_name']}")
-            return  
+            return
         bus_data = await collect_bus_data(stop, buses, service)
         if bus_data:
-            logging.info(f"Sending email to {stop['email']} with bus data!")  
+            logging.info(f"Sending email to {stop['email']} with bus data!")
             await asyncio.to_thread(
                 send_email, stop["email"], stop["linha"], stop["stop_name"], bus_data
             )
@@ -139,7 +172,7 @@ async def main():
         else:
             logging.info("No tasks to run in this iteration")
         logging.info("Sleeping for 60 seconds before the next check")
-        await asyncio.sleep(60)  
+        await asyncio.sleep(60)
 
 
 if __name__ == "__main__":
