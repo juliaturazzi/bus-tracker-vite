@@ -1,15 +1,15 @@
-import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogAction, AlertDialogCancel } from "@/components/ui/alert-dialog";
-import { Skeleton } from "@/components/ui/skeleton";
+import {useEffect, useState} from "react";
+import {Button} from "@/components/ui/button";
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
+import {Dialog, DialogContent, DialogHeader, DialogTitle} from "@/components/ui/dialog";
+import {AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogAction, AlertDialogCancel} from "@/components/ui/alert-dialog";
+import {Skeleton} from "@/components/ui/skeleton";
 
-const RegisteredStops = ({ onClose }: { onClose: () => void }) => {
+const RegisteredStops = ({onClose}: {onClose: () => void}) => {
     const [stops, setStops] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [dialogOpen, setDialogOpen] = useState(true); 
+    const [dialogOpen, setDialogOpen] = useState(true);
 
     useEffect(() => {
         const fetchStops = async () => {
@@ -87,7 +87,7 @@ const RegisteredStops = ({ onClose }: { onClose: () => void }) => {
     return (
         <Dialog open={dialogOpen} onOpenChange={(open) => {
             setDialogOpen(open);
-            if (!open) onClose(); 
+            if (!open) onClose();
         }}>
             <DialogContent className="max-w-3xl">
                 <DialogHeader>
@@ -133,9 +133,13 @@ const RegisteredStops = ({ onClose }: { onClose: () => void }) => {
                                             </AlertDialogTrigger>
                                             <AlertDialogContent>
                                                 <p>Tem certeza que deseja excluir este alerta?</p>
-                                                <div className="mt-4 flex justify-end gap-2">
+
+                                                <div className="mt-4 flex flex-wrap justify-end gap-2">
                                                     <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                                    <AlertDialogAction onClick={() => handleDelete(stop)}>
+                                                    <AlertDialogAction
+                                                        onClick={() => handleDelete(stop)}
+                                                        className="px-4 py-2 min-w-[80px]"
+                                                    >
                                                         Excluir
                                                     </AlertDialogAction>
                                                 </div>
@@ -148,7 +152,7 @@ const RegisteredStops = ({ onClose }: { onClose: () => void }) => {
                     </Table>
                 )}
             </DialogContent>
-        </Dialog>
+        </Dialog >
     );
 };
 
