@@ -11,7 +11,12 @@ import os
 from db.create_db import BusStopDatabase
 from services.bus_data_fetcher import BusDataFetcher
 from services.travel_time_service import TravelTimeService
-from utils.tokenizer import generate_verification_token, confirm_verification_token, generate_reset_token, confirm_reset_token
+from utils.tokenizer import (
+    generate_verification_token,
+    confirm_verification_token,
+    generate_reset_token,
+    confirm_reset_token,
+)
 from services.email_service import send_verification_email, send_password_reset_email
 
 
@@ -24,10 +29,12 @@ class BusTravelTime(BaseModel):
 
 
 class TravelTimeResponse(BaseModel):
-    buses: List[BusTravelTime] = Field(..., description="List of buses with travel times")
+    buses: List[BusTravelTime] = Field(
+        ..., description="List of buses with travel times"
+    )
 
 
-SECRET_KEY = os.getenv("SECRET_KEY", "SKW")  
+SECRET_KEY = os.getenv("SECRET_KEY", "SKW")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -51,6 +58,7 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
 
 
 db = BusStopDatabase()
+
 
 def authenticate_user(email: str, password: str):
     user = db.get_user(email)
@@ -77,7 +85,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], 
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -126,10 +134,10 @@ def get_travel_time_service() -> TravelTimeService:
 
 
 async def get_filtered_bus_line(
-        bus_line: str,
-        start_time: str,
-        end_time: str,
-        bus_stop_name: str,
+    bus_line: str,
+    start_time: str,
+    end_time: str,
+    bus_stop_name: str,
 ):
     service = TravelTimeService()
     fetcher = BusDataFetcher()
@@ -142,9 +150,9 @@ async def get_filtered_bus_line(
 
         for line_data in buses_data:
             if (
-                    str(line_data["linha"]) == str(bus_line)
-                    and line_data["ordem"] not in seen_ordem
-                    and not seen_ordem.add(line_data["ordem"])
+                str(line_data["linha"]) == str(bus_line)
+                and line_data["ordem"] not in seen_ordem
+                and not seen_ordem.add(line_data["ordem"])
             ):
                 bus_info = {
                     "linha": line_data.get("linha"),
@@ -179,7 +187,6 @@ def read_stops():
 
 class RegisterRequest(BaseModel):
     email: EmailStr
-    username: str
     password: str
 
 
@@ -188,14 +195,16 @@ async def register_user(request: RegisterRequest):
     hashed_password = get_password_hash(request.password)
     token = generate_verification_token(request.email)
     try:
-        db.register_user(request.email, request.username, hashed_password, token)
+        db.register_user(request.email, hashed_password, token)
         send_verification_email(request.email, token)
-        return {"status": "success",
-                "message": "Usuário cadastrado com sucesso! Por favor, verifique seu email para confirmar seu cadastro."}
+        return {
+            "status": "success",
+            "message": "Usuário cadastrado com sucesso! Por favor, verifique seu email para confirmar seu cadastro.",
+        }
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/verify/")
@@ -204,12 +213,15 @@ async def verify_email(token: str):
         email = confirm_verification_token(token)
         success = db.verify_user(token)
         if not success:
-            raise HTTPException(status_code=400, detail="Token de verificação inválido ou expirado.")
+            raise HTTPException(
+                status_code=400, detail="Token de verificação inválido ou expirado."
+            )
         return {"status": "success", "message": "Email verificado com sucesso!"}
     except HTTPException as e:
         raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
 
 class ResendVerificationRequest(BaseModel):
     email: EmailStr
@@ -228,9 +240,15 @@ async def resend_verification(request: ResendVerificationRequest):
 
     try:
         send_verification_email(request.email, new_token)
-        return {"status": "success", "message": "Email de verificação reenviado com sucesso."}
+        return {
+            "status": "success",
+            "message": "Email de verificação reenviado com sucesso.",
+        }
     except Exception as e:
-        raise HTTPException(status_code=500, detail="Erro ao enviar email de verificação. Por favor, tente novamente mais tarde!")
+        raise HTTPException(
+            status_code=500,
+            detail="Erro ao enviar email de verificação. Por favor, tente novamente mais tarde!",
+        )
 
 
 @app.post("/token")
@@ -239,15 +257,21 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     if not user:
         raise HTTPException(status_code=401, detail="Usuário ou senha inválidos")
     if not user["is_verified"]:
-        raise HTTPException(status_code=400, detail="Email não verificado. Por favor, verifique seu email antes de entrar.")
-    access_token = create_access_token({"sub": form_data.username},
-                                       expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+        raise HTTPException(
+            status_code=400,
+            detail="Email não verificado. Por favor, verifique seu email antes de entrar.",
+        )
+    access_token = create_access_token(
+        {"sub": form_data.username},
+        expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
+    )
     return {"access_token": access_token, "token_type": "bearer"}
 
 
 @app.get("/users/me")
 async def read_current_user(current_user: dict = Depends(get_current_user)):
-    return {"email": current_user["email"], "username": current_user["username"]}
+    return {"email": current_user["email"]}
+
 
 class StopRegistration(BaseModel):
     bus_line: str
@@ -261,8 +285,8 @@ class StopRegistration(BaseModel):
 
 @app.post("/stops/register/")
 async def register_stop(
-        stop: StopRegistration,
-        current_user: dict = Depends(get_current_user),  
+    stop: StopRegistration,
+    current_user: dict = Depends(get_current_user),
 ):
     db = BusStopDatabase()
     try:
@@ -281,15 +305,14 @@ async def register_stop(
         raise HTTPException(status_code=500, detail=f"Error registering stop: {str(e)}")
 
 
-
 @app.get("/travel_times/", response_model=TravelTimeResponse)
 async def get_travel_times(
-        bus_line: Optional[str] = Query(None, description="Bus line identifier"),
-        stop_name: str = Query(..., description="Name of the bus stop"),
-        latitude: float = Query(..., description="Latitude of the bus stop"),
-        longitude: float = Query(..., description="Longitude of the bus stop"),
-        start_time: str = Query(..., description="Start time in HH:MM:SS format"),
-        end_time: str = Query(..., description="End time in HH:MM:SS format"),
+    bus_line: Optional[str] = Query(None, description="Bus line identifier"),
+    stop_name: str = Query(..., description="Name of the bus stop"),
+    latitude: float = Query(..., description="Latitude of the bus stop"),
+    longitude: float = Query(..., description="Longitude of the bus stop"),
+    start_time: str = Query(..., description="Start time in HH:MM:SS format"),
+    end_time: str = Query(..., description="End time in HH:MM:SS format"),
 ):
     try:
         fetcher = BusDataFetcher()
@@ -305,8 +328,8 @@ async def get_travel_times(
             filtered_buses = []
             for line_data in buses_data:
                 if (
-                        str(line_data.get("linha")) == str(bus_line)
-                        and line_data.get("ordem") not in seen_ordem
+                    str(line_data.get("linha")) == str(bus_line)
+                    and line_data.get("ordem") not in seen_ordem
                 ):
                     seen_ordem.add(line_data.get("ordem"))
                     bus_info = {
@@ -357,8 +380,10 @@ async def get_travel_times(
 
     except Exception as e:
         import logging
+
         logging.error(f"Error in /travel_times/ endpoint: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
 
 class StopIdentifier(BaseModel):
     stop_name: str
@@ -382,7 +407,7 @@ async def get_registered_stops(current_user: dict = Depends(get_current_user)):
 
     stops = [
         {
-            "bus_line": stop["linha"],  
+            "bus_line": stop["linha"],
             "email": stop["email"],
             "stop_name": stop["stop_name"],
             "latitude": stop["latitude"],
@@ -398,8 +423,8 @@ async def get_registered_stops(current_user: dict = Depends(get_current_user)):
 
 @app.delete("/stops/registered/")
 async def delete_registered_stop(
-        stop: StopIdentifier,
-        current_user: dict = Depends(get_current_user),
+    stop: StopIdentifier,
+    current_user: dict = Depends(get_current_user),
 ):
     try:
         start_time_td = timedelta(
@@ -424,7 +449,9 @@ async def delete_registered_stop(
         )
         return {"status": "success", "message": "Stop deleted successfully"}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erro ao deletar ponto de ônibus: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Erro ao deletar ponto de ônibus: {str(e)}"
+        )
 
 
 def timedelta_to_str(td: timedelta) -> str:
@@ -437,11 +464,15 @@ def timedelta_to_str(td: timedelta) -> str:
 class PasswordResetRequest(BaseModel):
     email: EmailStr
 
+
 @app.post("/request-password-reset/", summary="Request a password reset")
 async def request_password_reset(request: PasswordResetRequest):
     user = db.get_user(request.email)
     if not user:
-        return {"status": "success", "message": "If the email is registered, a password reset link has been sent."}
+        return {
+            "status": "success",
+            "message": "If the email is registered, a password reset link has been sent.",
+        }
 
     reset_token = generate_reset_token(request.email)
 
@@ -450,13 +481,20 @@ async def request_password_reset(request: PasswordResetRequest):
     try:
         send_password_reset_email(request.email, reset_token)
     except Exception as e:
-        raise HTTPException(status_code=500, detail="Falha ao enviar email de redefinição de senha.")
+        raise HTTPException(
+            status_code=500, detail="Falha ao enviar email de redefinição de senha."
+        )
 
-    return {"status": "success", "message": "If the email is registered, a password reset link has been sent."}
+    return {
+        "status": "success",
+        "message": "If the email is registered, a password reset link has been sent.",
+    }
+
 
 class PasswordReset(BaseModel):
     token: str
     new_password: str
+
 
 @app.post("/reset-password/", summary="Reset your password")
 async def reset_password(reset: PasswordReset):
@@ -465,7 +503,9 @@ async def reset_password(reset: PasswordReset):
 
         user = db.get_user_by_reset_token(reset.token)
         if not user:
-            raise HTTPException(status_code=400, detail="Token de verificação inválido ou expirado.")
+            raise HTTPException(
+                status_code=400, detail="Token de verificação inválido ou expirado."
+            )
 
         hashed_password = get_password_hash(reset.new_password)
 
@@ -473,7 +513,10 @@ async def reset_password(reset: PasswordReset):
 
         db.clear_reset_token(email)
 
-        return {"status": "success", "message": "Your password has been reset successfully."}
+        return {
+            "status": "success",
+            "message": "Your password has been reset successfully.",
+        }
 
     except HTTPException as e:
         raise e

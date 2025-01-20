@@ -59,7 +59,6 @@ class BusStopDatabase:
             f"""
             CREATE TABLE IF NOT EXISTS users (
                 email VARCHAR(255) PRIMARY KEY,
-                username VARCHAR(255) NOT NULL,
                 hashed_password VARCHAR(255) NOT NULL,
                 is_verified BOOLEAN NOT NULL DEFAULT FALSE,
                 verification_token VARCHAR(255),
@@ -91,7 +90,16 @@ class BusStopDatabase:
             INSERT INTO stops (email, linha, stop_name, latitude, longitude, start_time, end_time, max_distance)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """,
-            (email, bus_line, stop_name, latitude, longitude, start_time, end_time, max_distance),
+            (
+                email,
+                bus_line,
+                stop_name,
+                latitude,
+                longitude,
+                start_time,
+                end_time,
+                max_distance,
+            ),
         )
 
         conn.commit()
@@ -110,17 +118,17 @@ class BusStopDatabase:
 
         return results
 
-    def register_user(self, email: str, username: str, hashed_password: str, verification_token: str):
+    def register_user(self, email: str, hashed_password: str, verification_token: str):
         conn = self._connect()
         cursor = conn.cursor()
 
         try:
             cursor.execute(
                 f"""
-                INSERT INTO users (email, username, hashed_password, verification_token)
-                VALUES (%s, %s, %s, %s)
+                INSERT INTO users (email, hashed_password, verification_token)
+                VALUES (%s, %s, %s)
                 """,
-                (email, username, hashed_password, verification_token),
+                (email, hashed_password, verification_token),
             )
             conn.commit()
         except mysql.connector.IntegrityError:
@@ -175,7 +183,6 @@ class BusStopDatabase:
         cursor.close()
         conn.close()
 
-
     def get_user(self, email: str) -> Dict[str, Any]:
         conn = self._connect()
         cursor = conn.cursor(dictionary=True)
@@ -207,19 +214,10 @@ class BusStopDatabase:
         cursor.close()
         conn.close()
 
-    def update_user(
-        self, email: str, username: str = None, hashed_password: str = None
-    ):
+    def update_user(self, email: str, hashed_password: str = None):
         conn = self._connect()
         cursor = conn.cursor()
 
-        if username:
-            cursor.execute(
-                f"""
-                UPDATE users SET username = %s WHERE email = %s
-                """,
-                (username, email),
-            )
         if hashed_password:
             cursor.execute(
                 f"""
@@ -245,14 +243,14 @@ class BusStopDatabase:
         return stops
 
     def delete_stop(
-            self,
-            email: str,
-            stop_name: str,
-            latitude: float,
-            longitude: float,
-            start_time: str,
-            end_time: str,
-            max_distance: int,
+        self,
+        email: str,
+        stop_name: str,
+        latitude: float,
+        longitude: float,
+        start_time: str,
+        end_time: str,
+        max_distance: int,
     ):
         conn = self._connect()
         cursor = conn.cursor()
@@ -273,7 +271,6 @@ class BusStopDatabase:
         conn.commit()
         cursor.close()
         conn.close()
-
 
     def set_reset_token(self, email: str, reset_token: str):
         conn = self._connect()
