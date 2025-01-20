@@ -48,17 +48,14 @@ export default function RootLayout({ }: Readonly<{children: React.ReactNode}>) {
     return (
         <div className="h-full lg:h-screen flex flex-col lg:flex-row font-sans">
             <ThemeProvider storageKey="vite-ui-theme">
-                {/* Sidebar and Form Section */}
                 <div className="w-full lg:w-1/2 flex flex-col">
                     <SidebarProvider defaultOpen={false}>
                         <AppSidebar isLoggedIn={isLoggedIn} />
                         <main className="flex flex-1 flex-col gap-4 p-4 lg:p-8 w-full">
-                            {/* Header and Theme Toggle */}
-                            <div className="flex justify-between items-center">
+                            <div className="flex gap-1 items-center">
                                 <SidebarTrigger />
                                 <ModeToggle />
                             </div>
-                            {/* Header Section */}
                             <div className="flex flex-col items-center p-4">
                                 <div className="flex flex-col w-full gap-4 ">
                                     <img src={busIcon} className="w-12 h-12 rounded-full" alt="Bus Icon" />
@@ -74,7 +71,6 @@ export default function RootLayout({ }: Readonly<{children: React.ReactNode}>) {
                                     />
                                 </div>
                             </div>
-                            {/* Footer */}
                             <div className="mt-auto w-full">
                                 <CopyRight />
                             </div>
@@ -82,7 +78,6 @@ export default function RootLayout({ }: Readonly<{children: React.ReactNode}>) {
                     </SidebarProvider>
                 </div>
 
-                {/* Map Section */}
                 <div className="w-full lg:w-1/2 h-96 lg:h-screen relative">
                     <Map
                         submitted={false}
