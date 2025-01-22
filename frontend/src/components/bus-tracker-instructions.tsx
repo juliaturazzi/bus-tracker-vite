@@ -89,7 +89,7 @@ export function BusTrackerInstructions({open, onClose}: BusTrackerInstructionsPr
                         </p>
                         <p className="mt-2 text-sm sm:text-base">
                             Você pode entrar em contato conosco por e-mail:{" "}
-                            <a href="mailto:bustrackerrio@gmail.com" className="text-blue-600 underline">
+                            <a href="mailto:info@bustracker.com.br" className="text-blue-600 underline">
                                 bustrackerrio@gmail.com
                             </a>
                         </p>
