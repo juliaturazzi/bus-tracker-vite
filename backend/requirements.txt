@@ -17,3 +17,4 @@ sqlalchemy
 alembic
 email-validator
 itsdangerous
+fastapi-cache2

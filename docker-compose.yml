@@ -6,6 +6,7 @@ services:
       MYSQL_DATABASE: bustracker
       MYSQL_USER: bustracker
       MYSQL_PASSWORD: bustracker123
+      MYSQL_ROOT_HOST: '%'
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
@@ -36,6 +37,8 @@ services:
       db:
         condition: service_healthy
     restart: on-failure
+    volumes:
+      - ./backend:/app
 
   frontend:
     build:
@@ -48,6 +51,17 @@ services:
       backend:
         condition: service_started
     restart: on-failure
+
+  k6:
+    image: grafana/k6
+    container_name: k6
+    command: ["run", "/scripts/load_test.js"]
+    user: "${HOST_USER_ID:-1000}:${HOST_GROUP_ID:-1000}"
+    volumes:
+      - ./k6-load-testing/:/scripts/
+    networks:
+      - app-network
+    profiles: [k6]
 
 networks:
   app-network:

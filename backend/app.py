@@ -18,7 +18,10 @@ from utils.tokenizer import (
     confirm_reset_token,
 )
 from services.email_service import send_verification_email, send_password_reset_email
-
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.inmemory import InMemoryBackend
+from fastapi_cache.decorator import cache
+import time
 
 class BusTravelTime(BaseModel):
     latitude: float = Field(..., description="Latitude of the bus stop")
@@ -90,6 +93,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.on_event("startup")
+async def startup():
+    FastAPICache.init(InMemoryBackend(), prefix="fastapi-cache")
+
 
 STOPS_CSV = "./data/stops_updated.csv"
 
@@ -176,7 +185,10 @@ async def get_filtered_bus_line(
 
 
 @app.get("/infos/")
-async def read_info(bus_line: str, start_time: str, end_time: str, bus_stop: str):
+@cache(expire=60)
+async def read_info(
+    bus_line: str, start_time: str, end_time: str, bus_stop: str
+):
     return await get_filtered_bus_line(bus_line, start_time, end_time, bus_stop)
 
 
