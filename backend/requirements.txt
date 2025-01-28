@@ -18,3 +18,4 @@ alembic
 email-validator
 itsdangerous
 fastapi-cache2
+gunicorn

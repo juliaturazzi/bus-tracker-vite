@@ -19,17 +19,16 @@ VUS=50
 TAG=local
 
 # URL to test
-# Sandbox URL
-URL=http://localhost:8000
+URL=http://backend:8000
 
 # Increment value
 INCREMENT=50
 
 # Maximum number of virtual users to test
-MAX_VUS=1000
+MAX_VUS=200
 
 # Max duration of the test
-MAX_DURATION=10m
+MAX_DURATION=5m
 
 # Loop through increments
 while [ "$VUS" -le "$MAX_VUS" ]; do
@@ -37,7 +36,6 @@ while [ "$VUS" -le "$MAX_VUS" ]; do
 
     export VUS
     docker compose -f ../docker-compose.yml \
-        -f ../docker-compose.load-test.yml \
         run --rm k6 run \
         --out csv=/scripts/report/results_${TAG}_${VUS}.csv \
         /scripts/load_test.js \

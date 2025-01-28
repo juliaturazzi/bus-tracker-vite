@@ -185,7 +185,7 @@ async def get_filtered_bus_line(
 
 
 @app.get("/infos/")
-@cache(expire=60)
+@cache(expire=300)
 async def read_info(
     bus_line: str, start_time: str, end_time: str, bus_stop: str
 ):
