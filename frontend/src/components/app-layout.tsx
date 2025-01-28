@@ -88,7 +88,9 @@ export default function RootLayout({ }: Readonly<{children: React.ReactNode}>) {
                         busData={busData}
                         formStop={formStop}
                     />
-                    <BusPopup busData={busData} lineData={lineData} />
+                    <div className="">
+                        <BusPopup busData={busData} lineData={lineData} />
+                    </div>
                 </div>
             </ThemeProvider>
         </div>

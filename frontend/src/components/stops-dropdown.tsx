@@ -138,7 +138,7 @@ const StopsDropdown = forwardRef<HTMLDivElement, StopsDropdownProps>(
             <span>
               {value
                 ? stops.find((stop) => stop.value === value)?.label
-                : "Select a stop"}
+                : "Selecione um ponto de ônibus"}
             </span>
           )}
         </div>
