@@ -28,7 +28,7 @@ INCREMENT=50
 MAX_VUS=200
 
 # Max duration of the test
-MAX_DURATION=5m
+MAX_DURATION=2m
 
 # Loop through increments
 while [ "$VUS" -le "$MAX_VUS" ]; do
