@@ -81,8 +81,6 @@ export default function () {
         ["bus_stop", bus_stop],
     ]);
 
-    console.log(`${BASE_URL}/infos?${searchParams.toString()}`);
-
     const res = http.get(`${BASE_URL}/infos?${searchParams.toString()}`);
 
     check(res, {
