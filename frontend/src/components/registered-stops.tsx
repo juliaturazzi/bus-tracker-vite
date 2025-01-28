@@ -19,7 +19,7 @@ const RegisteredStops = ({onClose}: {onClose: () => void}) => {
                     throw new Error("No authentication token found.");
                 }
 
-                const response = await fetch("http://localhost:8000/stops/registered/", {
+                const response = await fetch("https://api.bustracker.com.br/stops/registered/", {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
@@ -53,7 +53,7 @@ const RegisteredStops = ({onClose}: {onClose: () => void}) => {
                 throw new Error("Token de autenticação não encontrado.");
             }
 
-            const response = await fetch("http://localhost:8000/stops/registered/", {
+            const response = await fetch("https://api.bustracker.com.br/stops/registered/", {
                 method: "DELETE",
                 headers: {
                     "Content-Type": "application/json",

@@ -76,7 +76,7 @@ interface FormBusTrackerProps {
     setFormStop: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const API_BASE_URL =  "http://localhost:8000";
+const API_BASE_URL =  "https://api.bustracker.com.br";
 
 const FormBusTracker: React.FC<FormBusTrackerProps> = ({
                                                            isLoggedIn,

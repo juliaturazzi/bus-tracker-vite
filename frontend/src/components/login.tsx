@@ -48,7 +48,7 @@ export default function AuthDialog({isOpen, onClose}: AuthDialogProps) {
         setError(null);
 
         try {
-            const response = await fetch(`http://localhost:8000/verify/?token=${token}`, {
+            const response = await fetch(`https://api.bustracker.com.br/verify/?token=${token}`, {
                 method: "GET",
             });
 
@@ -97,7 +97,7 @@ export default function AuthDialog({isOpen, onClose}: AuthDialogProps) {
         }
 
         try {
-            const response = await fetch("http://localhost:8000/register/", {
+            const response = await fetch("https://api.bustracker.com.br/register/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -135,7 +135,7 @@ export default function AuthDialog({isOpen, onClose}: AuthDialogProps) {
         setVerificationMessage(null);
 
         try {
-            const response = await fetch("http://localhost:8000/token", {
+            const response = await fetch("https://api.bustracker.com.br/token", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded",
@@ -168,7 +168,7 @@ export default function AuthDialog({isOpen, onClose}: AuthDialogProps) {
         setVerificationMessage(null);
 
         try {
-            const response = await fetch("http://localhost:8000/resend-verification/", {
+            const response = await fetch("https://api.bustracker.com.br/resend-verification/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -202,7 +202,7 @@ export default function AuthDialog({isOpen, onClose}: AuthDialogProps) {
         }
 
         try {
-            const response = await fetch("http://localhost:8000/request-password-reset/", {
+            const response = await fetch("https://api.bustracker.com.br/request-password-reset/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

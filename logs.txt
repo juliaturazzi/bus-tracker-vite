@@ -1,0 +1,112 @@
+db-1  | 2025-01-23 02:47:19+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 8.0.41-1.el9 started.
+db-1  | 2025-01-23 02:47:20+00:00 [Note] [Entrypoint]: Switching to dedicated user 'mysql'
+db-1  | 2025-01-23 02:47:20+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 8.0.41-1.el9 started.
+db-1  | '/var/lib/mysql/mysql.sock' -> '/var/run/mysqld/mysqld.sock'
+db-1  | 2025-01-23T02:47:21.230145Z 0 [Warning] [MY-011068] [Server] The syntax '--skip-host-cache' is deprecated and will be removed in a future release. Please use SET GLOBAL host_cache_size=0 instead.
+db-1  | 2025-01-23T02:47:21.235058Z 0 [System] [MY-010116] [Server] /usr/sbin/mysqld (mysqld 8.0.41) starting as process 1
+db-1  | 2025-01-23T02:47:21.264304Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
+db-1  | 2025-01-23T02:47:21.974853Z 1 [System] [MY-013577] [InnoDB] InnoDB initialization has ended.
+db-1  | 2025-01-23T02:47:22.253697Z 0 [System] [MY-010229] [Server] Starting XA crash recovery...
+db-1  | 2025-01-23T02:47:22.296047Z 0 [System] [MY-010232] [Server] XA crash recovery finished.
+db-1  | 2025-01-23T02:47:22.388566Z 0 [Warning] [MY-010068] [Server] CA certificate ca.pem is self signed.
+db-1  | 2025-01-23T02:47:22.389883Z 0 [System] [MY-013602] [Server] Channel mysql_main configured to support TLS. Encrypted connections are now supported for this channel.
+db-1  | 2025-01-23T02:47:22.407757Z 0 [Warning] [MY-011810] [Server] Insecure configuration for --pid-file: Location '/var/run/mysqld' in the path is accessible to all OS users. Consider choosing a different directory.
+db-1  | 2025-01-23T02:47:22.468163Z 0 [System] [MY-011323] [Server] X Plugin ready for connections. Bind-address: '::' port: 33060, socket: /var/run/mysqld/mysqlx.sock
+db-1  | 2025-01-23T02:47:22.469618Z 0 [System] [MY-010931] [Server] /usr/sbin/mysqld: ready for connections. Version: '8.0.41'  socket: '/var/run/mysqld/mysqld.sock'  port: 3306  MySQL Community Server - GPL.
+backend-1  | wait-for-it.sh: waiting 15 seconds for db:3306
+backend-1  | wait-for-it.sh: db:3306 is available after 0 seconds
+backend-1  | INFO:     Started server process [18]
+backend-1  | INFO:     Waiting for application startup.
+backend-1  | INFO:     Application startup complete.
+backend-1  | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+backend-1  | 2025-01-22 23:47:45,653 - INFO - **************** CHECK_DB STARTED ****************
+backend-1  | 2025-01-22 23:47:45,662 - INFO - Starting the bus monitoring application
+backend-1  | 2025-01-22 23:47:45,665 - INFO - Starting main loop
+backend-1  | 2025-01-22 23:47:45,672 - INFO - Beginning a new iteration of the main loop
+backend-1  | 2025-01-22 23:47:45,673 - INFO - Fetching all bus stops from the database
+backend-1  | 2025-01-22 23:47:46,088 - INFO - No bus stops found in the database
+backend-1  | 2025-01-22 23:47:46,091 - INFO - No tasks to run in this iteration
+backend-1  | 2025-01-22 23:47:46,092 - INFO - Sleeping for 60 seconds before the next check
+backend-1  | 2025-01-22 23:48:46,150 - INFO - Beginning a new iteration of the main loop
+backend-1  | 2025-01-22 23:48:46,160 - INFO - Fetching all bus stops from the database
+backend-1  | 2025-01-22 23:48:46,540 - INFO - No bus stops found in the database
+backend-1  | 2025-01-22 23:48:46,543 - INFO - No tasks to run in this iteration
+backend-1  | 2025-01-22 23:48:46,543 - INFO - Sleeping for 60 seconds before the next check
+backend-1  | 2025-01-22 23:49:46,602 - INFO - Beginning a new iteration of the main loop
+backend-1  | 2025-01-22 23:49:46,607 - INFO - Fetching all bus stops from the database
+backend-1  | 2025-01-22 23:49:46,876 - INFO - No bus stops found in the database
+backend-1  | 2025-01-22 23:49:46,878 - INFO - No tasks to run in this iteration
+backend-1  | 2025-01-22 23:49:46,880 - INFO - Sleeping for 60 seconds before the next check
+backend-1  | 2025-01-22 23:50:46,938 - INFO - Beginning a new iteration of the main loop
+backend-1  | 2025-01-22 23:50:46,940 - INFO - Fetching all bus stops from the database
+backend-1  | 2025-01-22 23:50:47,154 - INFO - No bus stops found in the database
+backend-1  | 2025-01-22 23:50:47,158 - INFO - No tasks to run in this iteration
+backend-1  | 2025-01-22 23:50:47,158 - INFO - Sleeping for 60 seconds before the next check
+backend-1  | 2025-01-22 23:51:47,220 - INFO - Beginning a new iteration of the main loop
+backend-1  | 2025-01-22 23:51:47,223 - INFO - Fetching all bus stops from the database
+backend-1  | 2025-01-22 23:51:47,431 - INFO - No bus stops found in the database
+backend-1  | 2025-01-22 23:51:47,432 - INFO - No tasks to run in this iteration
+backend-1  | 2025-01-22 23:51:47,434 - INFO - Sleeping for 60 seconds before the next check
+backend-1  | 2025-01-22 23:52:47,492 - INFO - Beginning a new iteration of the main loop
+backend-1  | 2025-01-22 23:52:47,495 - INFO - Fetching all bus stops from the database
+backend-1  | 2025-01-22 23:52:47,712 - INFO - No bus stops found in the database
+backend-1  | 2025-01-22 23:52:47,714 - INFO - No tasks to run in this iteration
+backend-1  | 2025-01-22 23:52:47,717 - INFO - Sleeping for 60 seconds before the next check
+backend-1  | 2025-01-22 23:53:47,779 - INFO - Beginning a new iteration of the main loop
+backend-1  | 2025-01-22 23:53:47,783 - INFO - Fetching all bus stops from the database
+backend-1  | 2025-01-22 23:53:47,999 - INFO - No bus stops found in the database
+backend-1  | 2025-01-22 23:53:48,001 - INFO - No tasks to run in this iteration
+backend-1  | 2025-01-22 23:53:48,002 - INFO - Sleeping for 60 seconds before the next check
+backend-1  | 2025-01-22 23:54:48,061 - INFO - Beginning a new iteration of the main loop
+backend-1  | 2025-01-22 23:54:48,064 - INFO - Fetching all bus stops from the database
+backend-1  | 2025-01-22 23:54:48,279 - INFO - No bus stops found in the database
+backend-1  | 2025-01-22 23:54:48,281 - INFO - No tasks to run in this iteration
+backend-1  | 2025-01-22 23:54:48,284 - INFO - Sleeping for 60 seconds before the next check
+backend-1  | 2025-01-22 23:55:48,346 - INFO - Beginning a new iteration of the main loop
+backend-1  | 2025-01-22 23:55:48,352 - INFO - Fetching all bus stops from the database
+backend-1  | 2025-01-22 23:55:48,559 - INFO - No bus stops found in the database
+backend-1  | 2025-01-22 23:55:48,561 - INFO - No tasks to run in this iteration
+backend-1  | 2025-01-22 23:55:48,563 - INFO - Sleeping for 60 seconds before the next check
+backend-1  | 2025-01-22 23:56:48,624 - INFO - Beginning a new iteration of the main loop
+backend-1  | 2025-01-22 23:56:48,628 - INFO - Fetching all bus stops from the database
+backend-1  | 2025-01-22 23:56:48,853 - INFO - No bus stops found in the database
+backend-1  | 2025-01-22 23:56:48,855 - INFO - No tasks to run in this iteration
+backend-1  | 2025-01-22 23:56:48,858 - INFO - Sleeping for 60 seconds before the next check
+caddy      | {"level":"info","ts":1737600453.4114034,"msg":"using config from file","file":"/etc/caddy/Caddyfile"}
+caddy      | {"level":"info","ts":1737600453.4214728,"msg":"adapted config to JSON","adapter":"caddyfile"}
+caddy      | {"level":"warn","ts":1737600453.4236588,"msg":"Caddyfile input is not formatted; run 'caddy fmt --overwrite' to fix inconsistencies","adapter":"caddyfile","file":"/etc/caddy/Caddyfile","line":1}
+caddy      | {"level":"info","ts":1737600453.4345813,"logger":"admin","msg":"admin endpoint started","address":"localhost:2019","enforce_origin":false,"origins":["//localhost:2019","//[::1]:2019","//127.0.0.1:2019"]}
+caddy      | {"level":"info","ts":1737600453.4377568,"logger":"http.auto_https","msg":"server is listening only on the HTTPS port but has no TLS connection policies; adding one to enable TLS","server_name":"srv0","https_port":443}
+caddy      | {"level":"info","ts":1737600453.4390712,"logger":"http.auto_https","msg":"enabling automatic HTTP->HTTPS redirects","server_name":"srv0"}
+caddy      | {"level":"info","ts":1737600453.4497516,"logger":"http","msg":"enabling HTTP/3 listener","addr":":443"}
+caddy      | {"level":"info","ts":1737600453.4509394,"msg":"failed to sufficiently increase receive buffer size (was: 208 kiB, wanted: 7168 kiB, got: 416 kiB). See https://github.com/quic-go/quic-go/wiki/UDP-Buffer-Sizes for details."}
+caddy      | {"level":"info","ts":1737600453.4520068,"logger":"http.log","msg":"server running","name":"srv0","protocols":["h1","h2","h3"]}
+caddy      | {"level":"warn","ts":1737600453.4632518,"logger":"http","msg":"HTTP/2 skipped because it requires TLS","network":"tcp","addr":":80"}
+caddy      | {"level":"warn","ts":1737600453.4650953,"logger":"http","msg":"HTTP/3 skipped because it requires TLS","network":"tcp","addr":":80"}
+caddy      | {"level":"info","ts":1737600453.4678125,"logger":"http.log","msg":"server running","name":"remaining_auto_https_redirects","protocols":["h1","h2","h3"]}
+caddy      | {"level":"info","ts":1737600453.468226,"logger":"http","msg":"enabling automatic TLS certificate management","domains":["bustracker.com.br"]}
+caddy      | {"level":"info","ts":1737600453.4435985,"logger":"tls.cache.maintenance","msg":"started background certificate maintenance","cache":"0xc0000db580"}
+caddy      | {"level":"info","ts":1737600453.4855251,"logger":"tls","msg":"storage cleaning happened too recently; skipping for now","storage":"FileStorage:/data/caddy","instance":"4c2d951a-01c5-42e1-92ac-0dc81fc86e91","try_again":1737686853.485521,"try_again_in":86399.999998228}
+caddy      | {"level":"info","ts":1737600453.4893086,"logger":"tls","msg":"finished cleaning storage units"}
+caddy      | {"level":"info","ts":1737600453.5163555,"msg":"autosaved config (load with --resume flag)","file":"/config/caddy/autosave.json"}
+caddy      | {"level":"info","ts":1737600453.5164206,"msg":"serving initial configuration"}
+caddy      | {"level":"error","ts":1737600471.694916,"logger":"http.log.error","msg":"dial tcp: lookup frontend on 127.0.0.11:53: server misbehaving","request":{"remote_ip":"186.195.80.123","remote_port":"64051","client_ip":"186.195.80.123","proto":"HTTP/2.0","method":"GET","host":"bustracker.com.br","uri":"/","headers":{"Upgrade-Insecure-Requests":["1"],"Sec-Fetch-Dest":["document"],"Sec-Fetch-User":["?1"],"Sec-Fetch-Site":["none"],"Te":["trailers"],"User-Agent":["Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0"],"Sec-Fetch-Mode":["navigate"],"Accept-Encoding":["gzip, deflate, br, zstd"],"Accept":["text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"],"Priority":["u=0, i"],"Accept-Language":["en-US,en;q=0.5"]},"tls":{"resumed":false,"version":772,"cipher_suite":4865,"proto":"h2","server_name":"bustracker.com.br"}},"duration":0.075272486,"status":502,"err_id":"gddy047ic","err_trace":"reverseproxy.statusError (reverseproxy.go:1373)"}
+caddy      | {"level":"error","ts":1737600472.3569272,"logger":"http.log.error","msg":"dial tcp: lookup frontend on 127.0.0.11:53: server misbehaving","request":{"remote_ip":"186.195.80.123","remote_port":"64051","client_ip":"186.195.80.123","proto":"HTTP/2.0","method":"GET","host":"bustracker.com.br","uri":"/favicon.ico","headers":{"Accept-Encoding":["gzip, deflate, br, zstd"],"Priority":["u=6"],"Te":["trailers"],"User-Agent":["Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0"],"Accept":["image/avif,image/webp,image/png,image/svg+xml,image/*;q=0.8,*/*;q=0.5"],"Sec-Fetch-Site":["same-origin"],"Accept-Language":["en-US,en;q=0.5"],"Referer":["https://bustracker.com.br/"],"Sec-Fetch-Dest":["image"],"Sec-Fetch-Mode":["no-cors"]},"tls":{"resumed":false,"version":772,"cipher_suite":4865,"proto":"h2","server_name":"bustracker.com.br"}},"duration":0.00589393,"status":502,"err_id":"nq1j1gdw2","err_trace":"reverseproxy.statusError (reverseproxy.go:1373)"}
+caddy      | {"level":"error","ts":1737600476.4221985,"logger":"http.log.error","msg":"dial tcp: lookup frontend on 127.0.0.11:53: server misbehaving","request":{"remote_ip":"186.195.80.123","remote_port":"64051","client_ip":"186.195.80.123","proto":"HTTP/2.0","method":"GET","host":"bustracker.com.br","uri":"/","headers":{"Sec-Fetch-User":["?1"],"Accept-Language":["en-US,en;q=0.5"],"Sec-Fetch-Site":["none"],"Priority":["u=0, i"],"Accept-Encoding":["gzip, deflate, br, zstd"],"Sec-Fetch-Dest":["document"],"Sec-Fetch-Mode":["navigate"],"Te":["trailers"],"User-Agent":["Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0"],"Accept":["text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"],"Upgrade-Insecure-Requests":["1"]},"tls":{"resumed":false,"version":772,"cipher_suite":4865,"proto":"h2","server_name":"bustracker.com.br"}},"duration":0.00732327,"status":502,"err_id":"gvexxpmcg","err_trace":"reverseproxy.statusError (reverseproxy.go:1373)"}
+caddy      | {"level":"error","ts":1737600488.1317184,"logger":"http.log.error","msg":"dial tcp: lookup frontend on 127.0.0.11:53: server misbehaving","request":{"remote_ip":"186.195.80.123","remote_port":"64051","client_ip":"186.195.80.123","proto":"HTTP/2.0","method":"GET","host":"bustracker.com.br","uri":"/","headers":{"Priority":["u=0, i"],"Sec-Fetch-Dest":["document"],"Sec-Fetch-Mode":["navigate"],"Sec-Fetch-Site":["none"],"Sec-Fetch-User":["?1"],"Accept":["text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"],"Upgrade-Insecure-Requests":["1"],"User-Agent":["Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0"],"Accept-Language":["en-US,en;q=0.5"],"Accept-Encoding":["gzip, deflate, br, zstd"],"Te":["trailers"]},"tls":{"resumed":false,"version":772,"cipher_suite":4865,"proto":"h2","server_name":"bustracker.com.br"}},"duration":0.00562082,"status":502,"err_id":"asca3xheu","err_trace":"reverseproxy.statusError (reverseproxy.go:1373)"}
+caddy      | {"level":"error","ts":1737600502.7055583,"logger":"http.log.error","msg":"dial tcp: lookup frontend on 127.0.0.11:53: server misbehaving","request":{"remote_ip":"186.195.80.123","remote_port":"64051","client_ip":"186.195.80.123","proto":"HTTP/2.0","method":"GET","host":"bustracker.com.br","uri":"/","headers":{"Sec-Fetch-Site":["cross-site"],"Sec-Fetch-Mode":["navigate"],"User-Agent":["Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0"],"Sec-Fetch-Dest":["document"],"Te":["trailers"],"Accept-Language":["en-US,en;q=0.5"],"Accept-Encoding":["gzip, deflate, br, zstd"],"Accept":["text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"],"Upgrade-Insecure-Requests":["1"],"Priority":["u=0, i"]},"tls":{"resumed":false,"version":772,"cipher_suite":4865,"proto":"h2","server_name":"bustracker.com.br"}},"duration":0.023083564,"status":502,"err_id":"462r42kgh","err_trace":"reverseproxy.statusError (reverseproxy.go:1373)"}
+caddy      | {"level":"error","ts":1737600516.9558177,"logger":"http.log.error","msg":"dial tcp: lookup frontend on 127.0.0.11:53: server misbehaving","request":{"remote_ip":"154.28.229.252","remote_port":"12712","client_ip":"154.28.229.252","proto":"HTTP/1.1","method":"GET","host":"bustracker.com.br","uri":"/","headers":{"Sec-Ch-Ua":["Google Chrome\";v=\"111\", \"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"111"],"Accept-Encoding":["gzip, deflate, br"],"Accept-Language":["en-US,en;q=0.9"],"Sec-Fetch-Mode":["navigate"],"Accept":["text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"],"Connection":["keep-alive"],"User-Agent":["Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36"]},"tls":{"resumed":false,"version":772,"cipher_suite":4865,"proto":"http/1.1","server_name":"bustracker.com.br"}},"duration":0.007237016,"status":502,"err_id":"hg62fpmts","err_trace":"reverseproxy.statusError (reverseproxy.go:1373)"}
+caddy      | {"level":"error","ts":1737600550.7059698,"logger":"http.log.error","msg":"dial tcp: lookup frontend on 127.0.0.11:53: server misbehaving","request":{"remote_ip":"88.99.26.177","remote_port":"54532","client_ip":"88.99.26.177","proto":"HTTP/1.1","method":"GET","host":"bustracker.com.br","uri":"/","headers":{"User-Agent":["Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.5993.80 Mobile Safari/537.36"],"Accept":["text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"],"Sec-Ch-Ua-Platform":["Linux"],"Sec-Fetch-Dest":["document"],"Pragma":["no-cache"],"Sec-Fetch-Mode":["navigate"],"Upgrade-Insecure-Requests":["1"],"Accept-Encoding":["gzip"],"Accept-Language":["en-US;q=0.8,en;q=0.7"],"Cache-Control":["no-cache"],"Connection":["keep-alive"]},"tls":{"resumed":false,"version":772,"cipher_suite":4865,"proto":"http/1.1","server_name":"bustracker.com.br"}},"duration":0.007050587,"status":502,"err_id":"7nwp3sy4h","err_trace":"reverseproxy.statusError (reverseproxy.go:1373)"}
+caddy      | {"level":"error","ts":1737600626.063964,"logger":"http.log.error","msg":"dial tcp: lookup frontend on 127.0.0.11:53: server misbehaving","request":{"remote_ip":"186.195.80.123","remote_port":"64186","client_ip":"186.195.80.123","proto":"HTTP/2.0","method":"GET","host":"bustracker.com.br","uri":"/","headers":{"Sec-Fetch-Dest":["empty"],"User-Agent":["Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0"],"Accept":["text/x-vite-ping"],"Accept-Encoding":["gzip, deflate, br, zstd"],"Referer":["http://bustracker.com.br/"],"Sec-Fetch-Mode":["no-cors"],"Accept-Language":["en-US,en;q=0.5"],"Sec-Fetch-Site":["cross-site"],"Priority":["u=4"],"Te":["trailers"]},"tls":{"resumed":false,"version":772,"cipher_suite":4865,"proto":"h2","server_name":"bustracker.com.br"}},"duration":0.006755778,"status":502,"err_id":"6ufz39vpq","err_trace":"reverseproxy.statusError (reverseproxy.go:1373)"}
+caddy      | {"level":"error","ts":1737600626.2335212,"logger":"http.log.error","msg":"dial tcp: lookup frontend on 127.0.0.11:53: server misbehaving","request":{"remote_ip":"186.195.80.123","remote_port":"64051","client_ip":"186.195.80.123","proto":"HTTP/2.0","method":"GET","host":"bustracker.com.br","uri":"/","headers":{"User-Agent":["Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0"],"Sec-Fetch-Mode":["navigate"],"Sec-Fetch-Site":["cross-site"],"Te":["trailers"],"Accept-Encoding":["gzip, deflate, br, zstd"],"Upgrade-Insecure-Requests":["1"],"Sec-Fetch-Dest":["document"],"Accept":["text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"],"Accept-Language":["en-US,en;q=0.5"],"Priority":["u=0, i"]},"tls":{"resumed":false,"version":772,"cipher_suite":4865,"proto":"h2","server_name":"bustracker.com.br"}},"duration":0.00300375,"status":502,"err_id":"jfixffj74","err_trace":"reverseproxy.statusError (reverseproxy.go:1373)"}
+caddy      | {"level":"error","ts":1737600763.6773672,"logger":"http.log.error","msg":"dial tcp: lookup frontend on 127.0.0.11:53: server misbehaving","request":{"remote_ip":"34.58.118.45","remote_port":"54566","client_ip":"34.58.118.45","proto":"HTTP/1.1","method":"GET","host":"bustracker.com.br","uri":"/","headers":{"Accept":["*/*"],"Connection":["keep-alive"],"User-Agent":["Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.17 Safari/537.36"],"Accept-Encoding":["gzip, deflate"]},"tls":{"resumed":false,"version":772,"cipher_suite":4865,"proto":"http/1.1","server_name":"bustracker.com.br"}},"duration":0.005984822,"status":502,"err_id":"0httekwh6","err_trace":"reverseproxy.statusError (reverseproxy.go:1373)"}
+frontend-1  | 
+frontend-1  | > bus-tracker@0.0.0 dev /app
+frontend-1  | > vite "--" "--host" "0.0.0.0"
+frontend-1  | 
+frontend-1  | Re-optimizing dependencies because vite config has changed
+frontend-1  | 
+frontend-1  |   VITE v5.4.11  ready in 1015 ms
+frontend-1  | 
+frontend-1  |   ➜  Local:   http://localhost:5173/
+frontend-1  |   ➜  Network: http://172.18.0.4:5173/

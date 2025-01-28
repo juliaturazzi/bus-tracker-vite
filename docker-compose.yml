@@ -1,4 +1,22 @@
 services:
+  caddy:
+    image: caddy:latest
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:rw
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      frontend:
+        condition: service_started
+    networks:
+      - app-network
+          
+ 
   db:
     image: mysql:8.0
     environment:
@@ -40,15 +58,23 @@ services:
   frontend:
     build:
       context: ./frontend
-    ports:
-      - "5173:5173"
+        #ports:
+      #    - "80:5173"
     networks:
       - app-network
     depends_on:
       backend:
         condition: service_started
     restart: on-failure
+    environment:
+      - VIRTUAL_HOST=bustracker.com.br
+      - LETSENCRYPT_HOST=bustracker.com.br
+      - LETSENCRYPT_EMAIL=juliata@dcc.ufrj.br
 
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  caddy_data:
+  caddy_config:

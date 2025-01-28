@@ -7,7 +7,7 @@ from email.mime.multipart import MIMEMultipart
 load_dotenv()
 EMAIL_SENDER_ALIAS = os.getenv("EMAIL_SENDER_ALIAS")
 EMAIL_SENDER_PASSWORD = os.getenv("EMAIL_SENDER_PASSWORD")
-WEBSITE_URL = os.getenv("WEBSITE_URL")
+WEBSITE_URL = "https://bustracker.com.br/"
 
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587

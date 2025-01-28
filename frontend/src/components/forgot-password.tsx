@@ -30,7 +30,7 @@ const ForgotPassword = () => {
         setIsLoading(true);
 
         try {
-            const response = await fetch("http://localhost:8000/request-password-reset/", {
+            const response = await fetch("https://api.bustracker.com.br/request-password-reset/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

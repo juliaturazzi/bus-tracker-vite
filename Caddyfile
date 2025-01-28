@@ -1,0 +1,22 @@
+bustracker.com.br {
+	reverse_proxy frontend:5173
+
+	# Optional: Enable HTTP to HTTPS redirection
+	#@http {
+	#	protocol http
+	#}
+	#redir @http https://{host}{uri} permanent
+
+	# Optional: Additional security headers
+	#header {
+	#	Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+	#	X-Content-Type-Options "nosniff"
+	#	X-Frame-Options "DENY"
+	#	Referrer-Policy "no-referrer-when-downgrade"
+	#	Content-Security-Policy "default-src 'self'"
+	#}
+}
+
+api.bustracker.com.br {
+	reverse_proxy backend:8000
+}
